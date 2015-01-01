@@ -1,5 +1,6 @@
-package ch.ethz.inf.globis.wide.parsing;
+package ch.ethz.inf.globis.wide.parsing.css;
 
+import ch.ethz.inf.globis.wide.parsing.javascript.WideJSParser;
 import com.intellij.lang.javascript.psi.JSCallExpression;
 import com.intellij.lang.javascript.psi.impl.JSCallExpressionImpl;
 import com.intellij.psi.PsiElement;
@@ -7,7 +8,7 @@ import com.intellij.psi.PsiElement;
 /**
  * Created by fabian on 11.03.16.
  */
-public class WideFunctionParser {
+public class WideCSSParser {
 
     /*
     Find the lowest Common Call Expression of two PsiElements
@@ -58,7 +59,7 @@ public class WideFunctionParser {
 
         // only one element clicked. Find out if it there is a call involved
         if (leftElement.isEquivalentTo(leftParent) && rightElement.isEquivalentTo(rightParent)) {
-            currentCall = WideFunctionParser.findLowestCallExpression(leftElement);
+            currentCall = WideJSParser.findLowestCallExpression(leftElement);
         }
 
         return currentCall;
@@ -74,7 +75,7 @@ public class WideFunctionParser {
             element = element.getParent();
             if (element instanceof JSCallExpression) {
                 JSCallExpression expr = (JSCallExpressionImpl) element;
-               currentCall = expr;
+                currentCall = expr;
             }
         }
 

@@ -1,16 +1,17 @@
-package ch.ethz.inf.globis.wide.parsing;
+package ch.ethz.inf.globis.wide.parsing.javascript;
 
+import com.intellij.lang.javascript.JSElementType;
 import com.intellij.lang.javascript.JavascriptLanguage;
-import com.intellij.lang.javascript.psi.JSCallExpression;
-import com.intellij.lang.javascript.psi.JSFunctionExpression;
-import com.intellij.lang.javascript.psi.JSParameterList;
+import com.intellij.lang.javascript.psi.*;
 import com.intellij.lang.javascript.psi.resolve.JSResolveUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiReferenceService;
 import com.intellij.psi.impl.PsiManagerImpl;
+import com.intellij.psi.search.PsiReferenceProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +19,13 @@ import java.util.List;
 /**
  * Created by fabian on 11.03.16.
  */
-public class WideFunction {
+public class WideJSCall {
 
     final private PsiElement methodName;
     final private PsiElement methodReceiver;
     final private JSCallExpression callExpression;
 
-    public WideFunction(JSCallExpression callExpression) {
+    public WideJSCall(JSCallExpression callExpression) {
         this.callExpression = callExpression;
         this.methodName = callExpression.getMethodExpression().getLastChild();
         this.methodReceiver = callExpression.getMethodExpression().getFirstChild();
@@ -55,6 +56,11 @@ public class WideFunction {
         return callExpression;
     }
 
+    /**
+     *
+     * @param editor The editor of the current project
+     * @return A list of functions matching this call expression.
+     */
     public List<PsiElement> getMatchingFunctions(Editor editor) {
         // SEARCH THROUGH PROJECT FILES
         // Load JavaScript Files of Project
@@ -79,18 +85,29 @@ public class WideFunction {
                 occurrence = doc.getText().indexOf(this.getMethodNameText(), occurrence + 4);
                 PsiElement el = file.findElementAt(occurrence);
 
-                // Does the occurrence match the function signature?
-                if (el.getParent().getChildren() != null
-                        && el.getParent().getChildren().length > 0
-                        && el.getParent().getChildren()[0] instanceof JSFunctionExpression
-                        && this.getMethodNameText().equals(el.getText())) {
+                // Does the occurence really have the same name?
+                if (this.getMethodNameText().equals(el.getText())
+                        && el.getParent().getChildren() != null
+                        && el.getParent().getChildren().length > 0) {
 
-                    System.out.println("Potential function found in file: " + el.getContainingFile().getName());
-                    matchingCalls.add(el.getParent());
+                    JSResolveUtil.findFileLocalElement(getMethodReceiverText(), file);
 
-                    // Does the function have the same amount of parameters?
-                    if (((JSParameterList) el.getParent().getChildren()[0].getFirstChild().getNextSibling()).getParameters().length == callExpression.getArguments().length) {
-                        System.out.println("Matching function found in file: " + el.getContainingFile().getName());
+                    // Does the result match the function signature?
+                    if (el.getParent().getChildren()[0] instanceof JSFunctionExpression) {
+
+                        System.out.println("Potential function found in file: " + el.getContainingFile().getName());
+                        matchingCalls.add(el.getParent());
+
+                        // Does the function have the same amount of parameters?
+//                        if (((JSParameterList) el.getParent().getChildren()[0].getFirstChild().getNextSibling()).getParameters().length == callExpression.getArguments().length) {
+//                            System.out.println("Matching function found in file: " + el.getContainingFile().getName());
+//                        }
+                    } else if (getMethodReceiver() instanceof JSReferenceExpression
+                            && el.getParent().getParent() instanceof JSDefinitionExpression) {
+
+                        // This is a definition of a variable
+                        System.out.println("Potential definition found in file: " + el.getContainingFile().getName());
+                        matchingCalls.add(el.getParent());
                     }
                 }
             }
