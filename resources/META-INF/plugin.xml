@@ -30,7 +30,7 @@
 
   <actions>
     <!-- Add your actions here -->
-    <action id="wIDE-query" class="Query" text="Query function...">
+    <action id="wIDE-query" class="QueryAction" text="Query function...">
       <add-to-group group-id="EditorPopupMenu" anchor="first"/>
     </action>
   </actions>
