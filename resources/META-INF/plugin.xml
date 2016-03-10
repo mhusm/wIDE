@@ -1,8 +1,8 @@
 <idea-plugin version="2">
-  <id>com.your.company.unique.plugin.id</id>
-  <name>Plugin display name here</name>
+  <id>ch.ethz.inf.globis.wide</id>
+  <name>wIDE: A smart IDE for the Web.</name>
   <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <vendor email="stutzf@student.ethz.ch" url="http://www.yourcompany.com">Fabian Stutz</vendor>
 
   <description><![CDATA[
       Enter short description for your plugin here.<br>
@@ -24,15 +24,17 @@
   <depends>com.intellij.modules.lang</depends>
   -->
 
-  <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
-  </extensions>
+<depends>JavaScript</depends>
 
   <actions>
     <!-- Add your actions here -->
-    <action id="wIDE-query" class="QueryAction" text="Query function...">
+    <action id="wIDE-query" class="ch.ethz.inf.globis.wide.QueryAction" text="Query function...">
       <add-to-group group-id="EditorPopupMenu" anchor="first"/>
     </action>
   </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+      <annotator language="JAVA" implementationClass="ch.ethz.inf.globis.wide.annotator.WIDEAnnotator"/>
+    </extensions>
 
 </idea-plugin>
