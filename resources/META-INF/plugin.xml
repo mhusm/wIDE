@@ -30,6 +30,7 @@
     <!-- Add your actions here -->
     <action id="wIDE-query" class="ch.ethz.inf.globis.wide.QueryAction" text="Query function...">
       <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+      <keyboard-shortcut first-keystroke="alt F" keymap="$default"/>
     </action>
   </actions>
 
