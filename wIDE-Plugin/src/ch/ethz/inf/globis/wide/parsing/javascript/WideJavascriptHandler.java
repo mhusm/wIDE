@@ -17,6 +17,9 @@ import java.util.List;
 public class WideJavascriptHandler implements AbstractLanguageHandler {
     public  List<WideQueryResult> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
         //TODO: distinguish file
+
+        //TODO: multiple calls?
+        
         JSCallExpression currentCall = WideJSParser.findLowestCommonCallExpression(startElement, endElement);
 
         if (currentCall != null) {

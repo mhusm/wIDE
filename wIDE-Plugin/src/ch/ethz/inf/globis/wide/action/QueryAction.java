@@ -15,12 +15,15 @@ import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import com.intellij.psi.*;
+import com.intellij.psi.css.CssElement;
 import com.intellij.psi.css.CssFile;
+import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -62,35 +65,37 @@ public class QueryAction extends EditorAction {
                     PsiElement startElement = psiFile.findElementAt(start);
                     PsiElement endElement = psiFile.findElementAt(end);
 
-                    if (psiFile instanceof XmlFile) {
-                        // HTML
-                        System.out.println("HTML File");
+                    if (startElement.getParent() instanceof XmlElement && endElement.getParent() instanceof XmlElement) {
+                        // DO HTML
+                        System.out.println("HTML");
                         WideHtmlHandler handler = new WideHtmlHandler();
                         List<WideQueryResult> results = handler.handle(editor, psiFile, startElement, endElement);
                         showLookupResults(results, editor);
 
-                    } else if (psiFile instanceof CssFile) {
-                        // CSS
-                        System.out.println("CSS File");
+                    } else if (startElement.getParent() instanceof JSElement && startElement.getParent() instanceof JSElement) {
+                        // DO JS
+                        System.out.println("JS");
+                        WideJavascriptHandler handler = new WideJavascriptHandler();
+                        List<WideQueryResult> results = handler.handle(editor, psiFile, startElement, endElement);
+                        showLookupResults(results, editor);
+
+                    } else if (startElement.getParent() instanceof CssElement && startElement.getParent() instanceof CssElement) {
+                        // DO CSS
+                        System.out.println("CSS");
                         WideCssHandler handler = new WideCssHandler();
                         List<WideQueryResult> results = handler.handle(editor, psiFile, startElement, endElement);
                         showLookupResults(results, editor);
 
-                    } else if (psiFile.getClass().getSimpleName().equals("PhpFileImpl")) {
-                        // PHP
-
-                        //TODO: use instanceof
-                        System.out.println("PHP File");
-                        //TODO: should we use a specific PHP handler here?
-                        WideHtmlHandler handler = new WideHtmlHandler();
-                        List<WideQueryResult> results = handler.handle(editor, psiFile, startElement, endElement);
+                    } else if (startElement.getParent().getClass() != endElement.getParent().getClass()) {
+                        // Mix of various Languages: Show message.
+                        List<WideQueryResult> results = new ArrayList<WideQueryResult>();
+                        results.add(new WideQueryResult("Please do not mix different languages."));
                         showLookupResults(results, editor);
 
-                    } else if (psiFile instanceof JSFile) {
-                        // JavaScript
-                        System.out.println("JavaScript File");
-                        WideJavascriptHandler handler = new WideJavascriptHandler();
-                        List<WideQueryResult> results = handler.handle(editor, psiFile, startElement, endElement);
+                    } else {
+                        // Not supported language: Show message.
+                        List<WideQueryResult> results = new ArrayList<WideQueryResult>();
+                        results.add(new WideQueryResult("This language is not supported."));
                         showLookupResults(results, editor);
                     }
                 }

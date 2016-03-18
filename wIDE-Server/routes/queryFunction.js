@@ -39,8 +39,8 @@ queryFunction.use('/', function(req, res) {
             }
         }
     }
-    console.log("No matching feature found.");
-    res.send("No matching feature found.");
+    console.log("No lookup result found.");
+    res.send("No lookup result found.");
 });
 
 module.exports = queryFunction;
