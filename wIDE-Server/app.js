@@ -6,7 +6,9 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var canIuse = require('caniuse-api');
 
-var queryFunction = require('./routes/queryFunction');
+var queryJS = require('./routes/queryJS');
+var queryHtml = require('./routes/queryHtml');
+var queryCss = require('./routes/queryCss');
 
 var app = express();
 
@@ -23,7 +25,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/queryFunction', queryFunction);
+app.use('/queryJS', queryJS);
+app.use('/queryHtml', queryHtml);
+app.use('/queryCss', queryCss);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

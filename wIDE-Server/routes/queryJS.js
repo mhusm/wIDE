@@ -1,19 +1,19 @@
 var express = require('express');
 var caniuse = require('caniuse-api');
-var queryFunction = express();
+var queryJS = express();
 
 /* GET users listing. */
-queryFunction.use('/', function(req, res) {
+queryJS.use('/', function(req, res) {
     var function_name = req.body.function_name;
     var file_name = req.body.file_name;
 
     if (function_name === undefined || file_name === undefined) {
-        console.log('Incomplete queryFunction request received.');
+        console.log('Incomplete JS request received.');
         res.send("error");
         return;
     }
 
-    console.log('QueryFunction request received: [function] ' + function_name + ' [file] ' + file_name);
+    console.log('JS request received: [function] ' + function_name + ' [file] ' + file_name);
 
     // Search for potential matching features
     // -> Prevent empty return values.
@@ -39,8 +39,8 @@ queryFunction.use('/', function(req, res) {
             }
         }
     }
-    console.log("No lookup result found.");
-    res.send("No lookup result found.");
+    console.log("No JS result found.");
+    res.send("No JS result found.");
 });
 
-module.exports = queryFunction;
+module.exports = queryJS;

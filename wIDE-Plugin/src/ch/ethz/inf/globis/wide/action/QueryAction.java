@@ -19,6 +19,7 @@ import com.intellij.psi.css.CssElement;
 import com.intellij.psi.css.CssFile;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -105,15 +106,22 @@ public class QueryAction extends EditorAction {
     }
 
     private static void showLookupResults(List<WideQueryResult> results, Editor editor) {
-        DefaultListModel functionModel = new DefaultListModel();
-        for(WideQueryResult result : results) {
-            functionModel.addElement(result.getFileName() + ": " + result.getLookupName() + " " + result.getResponse());
-        }
-        JList popupList = new JList(functionModel);
+        DefaultListModel listModel = new DefaultListModel();
+        addResultsRecursive(listModel, results);
+        JList popupList = new JList(listModel);
 
         PopupChooserBuilder popupBuilder = JBPopupFactory.getInstance().createListPopupBuilder(popupList);
         JBPopup popup = popupBuilder.createPopup();
         popup.setSize(new Dimension(400, 100));
         popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor));
+    }
+
+    private static void addResultsRecursive(DefaultListModel listModel, List<WideQueryResult> results) {
+        for(WideQueryResult result : results) {
+            String prefix = StringUtils.repeat("    ", result.getLevel());
+            listModel.addElement(prefix + result.getLookupName() + " (" + result.getLookupType() + "): " + result.getResponse());
+
+            addResultsRecursive(listModel, result.getSubResults());
+        }
     }
 }

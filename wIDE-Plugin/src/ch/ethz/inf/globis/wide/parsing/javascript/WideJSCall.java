@@ -74,7 +74,7 @@ public class WideJSCall {
             // SEARCH FOR NORMAL FUNCTIONS
             if (JSResolveUtil.findFileLocalElement(this.getMethodNameText(), file) != null) {
                 System.out.println("Potential function found in file: " + file.getName());
-                matchingCalls.add(JSResolveUtil.findFileLocalElement(this.getMethodNameText(), file));
+                matchingCalls.add(JSResolveUtil.findFileLocalElement(this.getMethodNameText(), file).getFirstChild().getNextSibling().getNextSibling());
             }
 
             // SEARCH FOR HIDDEN FUNCTIONS
@@ -89,8 +89,6 @@ public class WideJSCall {
                 if (this.getMethodNameText().equals(el.getText())
                         && el.getParent().getChildren() != null
                         && el.getParent().getChildren().length > 0) {
-
-                    JSResolveUtil.findFileLocalElement(getMethodReceiverText(), file);
 
                     // Does the result match the function signature?
                     if (el.getParent().getChildren()[0] instanceof JSFunctionExpression) {

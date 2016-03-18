@@ -19,7 +19,7 @@ public class WideJavascriptHandler implements AbstractLanguageHandler {
         //TODO: distinguish file
 
         //TODO: multiple calls?
-        
+
         JSCallExpression currentCall = WideJSParser.findLowestCommonCallExpression(startElement, endElement);
 
         if (currentCall != null) {
@@ -44,12 +44,13 @@ public class WideJavascriptHandler implements AbstractLanguageHandler {
         for (PsiElement call : matchingCalls) {
             String request = "function_name=" + call.getFirstChild().getText() + "&file_name=" + call.getContainingFile().getName();
 
-            String response = WideHttpCommunicator.sendQuery(request);
+            String response = WideHttpCommunicator.sendJSRequest(request);
             System.out.println(response);
 
             WideQueryResult result = new WideQueryResult(response);
             result.setLookupName(call.getFirstChild().getText());
             result.setFileName(call.getContainingFile().getName());
+            result.setLookupType("JS-Call");
             results.add(result);
         }
         return results;

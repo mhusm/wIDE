@@ -36,11 +36,12 @@ public class WideCssHandler implements AbstractLanguageHandler {
 
             //TODO: pseudo-element
 
-            String response = WideHttpCommunicator.sendQuery("function_name=" + startElement.getText() + "&file_name=" + startElement.getContainingFile().getName());
+            String response = WideHttpCommunicator.sendCssRequest("attribute_name=" + startElement.getText() + "&attribute_value=" + startElement.getContainingFile().getName());
 
             WideQueryResult result = new WideQueryResult(response);
             result.setLookupName(startElement.getText());
             result.setFileName(startElement.getContainingFile().getName());
+            result.setLookupType("CSS-Attribute");
             results.add(result);
 
         } else {
@@ -56,5 +57,15 @@ public class WideCssHandler implements AbstractLanguageHandler {
         }
 
         return results;
+    }
+
+    private WideQueryResult handleSingleAttribute(PsiElement attribute, PsiElement value) {
+        String response = WideHttpCommunicator.sendCssRequest("attribute_name=" + attribute.getText() + "&attribute_value=" + value.getText());
+
+        WideQueryResult result = new WideQueryResult(response);
+        result.setLookupName(attribute.getText());
+        result.setFileName(attribute.getContainingFile().getName());
+        result.setLookupType("CSS-Attribute");
+        return result;
     }
 }
