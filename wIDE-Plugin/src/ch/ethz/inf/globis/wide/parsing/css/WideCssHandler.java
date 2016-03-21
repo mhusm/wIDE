@@ -42,6 +42,7 @@ public class WideCssHandler implements AbstractLanguageHandler {
             result.setLookupName(startElement.getText());
             result.setFileName(startElement.getContainingFile().getName());
             result.setLookupType("CSS-Attribute");
+            result.setValue("some css value");
             results.add(result);
 
         } else {
@@ -52,6 +53,14 @@ public class WideCssHandler implements AbstractLanguageHandler {
                 parent = parent.getParent();
             }
 
+            String response = WideHttpCommunicator.sendCssRequest("attribute_name=" + parent.getFirstChild().getText() + "&attribute_value=" + parent.getLastChild().getText());
+
+            WideQueryResult result = new WideQueryResult(response);
+            result.setLookupName(startElement.getText());
+            result.setFileName(startElement.getContainingFile().getName());
+            result.setLookupType("CSS-Attribute");
+            result.setValue("some css value");
+            results.add(result);
             // TODO: declaration + term
 
         }

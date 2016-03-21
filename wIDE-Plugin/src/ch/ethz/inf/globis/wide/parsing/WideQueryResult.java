@@ -1,5 +1,7 @@
 package ch.ethz.inf.globis.wide.parsing;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import java.util.List;
 public class WideQueryResult {
     private String response;
     private String lookupName;
+    private String value;
     private String fileName;
     private String lookupType;
     private int level;
@@ -76,5 +79,26 @@ public class WideQueryResult {
         for (WideQueryResult res : results) {
             addSubResult(res);
         }
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public Object[] getTableRow() {
+        Object[] result = new Object[3];
+
+        if (getValue() != null) {
+            result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getLookupName() + " [= " + this.getValue() + "]";
+        } else {
+            result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getLookupName();
+        }
+        result[1] = StringUtils.repeat("    ", this.getLevel()) + this.getLookupType();
+        result[2] = StringUtils.repeat("    ", this.getLevel()) + this.getResponse();
+        return result;
     }
 }

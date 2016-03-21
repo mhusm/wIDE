@@ -9,6 +9,7 @@ import com.intellij.lang.javascript.psi.JSElement;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.css.CssDeclaration;
 import com.intellij.psi.html.HtmlTag;
 import com.intellij.psi.xml.XmlAttribute;
@@ -33,33 +34,39 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
             if (startElement.getParent() instanceof XmlAttribute) {
                 System.out.println("HTML Attribute");
 
-                WideQueryResult result = lookupAttribute(editor, file, startElement, startElement.getParent().getLastChild());
+                WideQueryResult result = lookupAttribute(editor, file, startElement.getParent().getParent().getFirstChild().getNextSibling(), startElement, startElement.getParent().getLastChild(), 0);
                 results.add(result);
 
-            // ATTRIBUTE VALUE SELECTED
+                // ATTRIBUTE VALUE SELECTED
             } else if (startElement.getParent() instanceof XmlAttributeValue) {
                 System.out.println("HTML AttributeValue");
 
-                WideQueryResult result = lookupAttribute(editor, file, startElement.getParent().getFirstChild(), startElement);
+                WideQueryResult result = lookupAttribute(editor, file, startElement.getParent().getParent().getFirstChild().getNextSibling(), startElement.getParent().getFirstChild(), startElement, 0);
                 results.add(result);
 
-            // TAG SELECTED
+                // TAG SELECTED
             } else if (startElement.getParent() instanceof HtmlTag) {
                 System.out.println("HTML Tag");
 
                 WideQueryResult parentResult = lookupTag(editor, file, startElement);
-
                 results.add(parentResult);
 
-                while (!(">".equals(startElement.getText()))) {
+
+                while (!(">".equals(startElement.getText())) && !("/>".equals(startElement.getText()))) {
                     while (!(startElement instanceof XmlAttribute)) {
                         startElement = startElement.getNextSibling();
                     }
 
-                    WideQueryResult result = lookupAttribute(editor, file, startElement.getFirstChild(), startElement.getLastChild());
+                    // ATTRIBUTE WITH VALUE
+                    WideQueryResult result = lookupAttribute(editor, file, startElement.getParent().getParent().getFirstChild().getNextSibling(), startElement.getFirstChild(), startElement.getLastChild(), parentResult.getLevel());
                     parentResult.addSubResult(result);
 
+
                     startElement = startElement.getNextSibling();
+
+                    while (startElement instanceof PsiWhiteSpace) {
+                        startElement = startElement.getNextSibling();
+                    }
 
                 }
 
@@ -89,14 +96,15 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
         return result;
     }
 
-    private static WideQueryResult lookupAttribute(Editor editor, PsiFile file, PsiElement attribute, PsiElement value) {
+    private static WideQueryResult lookupAttribute(Editor editor, PsiFile file, PsiElement tag, PsiElement attribute, PsiElement value, int parentLevel) {
 
         // LOOKUP HTML ATTRIBUTE
-        String response = WideHttpCommunicator.sendHtmlRequest("attribute_name=" + attribute.getText() + "&attribute_value=" + value.getText());
+        String response = WideHttpCommunicator.sendHtmlRequest("tag_name=" + tag.getText() + "&attribute_name=" + attribute.getText() + "&attribute_value=" + value.getText());
         WideQueryResult result = new WideQueryResult(response);
         result.setLookupName(attribute.getText());
         result.setFileName(attribute.getContainingFile().getName());
         result.setLookupType("HTML-Attribute");
+        result.setLevel(parentLevel + 1);
 
         // LOOKUP CSS ATTRIBUTES
         if ("style".equals(attribute.getParent().getFirstChild().getText())) {
@@ -120,7 +128,7 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
         }
 
         // LOOKUP JS FUNCTIONS
-        if (attribute.getParent().getLastChild().getFirstChild().getNextSibling() instanceof JSElement) {
+        else if (attribute.getParent().getLastChild().getFirstChild() != null && attribute.getParent().getLastChild().getFirstChild().getNextSibling() instanceof JSElement) {
             // Javascript in the attribute's value: Handle JS.
             System.out.println("Interpreting JS Attribute value.");
 
@@ -138,6 +146,10 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
             List<WideQueryResult> subResults = jsHandler.handle(editor, file, jsStart, jsEnd);
 
             result.addAllSubResults(subResults);
+        }
+
+        else {
+            result.setValue(value.getText());
         }
 
         return result;

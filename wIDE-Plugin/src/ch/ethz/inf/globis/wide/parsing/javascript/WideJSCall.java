@@ -57,7 +57,6 @@ public class WideJSCall {
     }
 
     /**
-     *
      * @param editor The editor of the current project
      * @return A list of functions matching this call expression.
      */
@@ -72,40 +71,42 @@ public class WideJSCall {
             }
 
             // SEARCH FOR NORMAL FUNCTIONS
-            if (JSResolveUtil.findFileLocalElement(this.getMethodNameText(), file) != null) {
+            PsiElement searchResult = JSResolveUtil.findFileLocalElement(this.getMethodNameText(), file);
+            if (searchResult != null && searchResult instanceof JSFunction) {
                 System.out.println("Potential function found in file: " + file.getName());
                 matchingCalls.add(JSResolveUtil.findFileLocalElement(this.getMethodNameText(), file).getFirstChild().getNextSibling().getNextSibling());
-            }
+            } else {
 
-            // SEARCH FOR HIDDEN FUNCTIONS
-            // Load document of file and search for occurrence(s)
-            Document doc = PsiDocumentManager.getInstance(editor.getProject()).getDocument(file);
-            int occurrence = 0;
-            while (occurrence >= 0) {
-                occurrence = doc.getText().indexOf(this.getMethodNameText(), occurrence + 4);
-                PsiElement el = file.findElementAt(occurrence);
+                // SEARCH FOR HIDDEN FUNCTIONS
+                // Load document of file and search for occurrence(s)
+                Document doc = PsiDocumentManager.getInstance(editor.getProject()).getDocument(file);
+                int occurrence = 0;
+                while (occurrence >= 0) {
+                    occurrence = doc.getText().indexOf(this.getMethodNameText(), occurrence + 4);
+                    PsiElement el = file.findElementAt(occurrence);
 
-                // Does the occurence really have the same name?
-                if (this.getMethodNameText().equals(el.getText())
-                        && el.getParent().getChildren() != null
-                        && el.getParent().getChildren().length > 0) {
+                    // Does the occurence really have the same name?
+                    if (this.getMethodNameText().equals(el.getText())
+                            && el.getParent().getChildren() != null
+                            && el.getParent().getChildren().length > 0) {
 
-                    // Does the result match the function signature?
-                    if (el.getParent().getChildren()[0] instanceof JSFunctionExpression) {
+                        // Does the result match the function signature?
+                        if (el.getParent().getChildren()[0] instanceof JSFunctionExpression) {
 
-                        System.out.println("Potential function found in file: " + el.getContainingFile().getName());
-                        matchingCalls.add(el.getParent());
+                            System.out.println("Potential function found in file: " + el.getContainingFile().getName());
+                            matchingCalls.add(el.getParent());
 
-                        // Does the function have the same amount of parameters?
+                            // Does the function have the same amount of parameters?
 //                        if (((JSParameterList) el.getParent().getChildren()[0].getFirstChild().getNextSibling()).getParameters().length == callExpression.getArguments().length) {
 //                            System.out.println("Matching function found in file: " + el.getContainingFile().getName());
 //                        }
-                    } else if (getMethodReceiver() instanceof JSReferenceExpression
-                            && el.getParent().getParent() instanceof JSDefinitionExpression) {
+                        } else if (getMethodReceiver() instanceof JSReferenceExpression
+                                && el.getParent().getParent() instanceof JSDefinitionExpression) {
 
-                        // This is a definition of a variable
-                        System.out.println("Potential definition found in file: " + el.getContainingFile().getName());
-                        matchingCalls.add(el.getParent());
+                            // This is a definition of a variable
+                            System.out.println("Potential definition found in file: " + el.getContainingFile().getName());
+                            matchingCalls.add(el.getParent());
+                        }
                     }
                 }
             }

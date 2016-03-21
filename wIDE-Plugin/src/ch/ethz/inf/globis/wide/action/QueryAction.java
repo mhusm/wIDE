@@ -4,6 +4,8 @@ import ch.ethz.inf.globis.wide.parsing.WideQueryResult;
 import ch.ethz.inf.globis.wide.parsing.css.WideCssHandler;
 import ch.ethz.inf.globis.wide.parsing.html.WideHtmlHandler;
 import ch.ethz.inf.globis.wide.parsing.javascript.WideJavascriptHandler;
+import ch.ethz.inf.globis.wide.ui.popup.WideTableCellRenderer;
+import ch.ethz.inf.globis.wide.ui.popup.WideTableModel;
 import com.intellij.lang.javascript.psi.*;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
@@ -11,18 +13,17 @@ import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import com.intellij.psi.*;
 import com.intellij.psi.css.CssElement;
-import com.intellij.psi.css.CssFile;
 import com.intellij.psi.xml.XmlElement;
-import com.intellij.psi.xml.XmlFile;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,20 +108,38 @@ public class QueryAction extends EditorAction {
 
     private static void showLookupResults(List<WideQueryResult> results, Editor editor) {
         DefaultListModel listModel = new DefaultListModel();
-        addResultsRecursive(listModel, results);
-        JList popupList = new JList(listModel);
+        WideTableModel tableModel = new WideTableModel();
+        tableModel.addColumn("Name");
+        tableModel.addColumn("Type");
+        tableModel.addColumn("Result");
+        addResultsRecursive(tableModel, results);
 
-        PopupChooserBuilder popupBuilder = JBPopupFactory.getInstance().createListPopupBuilder(popupList);
+        JList popupList = new JList(listModel);
+        JTable popupTable = new JTable(tableModel);
+        popupTable.getColumn("Name").setCellRenderer(new WideTableCellRenderer());
+        popupTable.getColumn("Type").setCellRenderer(new WideTableCellRenderer());
+        popupTable.getColumn("Result").setCellRenderer(new WideTableCellRenderer());
+
+        ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(popupTable, editor.getComponent());
+        popupBuilder.setTitle("Lookup Results");
         JBPopup popup = popupBuilder.createPopup();
-        popup.setSize(new Dimension(400, 100));
+        popup.setSize(new Dimension(600, 100));
         popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor));
+    }
+
+    private static void addResultsRecursive(DefaultTableModel tableModel, List<WideQueryResult> results) {
+        for(WideQueryResult result : results) {
+            String prefix = StringUtils.repeat("    ", result.getLevel());
+            tableModel.addRow(result.getTableRow());
+            addResultsRecursive(tableModel, result.getSubResults());
+        }
     }
 
     private static void addResultsRecursive(DefaultListModel listModel, List<WideQueryResult> results) {
         for(WideQueryResult result : results) {
             String prefix = StringUtils.repeat("    ", result.getLevel());
             listModel.addElement(prefix + result.getLookupName() + " (" + result.getLookupType() + "): " + result.getResponse());
-
+            //listModel.addElement(result);
             addResultsRecursive(listModel, result.getSubResults());
         }
     }
