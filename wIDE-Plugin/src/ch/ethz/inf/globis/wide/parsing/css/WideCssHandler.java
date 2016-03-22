@@ -36,7 +36,14 @@ public class WideCssHandler implements AbstractLanguageHandler {
 
             //TODO: pseudo-element
 
-            String response = WideHttpCommunicator.sendCssRequest("attribute_name=" + startElement.getText() + "&attribute_value=" + startElement.getContainingFile().getName());
+            String request = "{" +
+                    "'lang': 'css', " +
+                    "'type': 'css', " +
+                    "'key': '" + startElement.getText() + "', " +
+                    "'value': '" + startElement.getText() + "' " +
+                    "}";
+
+            String response = WideHttpCommunicator.sendRequest(request);
 
             WideQueryResult result = new WideQueryResult(response);
             result.setLookupName(startElement.getText());
@@ -53,7 +60,14 @@ public class WideCssHandler implements AbstractLanguageHandler {
                 parent = parent.getParent();
             }
 
-            String response = WideHttpCommunicator.sendCssRequest("attribute_name=" + parent.getFirstChild().getText() + "&attribute_value=" + parent.getLastChild().getText());
+            String request = "{" +
+                    "'lang': 'css', " +
+                    "'type': 'css', " +
+                    "'key': '" + parent.getFirstChild().getText() + "', " +
+                    "'value': '" + parent.getLastChild().getText() + "' " +
+                    "}";
+
+            String response = WideHttpCommunicator.sendRequest(request);
 
             WideQueryResult result = new WideQueryResult(response);
             result.setLookupName(startElement.getText());
@@ -68,13 +82,7 @@ public class WideCssHandler implements AbstractLanguageHandler {
         return results;
     }
 
-    private WideQueryResult handleSingleAttribute(PsiElement attribute, PsiElement value) {
-        String response = WideHttpCommunicator.sendCssRequest("attribute_name=" + attribute.getText() + "&attribute_value=" + value.getText());
+    public String getCssRequest(PsiFile file, PsiElement startElement, PsiElement endElement) {
 
-        WideQueryResult result = new WideQueryResult(response);
-        result.setLookupName(attribute.getText());
-        result.setFileName(attribute.getContainingFile().getName());
-        result.setLookupType("CSS-Attribute");
-        return result;
     }
 }

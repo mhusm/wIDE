@@ -19,30 +19,10 @@ public class WideHttpCommunicator {
     private static final String SERVER_PORT = "3000";
     private static final String SERVER_PROTOCOL = "http://";
 
-    public static String sendCssRequest(String parameters) {
+    public static String sendRequest(String request) {
         try {
-            URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/queryCss");
-            return sendQuery(url, parameters);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static String sendHtmlRequest(String parameters) {
-        try {
-            URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/queryHtml");
-            return sendQuery(url, parameters);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static String sendJSRequest(String parameters) {
-        try {
-            URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/queryJS");
-            return sendQuery(url, parameters);
+            URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query");
+            return sendQuery(url, request);
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return null;

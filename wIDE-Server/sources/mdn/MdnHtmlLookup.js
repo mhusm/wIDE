@@ -1,9 +1,8 @@
-var express = require('express');
 var https = require('https');
 var htmlParser = require("htmlparser2");
 
 var mdnHtml = {
-    queryFunction: function (tag, attributes) {
+    query: function (tag, attributes) {
         console.log("Send request to MDN: [tag] " + tag + " [attributes] " + attributes);
 
         var options = {
@@ -90,16 +89,17 @@ var mdnHtml = {
                     if (tagAttributes[attribute] !== undefined) {
                         console.log("Matching attribute: " + attribute);
                     }
-
-                    //var startPosition = 0;
-                    //while(result.indexOf(attribute[name], startPosition) != -1) {
-                    //    startPosition
-                    //}
                 }
+
+                result = "finish";
             });
         });
 
         httpreq.end();
+
+        while(result === undefined) {}
+
+        return result;
     }
 }
 

@@ -50,26 +50,6 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
 
                 WideQueryResult parentResult = lookupTag(editor, file, startElement);
                 results.add(parentResult);
-
-
-                while (!(">".equals(startElement.getText())) && !("/>".equals(startElement.getText()))) {
-                    while (!(startElement instanceof XmlAttribute)) {
-                        startElement = startElement.getNextSibling();
-                    }
-
-                    // ATTRIBUTE WITH VALUE
-                    WideQueryResult result = lookupAttribute(editor, file, startElement.getParent().getParent().getFirstChild().getNextSibling(), startElement.getFirstChild(), startElement.getLastChild(), parentResult.getLevel());
-                    parentResult.addSubResult(result);
-
-
-                    startElement = startElement.getNextSibling();
-
-                    while (startElement instanceof PsiWhiteSpace) {
-                        startElement = startElement.getNextSibling();
-                    }
-
-                }
-
             }
 
         } else {
@@ -88,7 +68,41 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
     }
 
     private static WideQueryResult lookupTag(Editor editor, PsiFile file, PsiElement tag) {
-        String response = WideHttpCommunicator.sendHtmlRequest("attribute_name=" + tag.getText() + "&attribute_value=" + tag.getText());
+        String request = "{" +
+                "'lang': 'html', " +
+                "'type': 'tag', " +
+                "'key': '" + tag.getText() + "', " +
+                "'children' : [";
+
+        PsiElement startElement = tag;
+
+        while (!(">".equals(startElement.getText())) && !("/>".equals(startElement.getText()))) {
+            while (!(startElement instanceof XmlAttribute)) {
+                startElement = startElement.getNextSibling();
+            }
+
+            request += "{" +
+                    "        'lang': 'html', " +
+                    "        'type': 'attribute', " +
+                    "        'key': '" + startElement.getFirstChild().getText() + "', " +
+                    "        'value': '" + startElement.getLastChild().getText() + "'}, ";
+
+
+
+            startElement = startElement.getNextSibling();
+
+            while (startElement instanceof PsiWhiteSpace) {
+                startElement = startElement.getNextSibling();
+            }
+
+        }
+
+        request += "undefined] " +
+                "}";
+
+
+        String response = WideHttpCommunicator.sendRequest(request);
+
         WideQueryResult result = new WideQueryResult(response);
         result.setLookupName(tag.getText());
         result.setFileName(tag.getContainingFile().getName());
@@ -99,7 +113,19 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
     private static WideQueryResult lookupAttribute(Editor editor, PsiFile file, PsiElement tag, PsiElement attribute, PsiElement value, int parentLevel) {
 
         // LOOKUP HTML ATTRIBUTE
-        String response = WideHttpCommunicator.sendHtmlRequest("tag_name=" + tag.getText() + "&attribute_name=" + attribute.getText() + "&attribute_value=" + value.getText());
+        String request = "{" +
+                "    'lang': 'html', " +
+                "    'type': 'attribute', " +
+                "    'key': '" + tag.getText() + "', " +
+                "    'children': [{" +
+                "        'lang': 'html', " +
+                "        'type': 'attribute', " +
+                "        'key': '" + attribute.getText() + "', " +
+                "        'value': '" + value.getText() + "'}] " +
+                "}";
+
+        String response = WideHttpCommunicator.sendRequest(request);
+
         WideQueryResult result = new WideQueryResult(response);
         result.setLookupName(attribute.getText());
         result.setFileName(attribute.getContainingFile().getName());
@@ -153,5 +179,13 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
         }
 
         return result;
+    }
+
+    private String getAttributeRequest(PsiFile file, PsiElement attribute, PsiElement value) {
+        return "";
+    }
+
+    private String getTagRequest(PsiFile file, PsiElement tag) {
+        return "";
     }
 }
