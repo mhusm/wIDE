@@ -68,69 +68,34 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
     }
 
     private static WideQueryResult lookupTag(Editor editor, PsiFile file, PsiElement tag) {
-        String request = "{" +
-                "'lang': 'html', " +
-                "'type': 'tag', " +
-                "'key': '" + tag.getText() + "', " +
-                "'children' : [";
 
-        PsiElement startElement = tag;
-
-        while (!(">".equals(startElement.getText())) && !("/>".equals(startElement.getText()))) {
-            while (!(startElement instanceof XmlAttribute)) {
-                startElement = startElement.getNextSibling();
-            }
-
-            request += "{" +
-                    "        'lang': 'html', " +
-                    "        'type': 'attribute', " +
-                    "        'key': '" + startElement.getFirstChild().getText() + "', " +
-                    "        'value': '" + startElement.getLastChild().getText() + "'}, ";
-
-
-
-            startElement = startElement.getNextSibling();
-
-            while (startElement instanceof PsiWhiteSpace) {
-                startElement = startElement.getNextSibling();
-            }
-
-        }
-
-        request += "undefined] " +
-                "}";
-
-
+        String request = buildTagRequest(editor, file, tag);
         String response = WideHttpCommunicator.sendRequest(request);
 
         WideQueryResult result = new WideQueryResult(response);
-        result.setLookupName(tag.getText());
-        result.setFileName(tag.getContainingFile().getName());
-        result.setLookupType("HTML-Tag");
         return result;
     }
 
     private static WideQueryResult lookupAttribute(Editor editor, PsiFile file, PsiElement tag, PsiElement attribute, PsiElement value, int parentLevel) {
 
-        // LOOKUP HTML ATTRIBUTE
-        String request = "{" +
-                "    'lang': 'html', " +
-                "    'type': 'attribute', " +
-                "    'key': '" + tag.getText() + "', " +
-                "    'children': [{" +
-                "        'lang': 'html', " +
-                "        'type': 'attribute', " +
-                "        'key': '" + attribute.getText() + "', " +
-                "        'value': '" + value.getText() + "'}] " +
-                "}";
+       String request = "{" +
+               "    \"lang\": \"HTML\", " +
+               "    \"type\": \"tag\", " +
+               "    \"key\": \"" + tag.getText() + "\", " +
+               "    \"children\": [" + buildAttributeRequest(editor, file, attribute, value) + "]}";
 
         String response = WideHttpCommunicator.sendRequest(request);
-
         WideQueryResult result = new WideQueryResult(response);
-        result.setLookupName(attribute.getText());
-        result.setFileName(attribute.getContainingFile().getName());
-        result.setLookupType("HTML-Attribute");
-        result.setLevel(parentLevel + 1);
+        return result.getSubResults().get(0);
+    }
+
+    private static String buildAttributeRequest(Editor editor, PsiFile file, PsiElement attribute, PsiElement value) {
+        // LOOKUP HTML ATTRIBUTE
+        String request = "{" +
+                "    \"lang\": \"HTML\", " +
+                "    \"type\": \"attribute\", " +
+                "    \"key\": \"" + attribute.getText() + "\", " +
+                "    \"value\": \"" + value.getText().substring(1, value.getText().length()-1) + "\", ";
 
         // LOOKUP CSS ATTRIBUTES
         if ("style".equals(attribute.getParent().getFirstChild().getText())) {
@@ -148,9 +113,7 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
             }
 
             WideCssHandler cssHandler = new WideCssHandler();
-            List<WideQueryResult> subResults = cssHandler.handle(editor, file, cssStart, cssEnd);
-
-            result.addAllSubResults(subResults);
+            request += "    \"children\": [" + cssHandler.buildRequest(file, cssStart, cssEnd) + "]}";
         }
 
         // LOOKUP JS FUNCTIONS
@@ -169,23 +132,43 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
             }
 
             WideJavascriptHandler jsHandler = new WideJavascriptHandler();
-            List<WideQueryResult> subResults = jsHandler.handle(editor, file, jsStart, jsEnd);
-
-            result.addAllSubResults(subResults);
+            request += "    \"children\": [" + jsHandler.buildRequest(editor, file, jsStart, jsEnd) + "]}";
         }
 
         else {
-            result.setValue(value.getText());
+            request += "    \"children\": []}";
         }
 
-        return result;
+        return request;
     }
 
-    private String getAttributeRequest(PsiFile file, PsiElement attribute, PsiElement value) {
-        return "";
-    }
+    private static String buildTagRequest(Editor editor, PsiFile file, PsiElement tag) {
+        String request = "{" +
+                "\"lang\": \"HTML\", " +
+                "\"type\": \"tag\", " +
+                "\"key\": \"" + tag.getText() + "\", " +
+                "\"children\" : [";
 
-    private String getTagRequest(PsiFile file, PsiElement tag) {
-        return "";
+        PsiElement startElement = tag;
+
+        while (!(">".equals(startElement.getText())) && !("/>".equals(startElement.getText()))) {
+            while (!(startElement instanceof XmlAttribute)) {
+                startElement = startElement.getNextSibling();
+            }
+
+            request += buildAttributeRequest(editor, file, startElement.getFirstChild(), startElement.getLastChild()) + ", ";
+
+            startElement = startElement.getNextSibling();
+
+            while (startElement instanceof PsiWhiteSpace) {
+                startElement = startElement.getNextSibling();
+            }
+
+        }
+
+        request += "null] " +
+                "}";
+
+        return request;
     }
 }

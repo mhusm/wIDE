@@ -135,12 +135,12 @@ public class QueryAction extends EditorAction {
         }
     }
 
-    private static void addResultsRecursive(DefaultListModel listModel, List<WideQueryResult> results) {
-        for(WideQueryResult result : results) {
-            String prefix = StringUtils.repeat("    ", result.getLevel());
-            listModel.addElement(prefix + result.getLookupName() + " (" + result.getLookupType() + "): " + result.getResponse());
-            //listModel.addElement(result);
-            addResultsRecursive(listModel, result.getSubResults());
-        }
-    }
+//    private static void addResultsRecursive(DefaultListModel listModel, List<WideQueryResult> results) {
+//        for(WideQueryResult result : results) {
+//            String prefix = StringUtils.repeat("    ", result.getLevel());
+//            listModel.addElement(prefix + result.getLookupName() + " (" + result.getLookupType() + "): " + result.getResponse());
+//            //listModel.addElement(result);
+//            addResultsRecursive(listModel, result.getSubResults());
+//        }
+//    }
 }

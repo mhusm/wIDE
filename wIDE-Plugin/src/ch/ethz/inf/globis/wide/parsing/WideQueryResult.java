@@ -1,6 +1,11 @@
 package ch.ethz.inf.globis.wide.parsing;
 
+import com.intellij.icons.AllIcons;
+import com.intellij.json.JsonParser;
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,12 +14,13 @@ import java.util.List;
  * Created by fabian on 11.03.16.
  */
 public class WideQueryResult {
-    private String response;
-    private String lookupName;
+    private String lang;
+    private String type;
+    private String key;
     private String value;
-    private String fileName;
-    private String lookupType;
     private int level;
+    private String caniuse;
+    private String mdn;
     private List<WideQueryResult> subResults = new ArrayList<WideQueryResult>();
 
     public WideQueryResult(String response) {
@@ -22,41 +28,53 @@ public class WideQueryResult {
     }
 
     public WideQueryResult(String response, int level) {
-        this.response = response;
-        this.level = level;
+        try {
+            JSONObject res = new JSONObject(response);
+            setLang(res.optString("lang"));
+            setType(res.optString("type"));
+            setKey(res.optString("key"));
+            setValue(res.optString("value"));
+            setCaniuse(res.optString("caniuse"));
+            setMdn(res.optString("mdn"));
+            setLevel(level);
+            JSONArray children = res.optJSONArray("children");
+
+            if (children != null) {
+                for (int i = 0; i < children.length(); i++) {
+                    subResults.add(new WideQueryResult(children.getString(i), level + 1));
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
-    public String getResponse() {
-        return response;
+    public String getLang() {
+        return lang;
     }
 
-//    public void setResponse(String response) {
-//        this.response = response;
-//    }
-
-    public String getLookupName() {
-        return lookupName;
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 
-    public void setLookupName(String lookupName) {
-        this.lookupName = lookupName;
+    public String getType() {
+        return type;
     }
 
-    public String getFileName() {
-        return fileName;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+
+    public String getKey() {
+        return key;
     }
 
-    public String getLookupType() {
-        return lookupType;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public void setLookupType(String lookupType) {
-        this.lookupType = lookupType;
-    }
 
     public int getLevel() {
         return level;
@@ -64,6 +82,22 @@ public class WideQueryResult {
 
     public void setLevel(int level) {
         this.level = level;
+    }
+
+    public String getCaniuse() {
+        return caniuse;
+    }
+
+    public void setCaniuse(String caniuse) {
+        this.caniuse = caniuse;
+    }
+
+    public String getMdn() {
+        return mdn;
+    }
+
+    public void setMdn(String mdn) {
+        this.mdn = mdn;
     }
 
     public List<WideQueryResult> getSubResults() {
@@ -92,13 +126,20 @@ public class WideQueryResult {
     public Object[] getTableRow() {
         Object[] result = new Object[3];
 
-        if (getValue() != null) {
-            result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getLookupName() + " [= " + this.getValue() + "]";
-        } else {
-            result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getLookupName();
+        if ("JS".equals(getLang())) {
+            if ("call".equals(getType())) {
+                result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getKey();
+            } else if ("callCandidate".equals(getType())) {
+                result[0] = StringUtils.repeat("    ", this.getLevel()) + "@ " + this.getValue();
+            }
         }
-        result[1] = StringUtils.repeat("    ", this.getLevel()) + this.getLookupType();
-        result[2] = StringUtils.repeat("    ", this.getLevel()) + this.getResponse();
+        else if (getValue() != null && getValue() != "") {
+            result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getKey() + " [= " + this.getValue() + "]";
+        } else {
+            result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getKey();
+        }
+        result[1] = StringUtils.repeat("    ", this.getLevel()) + this.getLang() + "-" + this.getType();
+        result[2] = StringUtils.repeat("    ", this.getLevel()) + this.getMdn();
         return result;
     }
 }

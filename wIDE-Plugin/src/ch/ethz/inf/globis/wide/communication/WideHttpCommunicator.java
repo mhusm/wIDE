@@ -40,7 +40,7 @@ public class WideHttpCommunicator {
                     "application/x-www-form-urlencoded");
 
             connection.setRequestProperty("Content-Length",
-                    Integer.toString(parameters.getBytes().length));
+                    Integer.toString(("parameters= " + parameters).getBytes().length));
             connection.setRequestProperty("Content-Language", "en-US");
 
             connection.setUseCaches(false);
@@ -49,7 +49,7 @@ public class WideHttpCommunicator {
             //Send request
             DataOutputStream wr = new DataOutputStream(
                     connection.getOutputStream());
-            wr.writeBytes(parameters);
+            wr.writeBytes("parameters=" + parameters);
             wr.close();
 
             //Get Response

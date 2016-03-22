@@ -2,19 +2,19 @@ var https = require('https');
 var htmlParser = require("htmlparser2");
 var queryHandler = require("../../routes/queryHandler");
 
-var mdnHtml = {
-    query: function (result, tag, attributes, callback) {
-        console.log("mdnHtml: request [tag] " + tag + " [attributes] " + JSON.stringify(attributes));
+var mdnCss = {
+    query: function (result, attribute, value, callback) {
+        console.log("mdnCss: request [attribute] " + attribute + " [value] " + value);
 
         var page = "";
-        mdnHtml._loadTagPage(result, tag, attributes, page, callback);
+        mdnHtml._loadPage(result, attribute, value, callback);
     },
 
-    _loadTagPage: function(result, tag, attributes, page, callback) {
-        console.log("mdnHtml: load [tag] " + tag + " attributes.");
+    _loadPage: function(result, attribute, value, callback) {
+        console.log("mdnCss: load [attribute] " + attribute + " page.");
         var options = {
             host: 'developer.mozilla.org',
-            path: '/en-US/docs/Web/HTML/Element/' + tag,
+            path: '/en-US/docs/Web/CSS/' + attribute,
             method: 'GET',
             headers: {
                 'Content-Length': 0
@@ -26,7 +26,7 @@ var mdnHtml = {
 
             // ERROR HANDLING
             response.on('error', function (error) {
-                console.log('mdnHtml: Error while receiving MDN response.');
+                console.log('mdnCss: Error while receiving MDN response.');
                 console.log(error);
             });
 
@@ -37,48 +37,14 @@ var mdnHtml = {
 
             // FULL DATA RECEIVED: DO SEARCH.
             response.on('end', function () {
-                mdnHtml._loadGlobalPage(result, tag, attributes, page, callback);
+                mdnHtml._loadGlobalPage(result, attribute, value, page, callback);
             });
         });
 
         httpreq.end();
     },
 
-    _loadGlobalPage: function(result, tag, attributes, page, callback) {
-        console.log("mdnHtml: load global attributes.");
-        var options = {
-            host: 'developer.mozilla.org',
-            path: '/en-US/docs/Web/HTML/Global_attributes',
-            method: 'GET',
-            headers: {
-                'Content-Length': 0
-            }
-        };
-
-        var httpreq = https.request(options, function (response) {
-            response.setEncoding('utf8');
-
-            // ERROR HANDLING
-            response.on('error', function (error) {
-                console.log('mdnHtml: Error while receiving MDN response.');
-                console.log(error);
-            });
-
-            // DATA RECEIVING
-            response.on('data', function (chunk) {
-                page += chunk;
-            });
-
-            // FULL DATA RECEIVED: DO SEARCH.
-            response.on('end', function () {
-                mdnHtml._parsePage(result, tag, attributes, page, callback);
-            });
-        });
-
-        httpreq.end();
-    },
-
-    _parsePage: function(result, tag, attributes, page, callback) {
+    _parsePage: function(result, attribute, value, page, callback) {
         var tagAttributes = {};
         var currentKey = undefined;
         var currentValue = "";

@@ -2,11 +2,11 @@ var https = require('https');
 var caniuse = require('caniuse-api');
 
 var caniuseLookup = {
-    query: function (lang, type, key) {
-        console.log("Send request to caniuse: [key] " + key);
+    query: function (result, lang, type, key) {
+        console.log("caniuse: send request: [lang] " + lang + " [type] " + type + " [key] " + key);
 
         if (key === undefined) {
-            console.log('Incomplete caniuse request received.');
+            console.log('caniuse: Incomplete caniuse request received.');
             return '{"type": "error", "message": "Incomplete caniuse request."}'
         }
 
@@ -19,21 +19,21 @@ var caniuseLookup = {
                 for (var object in attributes) {
                     if (attributes[object] === key) {
                         var response = caniuse.getSupport(key);
-                        console.log(response);
-                        return
+                        console.log("caniuse: lookup [lang] " + lang + " [type] " + type + " [key] " + key + " [response] " + response);
+                        result.caniuse = response;
                     }
                 }
             } else {
                 // one potential result
                 if (attributes === attribute_name) {
                     var response = caniuse.getSupport(attribute_name);
-                    console.log("caniuse lookup: [lang] " + lang + " [type] " + type + " [key] " + key + " [response] " + response);
-                    return response;
+                    console.log("caniuse: lookup [lang] " + lang + " [type] " + type + " [key] " + key + " [response] " + response);
+                    result.caniuse = response;
                 }
             }
         }
-        console.log("No caniuse result found.");
-        return "No caniuse result.";
+        console.log("caniuse: No caniuse result found: [lang] " + lang + " [type] " + type + " [key] " + key);
+        result.caniuse = "No caniuse result.";
     }
 }
 
