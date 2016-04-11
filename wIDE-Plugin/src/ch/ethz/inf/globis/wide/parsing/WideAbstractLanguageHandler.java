@@ -9,6 +9,6 @@ import java.util.List;
 /**
  * Created by fabian on 17.03.16.
  */
-public interface AbstractLanguageHandler {
-    public List<WideQueryResult> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement);
+public interface WideAbstractLanguageHandler {
+    public List<WideQueryResult> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished);
 }

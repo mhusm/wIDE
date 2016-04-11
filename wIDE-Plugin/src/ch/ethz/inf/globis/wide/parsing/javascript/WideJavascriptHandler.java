@@ -1,13 +1,14 @@
 package ch.ethz.inf.globis.wide.parsing.javascript;
 
 import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
-import ch.ethz.inf.globis.wide.parsing.AbstractLanguageHandler;
+import ch.ethz.inf.globis.wide.parsing.WideAbstractLanguageHandler;
 import ch.ethz.inf.globis.wide.parsing.WideQueryResult;
 import com.intellij.lang.javascript.psi.JSCallExpression;
+import com.intellij.lang.javascript.psi.JSDefinitionExpression;
+import com.intellij.lang.javascript.psi.JSReferenceExpression;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.search.PsiNonJavaFileReferenceProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +16,8 @@ import java.util.List;
 /**
  * Created by fabian on 17.03.16.
  */
-public class WideJavascriptHandler implements AbstractLanguageHandler {
-    public  List<WideQueryResult> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
+public class WideJavascriptHandler implements WideAbstractLanguageHandler {
+    public List<WideQueryResult> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished) {
         //TODO: distinguish file
 
         //TODO: multiple calls?
@@ -26,7 +27,6 @@ public class WideJavascriptHandler implements AbstractLanguageHandler {
 
         if (request != "") {
             String response = WideHttpCommunicator.sendRequest(request);
-            System.out.println(response);
 
             WideQueryResult result = new WideQueryResult(response);
             results.add(result);
@@ -74,15 +74,24 @@ public class WideJavascriptHandler implements AbstractLanguageHandler {
                     "    \"lang\": \"JS\", " +
                     "    \"type\": \"call\", " +
                     "    \"key\": \"" + function.getMethodNameText() + "\", " +
-                    "    \"value\": \"" + function.getCallExpression().getContainingFile().getName() + "\", " +
                     "    \"children\": [";
 
             for (PsiElement call : matchingCalls) {
+                PsiElement referencedObject = call;
+                if (call.getParent() instanceof JSDefinitionExpression) {
+                    // References a defined function on an object.
+                    // Include the name of the referenced object as well.
+                    while (referencedObject.getFirstChild() != null) {
+                        referencedObject = referencedObject.getFirstChild();
+                    }
+                }
                 request += "{" +
                         "    \"lang\": \"JS\", " +
                         "    \"type\": \"callCandidate\", " +
-                        "    \"key\": \"" + call.getFirstChild().getText() + "\", " +
-                        "    \"value\": \"" + call.getContainingFile().getName() + "\"}, ";
+                        "    \"key\": \"" + function.getMethodNameText() + "\", " +
+                        "    \"value\": {" +
+                        "        \"receiver\": \"" + referencedObject.getText() + "\", " +
+                        "        \"file\": \"" + call.getContainingFile().getName() + "\"}}, ";
             }
 
             request += "null]}";

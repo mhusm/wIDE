@@ -75,9 +75,11 @@ public class WideJSCall {
             if (searchResult != null && searchResult instanceof JSFunction) {
                 System.out.println("Potential function found in file: " + file.getName());
                 matchingCalls.add(JSResolveUtil.findFileLocalElement(this.getMethodNameText(), file).getFirstChild().getNextSibling().getNextSibling());
+
             } else {
 
                 // SEARCH FOR HIDDEN FUNCTIONS
+                // DOM FUNCTIONS AND SIMILAR
                 // Load document of file and search for occurrence(s)
                 Document doc = PsiDocumentManager.getInstance(editor.getProject()).getDocument(file);
                 int occurrence = 0;
@@ -92,18 +94,13 @@ public class WideJSCall {
 
                         // Does the result match the function signature?
                         if (el.getParent().getChildren()[0] instanceof JSFunctionExpression) {
-
                             System.out.println("Potential function found in file: " + el.getContainingFile().getName());
-                            matchingCalls.add(el.getParent());
+                            matchingCalls.add(el);
 
-                            // Does the function have the same amount of parameters?
-//                        if (((JSParameterList) el.getParent().getChildren()[0].getFirstChild().getNextSibling()).getParameters().length == callExpression.getArguments().length) {
-//                            System.out.println("Matching function found in file: " + el.getContainingFile().getName());
-//                        }
                         } else if (getMethodReceiver() instanceof JSReferenceExpression
                                 && el.getParent().getParent() instanceof JSDefinitionExpression) {
-
                             // This is a definition of a variable
+                            // Potentially a DOM Function
                             System.out.println("Potential definition found in file: " + el.getContainingFile().getName());
                             matchingCalls.add(el.getParent());
                         }

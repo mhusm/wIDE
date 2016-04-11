@@ -20,23 +20,35 @@ public class WideQueryResult {
     private String value;
     private int level;
     private String caniuse;
-    private String mdn;
+    private WideMDNResult mdn;
     private List<WideQueryResult> subResults = new ArrayList<WideQueryResult>();
+    private String info;
 
     public WideQueryResult(String response) {
         this(response, 0);
     }
 
+    public void setSubResults(List<WideQueryResult> subResults) {
+        this.subResults = subResults;
+    }
+
     public WideQueryResult(String response, int level) {
         try {
+
             JSONObject res = new JSONObject(response);
             setLang(res.optString("lang"));
             setType(res.optString("type"));
             setKey(res.optString("key"));
             setValue(res.optString("value"));
             setCaniuse(res.optString("caniuse"));
-            setMdn(res.optString("mdn"));
             setLevel(level);
+            setInfo(res.optString("info"));
+
+            // create mdn result
+            if (res.optString("mdn") != null && res.optString("mdn").length() > 2) {
+                setMdn(new WideMDNResult(new JSONObject(res.optString("mdn"))));
+            }
+
             JSONArray children = res.optJSONArray("children");
 
             if (children != null) {
@@ -44,10 +56,17 @@ public class WideQueryResult {
                     subResults.add(new WideQueryResult(children.getString(i), level + 1));
                 }
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
     }
 
     public String getLang() {
@@ -92,11 +111,11 @@ public class WideQueryResult {
         this.caniuse = caniuse;
     }
 
-    public String getMdn() {
+    public WideMDNResult getMdn() {
         return mdn;
     }
 
-    public void setMdn(String mdn) {
+    public void setMdn(WideMDNResult mdn) {
         this.mdn = mdn;
     }
 
@@ -139,7 +158,7 @@ public class WideQueryResult {
             result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getKey();
         }
         result[1] = StringUtils.repeat("    ", this.getLevel()) + this.getLang() + "-" + this.getType();
-        result[2] = StringUtils.repeat("    ", this.getLevel()) + this.getMdn();
+        result[2] = StringUtils.repeat("    ", this.getLevel()) + this.getInfo();
         return result;
     }
 }

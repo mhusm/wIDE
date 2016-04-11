@@ -6,11 +6,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var query = require("./routes/query");
-
-//var queryJS = require('./routes/queryJS');
-//var queryHtml = require('./routes/queryHtml');
-//var queryCss = require('./routes/queryCss');
-
 var app = express();
 
 // view engine setup
@@ -25,10 +20,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
-
-//app.use('/queryJS', queryJS);
-//app.use('/queryHtml', queryHtml);
-//app.use('/queryCss', queryCss);
 
 app.use('/query', query);
 

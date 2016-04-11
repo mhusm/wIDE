@@ -1,12 +1,14 @@
 package ch.ethz.inf.globis.wide.parsing.html;
 
 import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
-import ch.ethz.inf.globis.wide.parsing.AbstractLanguageHandler;
+import ch.ethz.inf.globis.wide.parsing.WideAbstractLanguageHandler;
 import ch.ethz.inf.globis.wide.parsing.WideQueryResult;
 import ch.ethz.inf.globis.wide.parsing.css.WideCssHandler;
 import ch.ethz.inf.globis.wide.parsing.javascript.WideJavascriptHandler;
+import ch.ethz.inf.globis.wide.ui.popup.WidePopupHelper;
 import com.intellij.lang.javascript.psi.JSElement;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.wm.impl.SystemDock;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
@@ -14,6 +16,7 @@ import com.intellij.psi.css.CssDeclaration;
 import com.intellij.psi.html.HtmlTag;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +24,8 @@ import java.util.List;
 /**
  * Created by fabian on 17.03.16.
  */
-public class WideHtmlHandler implements AbstractLanguageHandler {
-    public List<WideQueryResult> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
+public class WideHtmlHandler implements WideAbstractLanguageHandler {
+    public List<WideQueryResult> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished) {
 
         List<WideQueryResult> results = new ArrayList<WideQueryResult>();
 
@@ -37,6 +40,8 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
                 WideQueryResult result = lookupAttribute(editor, file, startElement.getParent().getParent().getFirstChild().getNextSibling(), startElement, startElement.getParent().getLastChild(), 0);
                 results.add(result);
 
+                WidePopupHelper.showHtmlAttributeLookupResult(results.get(0).getSubResults().get(0), editor);
+
                 // ATTRIBUTE VALUE SELECTED
             } else if (startElement.getParent() instanceof XmlAttributeValue) {
                 System.out.println("HTML AttributeValue");
@@ -44,13 +49,25 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
                 WideQueryResult result = lookupAttribute(editor, file, startElement.getParent().getParent().getFirstChild().getNextSibling(), startElement.getParent().getFirstChild(), startElement, 0);
                 results.add(result);
 
+                WidePopupHelper.showHtmlAttributeLookupResult(results.get(0).getSubResults().get(0), editor);
+
                 // TAG SELECTED
             } else if (startElement.getParent() instanceof HtmlTag) {
                 System.out.println("HTML Tag");
 
                 WideQueryResult parentResult = lookupTag(editor, file, startElement);
                 results.add(parentResult);
+
+                WidePopupHelper.showHtmlTagLookupResults(results, editor);
             }
+
+        } else if (startElement instanceof PsiWhiteSpace && endElement instanceof XmlToken) {
+            System.out.println("New HTML tag");
+
+            WideQueryResult parentResult = lookupTag(editor, file, endElement);
+            results.add(parentResult);
+
+            WidePopupHelper.showHtmlNewTagLookupResults(results.get(0), editor);
 
         } else {
             System.out.println("related objects");
@@ -72,8 +89,14 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
         String request = buildTagRequest(editor, file, tag);
         String response = WideHttpCommunicator.sendRequest(request);
 
-        WideQueryResult result = new WideQueryResult(response);
-        return result;
+        try {
+            //TODO: better structure
+            WideQueryResult result = new WideQueryResult(response);
+            return result;
+        } catch(Exception e) {
+        }
+
+        return null;
     }
 
     private static WideQueryResult lookupAttribute(Editor editor, PsiFile file, PsiElement tag, PsiElement attribute, PsiElement value, int parentLevel) {
@@ -86,7 +109,7 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
 
         String response = WideHttpCommunicator.sendRequest(request);
         WideQueryResult result = new WideQueryResult(response);
-        return result.getSubResults().get(0);
+        return result;
     }
 
     private static String buildAttributeRequest(Editor editor, PsiFile file, PsiElement attribute, PsiElement value) {
@@ -152,8 +175,12 @@ public class WideHtmlHandler implements AbstractLanguageHandler {
         PsiElement startElement = tag;
 
         while (!(">".equals(startElement.getText())) && !("/>".equals(startElement.getText()))) {
-            while (!(startElement instanceof XmlAttribute)) {
+            while (!( startElement == null) && !(startElement instanceof XmlAttribute)) {
                 startElement = startElement.getNextSibling();
+            }
+
+            if (startElement == null) {
+                break;
             }
 
             request += buildAttributeRequest(editor, file, startElement.getFirstChild(), startElement.getLastChild()) + ", ";

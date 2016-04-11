@@ -34,4 +34,8 @@
     </action>
   </actions>
 
+  <extensions defaultExtensionNs="com.intellij">
+    <toolWindow id="wIDE" anchor="right" factoryClass="ch.ethz.inf.globis.wide.ui.window.WideWindowFactory"/>
+  </extensions>
+
 </idea-plugin>

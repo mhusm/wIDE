@@ -22,6 +22,7 @@ public class WideHttpCommunicator {
     public static String sendRequest(String request) {
         try {
             URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query");
+            System.out.println("SEND REQUEST: " + request);
             return sendQuery(url, request);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -62,6 +63,8 @@ public class WideHttpCommunicator {
                 response.append('\r');
             }
             rd.close();
+
+            System.out.println("RESPONSE RECEIVED: " + response.toString());
             return response.toString();
         } catch (Exception e) {
             e.printStackTrace();
