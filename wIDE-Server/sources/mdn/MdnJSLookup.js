@@ -11,13 +11,6 @@ var mdnJS = {
             callback(result);
             console.log("callback");
         }
-        //for (var i in children) {
-            //        if (children[i] !== null) {
-            //            var child = children[i];
-            //            var res = queryHandler.handle(child.lang, child.type, child.key, child.value, child.children);
-            //            result.children.push(res);
-            //        }
-            //    }
     },
 
     query: function (results, func, receiver, file, candidates, next, callback) {
@@ -32,11 +25,18 @@ var mdnJS = {
 
         var page = "";
 
-        if (file === "DOMCore.js" || file === "DOMEvents.js") {
+        if (file === "DOMCore.js" || file === "DOMEvents.js" || file === "DHTML.js") {
             // Default JS-DOM functionality
+
+            if (receiver === "HTMLDocument") {
+                receiver = "Document";
+            }
             mdnJS._loadDOMFunctionPage(results, result, func, receiver, page, candidates, next, callback);
         }
 
+        else if (callback !== undefined) {
+            callback(results);
+        }
         //mdnHtml._loadFunctionsPage(result, func, callee, callback);
     },
 
@@ -82,6 +82,14 @@ var mdnJS = {
         var currentCategoryContent = "";
         var inCode = false;
 
+        // for example snippets
+        var examples = [];
+        var currentExampleTitle = "";
+        var inExampleTitle = false;
+        var currentExampleCode = "";
+        var inExampleCode = false;
+        var currentExampleText = "";
+
         // PARSE MDN RESPONSE.
         var parser = new htmlParser.Parser({
 
@@ -93,7 +101,20 @@ var mdnJS = {
                     var prevCategoryName = currentCategory.toString();
                     if (prevCategoryName !== "") {
                         // Write content of category to result
-                        mdn[prevCategoryName] = currentCategoryContent;
+                        if (prevCategoryName === "examples") {
+                            if (currentExampleTitle != ""
+                                || currentExampleCode != ""
+                                ||currentExampleText != "") {
+                                examples.push({
+                                    "title": currentExampleTitle,
+                                    "code": currentExampleCode,
+                                    "text": currentExampleText});
+                            }
+                            mdn[prevCategoryName] = examples;
+
+                        } else {
+                            mdn[prevCategoryName] = currentCategoryContent;
+                        }
                     }
 
                     switch (attribs.id) {
@@ -122,6 +143,52 @@ var mdnJS = {
 
                 }
 
+                if (currentCategory === "examples") {
+
+                    if ((name === "h3" || name === "h2")
+                        && (currentExampleTitle != "" || currentExampleCode != "" || currentExampleText != "")) {
+                        examples.push({
+                            "title": currentExampleTitle,
+                            "code": currentExampleCode,
+                            "text": currentExampleText});
+
+                        currentExampleTitle = "";
+                        currentExampleCode = "";
+                        currentExampleText = "";
+                    }
+
+                    // add content to part of example
+                    if (inExampleTitle) {
+                        currentExampleTitle += " <" + name;
+                        for (attr in attribs) {
+                            currentExampleTitle += ' ' + attr + '="' + attribs[attr] + '"';
+                        }
+                        currentExampleTitle += ">";
+
+                    } else if (inExampleCode) {
+                        currentExampleCode += " <" + name;
+                        for (attr in attribs) {
+                            currentExampleCode += ' ' + attr + '="' + attribs[attr] + '"';
+                        }
+                        currentExampleCode += ">";
+
+                    } else {
+                        currentExampleText += " <" + name;
+                        for (attr in attribs) {
+                            currentExampleText += ' ' + attr + '="' + attribs[attr] + '"';
+                        }
+
+                        currentExampleText += ">";
+                    }
+
+                    // store examples one-by-one
+                    if (name === "h3") {
+                        inExampleTitle = true;
+                    } else if (name === "pre") {
+                        inExampleCode = true;
+                    }
+                }
+
                 if (currentCategory !== "") {
                     currentCategoryContent += " <" + name;
                     for (attr in attribs) {
@@ -139,15 +206,28 @@ var mdnJS = {
                 if (currentCategory !== "") {
                     currentCategoryContent += text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;").replace("\n", "")
                 }
+
+                // text for examples
+                if (inExampleTitle) {
+                    currentExampleTitle += text;
+                } else if (inExampleCode) {
+                    currentExampleCode += text;
+                }
             },
             onclosetag: function (tagname) {
                 if (currentCategory !== "") {
                     if (tagname === "code" || tagname === "pre") {
                         inCode = false;
                     }
-
                     currentCategoryContent += "</" + tagname + ">";
+                }
 
+                if (currentCategory === "examples") {
+                    if (tagname === "h3") {
+                        inExampleTitle = false;
+                    } else if (tagname === "pre") {
+                        inExampleCode = false;
+                    }
                 }
             }
         }, {decodeEntities: true});

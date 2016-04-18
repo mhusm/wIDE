@@ -1,10 +1,11 @@
 package ch.ethz.inf.globis.wide.ui.popup;
 
 import ch.ethz.inf.globis.wide.parsing.WideQueryResult;
+import ch.ethz.inf.globis.wide.ui.editor.WideMouseEventListenerHelper;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.editor.event.EditorMouseEvent;
+import com.intellij.openapi.editor.event.EditorMouseMotionListener;
+import com.intellij.openapi.ui.popup.*;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 
@@ -19,7 +20,41 @@ import java.util.List;
  * Created by fabian on 06.04.16.
  */
 public class WidePopupHelper {
-    public static void showHtmlTagLookupResults(List<WideQueryResult> results, Editor editor) {
+
+    private JBPopup popup;
+    private static final WidePopupHelper INSTANCE = new WidePopupHelper();
+
+    private WidePopupHelper() {
+    }
+
+    public static WidePopupHelper getInstance() {
+        return INSTANCE;
+    }
+
+    private void showPopup(JComponent content, Editor editor) {
+        if (popup != null) {
+            popup.cancel();
+        }
+        ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(content, editor.getComponent());
+        popupBuilder.setTitle("Lookup Results");
+        JBPopup popup = popupBuilder.createPopup();
+        popup.setSize(new Dimension(600, 200));
+        popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor));
+
+        popup.addListener(new JBPopupListener() {
+            @Override
+            public void beforeShown(LightweightWindowEvent lightweightWindowEvent) {
+
+            }
+
+            @Override
+            public void onClosed(LightweightWindowEvent lightweightWindowEvent) {
+                WideMouseEventListenerHelper.getInstance().deregisterMouseEventListener();
+            }
+        });
+    }
+
+    public void showHtmlTagLookupResults(List<WideQueryResult> results, Editor editor) {
         WideTableModel tableModel = new WideTableModel();
         tableModel.addColumn("Name");
         tableModel.addColumn("Type");
@@ -32,15 +67,12 @@ public class WidePopupHelper {
         popupTable.getColumn("Result").setCellRenderer(new WideTableCellRenderer());
 
         JScrollPane scrollPane = new JBScrollPane(popupTable);
+        showPopup(scrollPane, editor);
 
-        ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(scrollPane, editor.getComponent());
-        popupBuilder.setTitle("Lookup Results");
-        JBPopup popup = popupBuilder.createPopup();
-        popup.setSize(new Dimension(600, 200));
-        popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor));
+        WideMouseEventListenerHelper.getInstance().registerMouseEventListener(results, editor);
     }
 
-    public static void showHtmlNewTagLookupResults(WideQueryResult result, Editor editor) {
+    public void showHtmlNewTagLookupResults(WideQueryResult result, Editor editor) {
         // add an html editor kit
         HTMLEditorKit kit = new HTMLEditorKit();
 
@@ -71,13 +103,10 @@ public class WidePopupHelper {
         examplesEditorPane.setDocument(doc);
         examplesEditorPane.setText(htmlString);
 
-        ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(examplesScrollPane, editor.getComponent());
-        JBPopup popup = popupBuilder.createPopup();
-        popup.setSize(new Dimension(500, 200));
-        popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor));
+        showPopup(examplesScrollPane, editor);
     }
 
-    public static void showHtmlAttributeLookupResult(WideQueryResult result, Editor editor) {
+    public void showHtmlAttributeLookupResult(WideQueryResult result, Editor editor) {
         // add an html editor kit
         HTMLEditorKit kit = new HTMLEditorKit();
 
@@ -108,13 +137,10 @@ public class WidePopupHelper {
         examplesEditorPane.setDocument(doc);
         examplesEditorPane.setText(htmlString);
 
-        ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(examplesScrollPane, editor.getComponent());
-        JBPopup popup = popupBuilder.createPopup();
-        popup.setSize(new Dimension(500, 200));
-        popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor));
+        showPopup(examplesScrollPane, editor);
     }
 
-    public static void showJsLookupResults(List<WideQueryResult> results, Editor editor) {
+    public void showJsLookupResults(List<WideQueryResult> results, Editor editor) {
         WideTableModel tableModel = new WideTableModel();
         tableModel.addColumn("Name");
         tableModel.addColumn("Type");
@@ -126,14 +152,10 @@ public class WidePopupHelper {
         popupTable.getColumn("Type").setCellRenderer(new WideTableCellRenderer());
         popupTable.getColumn("Result").setCellRenderer(new WideTableCellRenderer());
 
-        ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(popupTable, editor.getComponent());
-        popupBuilder.setTitle("Lookup Results");
-        JBPopup popup = popupBuilder.createPopup();
-        popup.setSize(new Dimension(600, 100));
-        popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor));
+        showPopup(popupTable, editor);
     }
 
-    public static void showCssLookupResults(List<WideQueryResult> results, Editor editor) {
+    public void showCssLookupResults(List<WideQueryResult> results, Editor editor) {
         WideTableModel tableModel = new WideTableModel();
         tableModel.addColumn("Name");
         tableModel.addColumn("Type");
@@ -145,17 +167,21 @@ public class WidePopupHelper {
         popupTable.getColumn("Type").setCellRenderer(new WideTableCellRenderer());
         popupTable.getColumn("Result").setCellRenderer(new WideTableCellRenderer());
 
-        ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(popupTable, editor.getComponent());
-        popupBuilder.setTitle("Lookup Results");
-        JBPopup popup = popupBuilder.createPopup();
-        popup.setSize(new Dimension(600, 100));
-        popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor));
+        showPopup(popupTable, editor);
     }
 
-    private static void addResultsRecursive(DefaultTableModel tableModel, List<WideQueryResult> results) {
+
+    public void showError(String error, Editor editor) {
+        //TODO: implementation
+        showPopup(new JLabel(error), editor);
+    }
+
+    private void addResultsRecursive(DefaultTableModel tableModel, List<WideQueryResult> results) {
         for (WideQueryResult result : results) {
-            tableModel.addRow(result.getTableRow());
-            addResultsRecursive(tableModel, result.getSubResults());
+            if (result != null) {
+                tableModel.addRow(result.getTableRow());
+                addResultsRecursive(tableModel, result.getSubResults());
+            }
         }
     }
 }

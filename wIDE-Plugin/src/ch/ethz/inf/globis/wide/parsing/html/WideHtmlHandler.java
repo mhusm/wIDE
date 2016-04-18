@@ -1,6 +1,7 @@
 package ch.ethz.inf.globis.wide.parsing.html;
 
 import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
+import ch.ethz.inf.globis.wide.logging.WideLogger;
 import ch.ethz.inf.globis.wide.parsing.WideAbstractLanguageHandler;
 import ch.ethz.inf.globis.wide.parsing.WideQueryResult;
 import ch.ethz.inf.globis.wide.parsing.css.WideCssHandler;
@@ -25,52 +26,54 @@ import java.util.List;
  * Created by fabian on 17.03.16.
  */
 public class WideHtmlHandler implements WideAbstractLanguageHandler {
+
+    private static final WideLogger LOGGER = new WideLogger(WideHtmlHandler.class.getName());
+
     public List<WideQueryResult> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished) {
 
         List<WideQueryResult> results = new ArrayList<WideQueryResult>();
 
         if (startElement.equals(endElement)) {
             // only one element.
-            System.out.println("HTML lookup request");
 
             // ATTRIBUTE SELECTED
             if (startElement.getParent() instanceof XmlAttribute) {
-                System.out.println("HTML Attribute");
+                LOGGER.info("HTML Attribute");
 
                 WideQueryResult result = lookupAttribute(editor, file, startElement.getParent().getParent().getFirstChild().getNextSibling(), startElement, startElement.getParent().getLastChild(), 0);
                 results.add(result);
 
-                WidePopupHelper.showHtmlAttributeLookupResult(results.get(0).getSubResults().get(0), editor);
+                WidePopupHelper.getInstance().showHtmlAttributeLookupResult(results.get(0).getSubResults().get(0), editor);
 
                 // ATTRIBUTE VALUE SELECTED
             } else if (startElement.getParent() instanceof XmlAttributeValue) {
-                System.out.println("HTML AttributeValue");
+                LOGGER.info("HTML AttributeValue");
 
                 WideQueryResult result = lookupAttribute(editor, file, startElement.getParent().getParent().getFirstChild().getNextSibling(), startElement.getParent().getFirstChild(), startElement, 0);
                 results.add(result);
 
-                WidePopupHelper.showHtmlAttributeLookupResult(results.get(0).getSubResults().get(0), editor);
+                WidePopupHelper.getInstance().showHtmlAttributeLookupResult(results.get(0).getSubResults().get(0), editor);
 
                 // TAG SELECTED
             } else if (startElement.getParent() instanceof HtmlTag) {
-                System.out.println("HTML Tag");
+                LOGGER.info("HTML Tag");
 
                 WideQueryResult parentResult = lookupTag(editor, file, startElement);
                 results.add(parentResult);
 
-                WidePopupHelper.showHtmlTagLookupResults(results, editor);
+                WidePopupHelper.getInstance().showHtmlTagLookupResults(results, editor);
             }
 
         } else if (startElement instanceof PsiWhiteSpace && endElement instanceof XmlToken) {
-            System.out.println("New HTML tag");
+            LOGGER.info("New HTML tag");
 
             WideQueryResult parentResult = lookupTag(editor, file, endElement);
             results.add(parentResult);
 
-            WidePopupHelper.showHtmlNewTagLookupResults(results.get(0), editor);
+            WidePopupHelper.getInstance().showHtmlNewTagLookupResults(results.get(0), editor);
 
         } else {
-            System.out.println("related objects");
+            LOGGER.warning("Multiple related HTML objects are not yet supported.");
 
             PsiElement parent = startElement;
             while (!(parent instanceof CssDeclaration)) {
@@ -123,7 +126,7 @@ public class WideHtmlHandler implements WideAbstractLanguageHandler {
         // LOOKUP CSS ATTRIBUTES
         if ("style".equals(attribute.getParent().getFirstChild().getText())) {
             // CSS in the attribute's value: Handle JS.
-            System.out.println("Interpreting CSS Attribute value.");
+            LOGGER.info("Interpreting CSS Attribute value.");
 
             PsiElement cssStart = attribute.getParent().getLastChild().getFirstChild().getNextSibling();
             while (cssStart.getFirstChild() != null) {
@@ -142,7 +145,7 @@ public class WideHtmlHandler implements WideAbstractLanguageHandler {
         // LOOKUP JS FUNCTIONS
         else if (attribute.getParent().getLastChild().getFirstChild() != null && attribute.getParent().getLastChild().getFirstChild().getNextSibling() instanceof JSElement) {
             // Javascript in the attribute's value: Handle JS.
-            System.out.println("Interpreting JS Attribute value.");
+            LOGGER.info("Interpreting JS Attribute value.");
 
             PsiElement jsStart = attribute.getParent().getLastChild().getFirstChild().getNextSibling();
             while (jsStart.getFirstChild() != null) {

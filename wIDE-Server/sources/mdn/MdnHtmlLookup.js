@@ -90,113 +90,218 @@ var mdnHtml = {
         var currentCategoryContent = "";
         var inCode = false;
 
+        // for example snippets
+        var examples = [];
+        var currentExampleTitle = "";
+        var inExampleTitle = false;
+        var currentExampleCode = "";
+        var inExampleCode = false;
+        var currentExampleText = "";
+
         // PARSE MDN RESPONSE.
         var parser = new htmlParser.Parser({
 
-            // PARSE ATTRIBUTES AND EXPLANATIONS.
-            onopentag: function (name, attribs) {
-                // parse categories (Summary, Attributes, Examples, Compatibility, Notes, See also)
-                if (name === "h2") {
-                    var prevCategoryName = currentCategory.toString();
-                    if (prevCategoryName !== "") {
-                        // Write content of category to result
-                        result.mdn[prevCategoryName] = currentCategoryContent;
+                // PARSE ATTRIBUTES AND EXPLANATIONS.
+                onopentag: function (name, attribs) {
+                    // parse categories (Summary, Attributes, Examples, Compatibility, Notes, See also)
+                    if (name === "h2") {
+                        var prevCategoryName = currentCategory.toString();
+                        if (prevCategoryName !== "") {
+                            // Write content of category to result
+                            if (prevCategoryName === "examples") {
+                                if (currentExampleTitle != ""
+                                    || currentExampleCode != ""
+                                    || currentExampleText != "") {
+                                    examples.push({
+                                        "title": currentExampleTitle,
+                                        "code": currentExampleCode,
+                                        "text": currentExampleText
+                                    });
+                                }
+                                result.mdn[prevCategoryName] = examples;
+
+                            } else {
+                                result.mdn[prevCategoryName] = currentCategoryContent;
+                            }
+                        }
+
+                        switch (attribs.id) {
+                            case "Summary":
+                                currentCategory = "summary";
+                                break;
+                            case "Attributes":
+                                currentCategory = "attributes";
+                                break;
+                            case "Examples":
+                            case "Example":
+                                currentCategory = "examples";
+                                break;
+                            case "Browser_compatibility":
+                                currentCategory = "compatibility";
+                                break;
+                            case "Notes":
+                                currentCategory = "notes";
+                                break;
+                            case "See_also":
+                                currentCategory = "seeAlso";
+                                break;
+                            default:
+                                // workaround for bad structured examples
+                                if (attribs.id !== undefined && attribs.id.indexOf("Example") === 0) {
+                                    currentCategory = "examples";
+                                } else {
+
+                                    // reset category & content
+                                    currentCategory = "";
+                                    currentCategoryContent = "";
+                                }
+                                return;
+                        }
+
+                        // reset category & content
+                        currentCategoryContent = "";
+
                     }
 
-                    switch (attribs.id) {
-                        case "Summary":
-                            currentCategory = "summary";
-                            break;
-                        case "Attributes":
-                            currentCategory = "attributes";
-                            break;
-                        case "Examples":
-                        case "Example":
-                            currentCategory = "examples";
-                            break;
-                        case "Browser_compatibility":
-                            currentCategory = "compatibility";
-                            break;
-                        case "Notes":
-                            currentCategory = "notes";
-                            break;
-                        case "See_also":
-                            currentCategory = "seeAlso";
-                            break;
-                        default:
-                            // reset category & content
-                            currentCategory = "";
-                            currentCategoryContent = "";
-                            return;
+                    // parse attributes (one-by-one).
+                    if (name === "strong" && attribs.id !== undefined && attribs.id.indexOf("attr-") === 0) {
+                        currentKey = attribs.id.substr(5);
+                    } else if (name === "dt" && attribs.id !== undefined && attribs.id.indexOf("attr-") === 0) {
+                        currentKey = attribs.id.substr(5);
+                    } else if (name === "dd" && currentKey !== undefined) {
+                        inDD = true;
+                    } else if (currentKey !== undefined && inDD) {
+                        currentValue += " <" + name;
+                        for (attr in attribs) {
+                            currentValue += ' ' + attr + '="' + attribs[attr] + '"';
+                        }
+
+                        currentValue += ">";
+
                     }
 
-                    // reset category & content
-                    currentCategoryContent = "";
+                    if (currentCategory === "examples") {
 
-                }
+                        if ((name === "h3" || name === "h2")
+                            && (currentExampleTitle != "" || currentExampleCode != "" || currentExampleText != "")) {
+                            examples.push({
+                                "title": currentExampleTitle,
+                                "code": currentExampleCode,
+                                "text": currentExampleText
+                            });
 
-                // parse attributes (one-by-one).
-                if (name === "strong" && attribs.id !== undefined && attribs.id.indexOf("attr-") === 0) {
-                    currentKey = attribs.id.substr(5);
-                } else if (name === "dt" && attribs.id !== undefined && attribs.id.indexOf("attr-") === 0) {
-                    currentKey = attribs.id.substr(5);
-                } else if (name === "dd" && currentKey !== undefined) {
-                    inDD = true;
-                } else if (currentKey !== undefined && inDD) {
-                    currentValue += " <" + name;
-                    for (attr in attribs) {
-                        currentValue += ' ' + attr + '="' + attribs[attr] + '"';
+                            currentExampleTitle = "";
+                            currentExampleCode = "";
+                            currentExampleText = "";
+                        }
+
+                        // add content to part of example
+                        if (inExampleTitle) {
+                            currentExampleTitle += " <" + name;
+                            for (attr in attribs) {
+                                currentExampleTitle += ' ' + attr + '="' + attribs[attr] + '"';
+                            }
+                            currentExampleTitle += ">";
+
+                        } else if (inExampleCode) {
+                            currentExampleCode += " <" + name;
+                            for (attr in attribs) {
+                                currentExampleCode += ' ' + attr + '="' + attribs[attr] + '"';
+                            }
+                            currentExampleCode += ">";
+
+                        } else if (name !== "pre" && name !== "h3") {
+                            currentExampleText += " <" + name;
+                            for (attr in attribs) {
+                                currentExampleText += ' ' + attr + '="' + attribs[attr] + '"';
+                            }
+
+                            currentExampleText += ">";
+                        }
+
+                        // store examples one-by-one
+                        if (name === "h3") {
+                            inExampleTitle = true;
+                        } else if (name === "pre") {
+                            inExampleCode = true;
+                        }
                     }
 
-                    currentValue += ">";
+                    if (currentCategory !== "") {
+                        currentCategoryContent += " <" + name;
+                        for (attr in attribs) {
+                            currentCategoryContent += ' ' + attr + '="' + attribs[attr] + '"';
+                        }
 
-                }
+                        currentCategoryContent += ">";
 
-                if (currentCategory !== "") {
-                    currentCategoryContent += " <" + name;
-                    for (attr in attribs) {
-                        currentCategoryContent += ' ' + attr + '="' + attribs[attr] + '"';
+                        if (name === "code" || name === "pre") {
+                            inCode = true;
+                        }
+                    }
+                },
+                ontext: function (text) {
+                    if (currentKey !== undefined && inDD) {
+                        currentValue += text;
                     }
 
-                    currentCategoryContent += ">";
+                    if (currentCategory !== "") {
+                        currentCategoryContent += text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;").replace("\n", "")
+                    }
 
-                    if (name === "code" || name === "pre") {
-                        inCode = true;
+                    if (currentCategory === "examples") {
+                        // text for examples
+                        if (inExampleTitle) {
+                            currentExampleTitle += text;
+                        } else if (inExampleCode) {
+                            currentExampleCode += text;
+                        } else {
+                            currentExampleText += text;
+                        }
+                    }
+                },
+                onclosetag: function (tagname) {
+
+                    if (tagname === "dd") {
+                        tagAttributes[currentKey] = currentValue;
+                        currentKey = undefined;
+                        currentValue = "";
+                        inDD = false;
+
+                    } else if (currentKey !== undefined && inDD) {
+                        currentValue += "</" + tagname + ">";
+
+                    }
+
+                    if (currentCategory !== "") {
+                        if (tagname === "code" || tagname === "pre") {
+                            inCode = false;
+                        }
+
+                        currentCategoryContent += "</" + tagname + ">";
+
+                    }
+
+                    if (currentCategory === "examples") {
+                        if (tagname === "h3") {
+                            inExampleTitle = false;
+                        } else if (tagname === "pre") {
+                            inExampleCode = false;
+                        } else if (inExampleTitle) {
+                            currentExampleTitle += "</" + tagname + ">";
+                        } else if (inExampleCode) {
+                            currentExampleCode += "</" + tagname + ">";
+                        } else {
+                            currentExampleText += "</" + tagname + ">";
+                        }
                     }
                 }
             },
-            ontext: function (text) {
-                if (currentKey !== undefined && inDD) {
-                    currentValue += text;
-                }
-
-                if (currentCategory !== "") {
-                    currentCategoryContent += text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;").replace("\n", "")
-                }
-            },
-            onclosetag: function (tagname) {
-
-                if (tagname === "dd") {
-                    tagAttributes[currentKey] = currentValue;
-                    currentKey = undefined;
-                    currentValue = "";
-                    inDD = false;
-
-                } else if (currentKey !== undefined && inDD) {
-                    currentValue += "</" + tagname + ">";
-
-                }
-
-                if (currentCategory !== "") {
-                    if (tagname === "code" || tagname === "pre") {
-                        inCode = false;
-                    }
-
-                    currentCategoryContent += "</" + tagname + ">";
-
-                }
+            {
+                decodeEntities: true
             }
-        }, {decodeEntities: true});
+            )
+            ;
         parser.write(page);
         parser.end();
 
@@ -204,6 +309,11 @@ var mdnHtml = {
     },
 
     _handleAttributes: function (result, tag, attributes, tagAttributes, callback) {
+
+        var presentAttributes = "mdnHtml: Present attributes: ";
+        var nonPresentAttributes = "mdnHtml: Non present attributes: ";
+        var invalidAttributes = "mdnHtml: Invalid attributes: ";
+
         // present attributes
         for (var attribute in attributes) {
             var status = 0;
@@ -234,7 +344,8 @@ var mdnHtml = {
                     }
 
                     // The attribute is supported
-                    console.log("mdnHtml: Present attribute: " + attributes[attribute].key);
+                    presentAttributes += attributes[attribute].key + ", ";
+                    //console.log("mdnHtml: Present attribute: " + attributes[attribute].key);
                     result.children.push(
                         {
                             "lang": attributes[attribute].lang,
@@ -246,9 +357,12 @@ var mdnHtml = {
                             "info": tagAttributes[attributes[attribute].key]
                         });
 
+                    delete tagAttributes[attributes[attribute].key];
+
                 } else {
                     // The attribute is not supported
-                    console.log("mdnHtml: Not supported attribute: " + attributes[attribute].key);
+                    invalidAttributes += attributes[attribute].key + ", ";
+                    //console.log("mdnHtml: Not supported attribute: " + attributes[attribute].key);
                     result.children.push(
                         {
                             "lang": attributes[attribute].lang,
@@ -258,6 +372,8 @@ var mdnHtml = {
                             "status": -1,
                             "info": tagAttributes[attributes[attribute].key]
                         });
+
+                    delete tagAttributes[attributes[attribute].key];
                 }
             }
         }
@@ -267,7 +383,8 @@ var mdnHtml = {
             if (attributes[attribute] === undefined) {
 
                 // The attribute is not supported
-                console.log("mdnHtml: Non present attribute: " + attribute);
+                nonPresentAttributes += attribute + ", ";
+                //console.log("mdnHtml: Non present attribute: " + attribute);
                 result.children.push(
                     {
                         "lang": "HTML",
@@ -278,6 +395,10 @@ var mdnHtml = {
                     });
             }
         }
+
+        console.info(presentAttributes);
+        console.info(nonPresentAttributes);
+        console.info(invalidAttributes);
 
         callback(result);
     }

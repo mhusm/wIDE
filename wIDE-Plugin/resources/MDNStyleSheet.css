@@ -15,7 +15,7 @@ a:hover {
 
 h2 {
     font-family: "Calibri";
-    font-size: 25px;
+    font-size: 30px;
     color: orangered;
     font-weight: bolder;
     margin: 0px;
@@ -24,7 +24,7 @@ h2 {
 
 h3 {
     font-family: "Calibri";
-    font-size: 20px;
+    font-size: 30px;
     font-weight: bolder;
     margin: 0px;
     padding: 0px;
@@ -34,4 +34,66 @@ p {
     margin: 0px;
     padding: 0px;
     font-family: 'Calibri';
+}
+
+pre {
+    font-family: "Courier New";
+}
+
+code {
+    font-family: "Courier New";
+    color: #F00;
+}
+
+.pre {
+    color: #F00;
+}
+
+.html {
+    color: #F00;
+}
+
+dt {
+    font-family: "Calibri";
+    color: #000000;
+    padding-top: 30px;
+}
+
+dt strong {
+    color: #000000;
+    font-size: 16px;
+}
+
+dt span {
+    font-family: "Calibri";
+    color: #646464;
+}
+
+dt span a {
+    color: #00FF00;
+}
+
+dt span {
+    color: #FF0000;
+    font-size: 15px;
+}
+
+dd {
+    margin: 0px 0px 40px 0px;
+    color: #646464;
+    font-family: "Calibri";
+}
+
+dd ul {
+    list-style-type: none;
+    margin: 0px 0px 0px 20px;
+}
+
+dd ul li {
+    margin: 0px 0px 10px 0px;
+}
+
+dd ul li code {
+    font-weight: bolder;
+    color: black;
 }

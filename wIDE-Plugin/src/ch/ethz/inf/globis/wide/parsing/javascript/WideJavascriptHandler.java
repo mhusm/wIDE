@@ -5,7 +5,6 @@ import ch.ethz.inf.globis.wide.parsing.WideAbstractLanguageHandler;
 import ch.ethz.inf.globis.wide.parsing.WideQueryResult;
 import com.intellij.lang.javascript.psi.JSCallExpression;
 import com.intellij.lang.javascript.psi.JSDefinitionExpression;
-import com.intellij.lang.javascript.psi.JSReferenceExpression;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
