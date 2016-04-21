@@ -2,7 +2,7 @@ package ch.ethz.inf.globis.wide.parsing.javascript;
 
 import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
 import ch.ethz.inf.globis.wide.parsing.WideAbstractLanguageHandler;
-import ch.ethz.inf.globis.wide.parsing.WideQueryResult;
+import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
 import com.intellij.lang.javascript.psi.JSCallExpression;
 import com.intellij.lang.javascript.psi.JSDefinitionExpression;
 import com.intellij.openapi.editor.Editor;
@@ -16,42 +16,25 @@ import java.util.List;
  * Created by fabian on 17.03.16.
  */
 public class WideJavascriptHandler implements WideAbstractLanguageHandler {
-    public List<WideQueryResult> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished) {
+    public List<WideQueryResponse> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished) {
         //TODO: distinguish file
 
         //TODO: multiple calls?
 
-        List<WideQueryResult> results = new ArrayList<WideQueryResult>();
+        List<WideQueryResponse> results = new ArrayList<WideQueryResponse>();
         String request = buildRequest(editor, file, startElement, endElement);
 
         if (request != "") {
             String response = WideHttpCommunicator.sendRequest(request);
 
-            WideQueryResult result = new WideQueryResult(response);
+            WideQueryResponse result = new WideQueryResponse(response);
             results.add(result);
         } else {
-            results.add(new WideQueryResult("No JS function:"));
+            //results.add(new WideQueryResponse("No JS function:"));
         }
 
         return results;
     }
-
-//    private List<WideQueryResult> queryFunctions(List<PsiElement> matchingCalls) {
-//        List<WideQueryResult> results = new ArrayList<WideQueryResult>();
-//        for (PsiElement call : matchingCalls) {
-//            String request = "function_name=" + call.getFirstChild().getText() + "&file_name=" + call.getContainingFile().getName();
-//
-//            String response = WideHttpCommunicator.sendJSRequest(request);
-//            System.out.println(response);
-//
-//            WideQueryResult result = new WideQueryResult(response);
-//            result.setLookupName(call.getFirstChild().getText());
-//            result.setFileName(call.getContainingFile().getName());
-//            result.setLookupType("JS-Call");
-//            results.add(result);
-//        }
-//        return results;
-//    }
 
     public String buildRequest(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
         //TODO: distinguish file

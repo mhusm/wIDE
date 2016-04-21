@@ -1,11 +1,8 @@
 var express = require('express');
-var query = express();
-
-var cache = require("../cache/cache");
-var queryHandler = require("./../handler/queryHandler");
+var suggestion = express();
 
 /* GET users listing. */
-query.use('/', function(req, res) {
+suggestion.use('/', function(req, res) {
     var params = req.body.parameters;
 
     console.log("REQUEST: " + params);
@@ -23,12 +20,11 @@ query.use('/', function(req, res) {
     var value = parameters.value;
     var children = parameters.children;
 
-    //queryHandler.handle(lang, type, key, value, children,
-    var response = cache.lookupDocumentation(lang, type, key, value, null, children, function(response) {
+    var response = queryHandler.handle(lang, type, key, value, children, function(response) {
         var stringResponse = JSON.stringify(response);
         console.log("RESPONSE: " + stringResponse);
         res.send(stringResponse);
     });
 });
 
-module.exports = query;
+module.exports = suggestion;

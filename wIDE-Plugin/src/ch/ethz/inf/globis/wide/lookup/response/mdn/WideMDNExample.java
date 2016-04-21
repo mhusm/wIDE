@@ -1,4 +1,4 @@
-package ch.ethz.inf.globis.wide.parsing;
+package ch.ethz.inf.globis.wide.lookup.response.mdn;
 
 import org.codehaus.jettison.json.JSONObject;
 

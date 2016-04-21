@@ -1,18 +1,11 @@
 package ch.ethz.inf.globis.wide.ui.editor;
 
-import ch.ethz.inf.globis.wide.parsing.WideQueryResult;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
+import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
+import ch.ethz.inf.globis.wide.ui.popup.WidePopupHelper;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.VisualPosition;
 import com.intellij.openapi.editor.event.EditorMouseEvent;
 import com.intellij.openapi.editor.event.EditorMouseMotionListener;
-import com.intellij.openapi.editor.event.SelectionEvent;
-import com.intellij.openapi.editor.event.SelectionListener;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.ui.awt.RelativePoint;
 
 import java.util.List;
 
@@ -23,7 +16,8 @@ public class WideMouseEventListenerHelper {
 
     private static final WideMouseEventListenerHelper INSTANCE = new WideMouseEventListenerHelper();
     private Editor editor;
-    private List<WideQueryResult> results;
+    private List<WideQueryResponse> results;
+    private WideQueryResponse currentResult;
     private EditorMouseMotionListener listener;
 
     public static WideMouseEventListenerHelper getInstance() {
@@ -34,17 +28,10 @@ public class WideMouseEventListenerHelper {
 
     }
 
-    public void registerMouseEventListener(List<WideQueryResult> results, Editor editor) {
+    public void registerMouseEventListener(List<WideQueryResponse> results, WideQueryResponse currentResult, Editor editor) {
         this.editor = editor;
         this.results = results;
-
-//        editor.getSelectionModel().addSelectionListener(new SelectionListener() {
-//            @Override
-//            public void selectionChanged(SelectionEvent selectionEvent) {
-//                System.out.println("Start-offset: " + selectionEvent.getNewRange().getStartOffset());
-//                System.out.println("End-offset: " + selectionEvent.getNewRange().getEndOffset());
-//            }
-//        });
+        this.currentResult = currentResult;
 
         this.listener = new EditorMouseMotionListener() {
             @Override
@@ -60,6 +47,24 @@ public class WideMouseEventListenerHelper {
                 if (!editorMouseEvent.getEditor().getCaretModel().getVisualPosition().leansRight) {
                     // if caret over word -> select word
                     editorMouseEvent.getEditor().getSelectionModel().selectWordAtCaret(true);
+                    String selectedAttribute = editorMouseEvent.getEditor().getSelectionModel().getSelectedText();
+
+
+                    if (results.get(0).getKey().equals(selectedAttribute)) {
+                        // tag selected -> show tag information
+                        if (!results.get(0).equals(currentResult)) {
+                            WidePopupHelper.getInstance().showHtmlTagLookupResults(results, editor);
+                        }
+                    } else {
+                        // attribute selected -> show attribute information
+                        for (WideQueryResponse result : results.get(0).getSubResults()) {
+                            if (result.getKey().equals(selectedAttribute) || result.getValue().equals(selectedAttribute)) {
+                                if (!result.equals(currentResult)) {
+                                    WidePopupHelper.getInstance().showHtmlAttributeLookupResult(results, result, editor);
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -73,11 +78,13 @@ public class WideMouseEventListenerHelper {
     }
 
     public void deregisterMouseEventListener() {
+        // when popup is closed -> remove listener to get normal cursor behaviour
         if (this.editor != null && this.listener != null) {
             this.editor.removeEditorMouseMotionListener(this.listener);
             this.editor = null;
             this.listener = null;
             this.results = null;
+            this.currentResult = null;
         }
     }
 

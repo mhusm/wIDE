@@ -20,7 +20,7 @@ var caniuseLookup = {
                     if (attributes[object] === key) {
                         var response = caniuse.getSupport(key);
                         console.log("caniuse: lookup [lang] " + lang + " [type] " + type + " [key] " + key + " [response] " + response);
-                        result.caniuse = response;
+                        return response;
                     }
                 }
             } else {
@@ -28,12 +28,12 @@ var caniuseLookup = {
                 if (attributes === attribute_name) {
                     var response = caniuse.getSupport(attribute_name);
                     console.log("caniuse: lookup [lang] " + lang + " [type] " + type + " [key] " + key + " [response] " + response);
-                    result.caniuse = response;
+                    return response;
                 }
             }
         }
         console.log("caniuse: No caniuse result found: [lang] " + lang + " [type] " + type + " [key] " + key);
-        result.caniuse = "No caniuse result.";
+        return "No caniuse result.";
     }
 }
 

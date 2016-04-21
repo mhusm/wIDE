@@ -2,7 +2,7 @@ package ch.ethz.inf.globis.wide.parsing.css;
 
 import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
 import ch.ethz.inf.globis.wide.parsing.WideAbstractLanguageHandler;
-import ch.ethz.inf.globis.wide.parsing.WideQueryResult;
+import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -15,14 +15,14 @@ import java.util.List;
  * Created by fabian on 17.03.16.
  */
 public class WideCssHandler implements WideAbstractLanguageHandler {
-    public List<WideQueryResult> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished) {
+    public List<WideQueryResponse> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished) {
 
-        List<WideQueryResult> results = new ArrayList<WideQueryResult>();
+        List<WideQueryResponse> results = new ArrayList<WideQueryResponse>();
 
         String request = buildRequest(file, startElement, endElement);
         String response = WideHttpCommunicator.sendRequest(request);
 
-        WideQueryResult result = new WideQueryResult(response);
+        WideQueryResponse result = new WideQueryResponse(response);
         results.add(result);
 
         return results;

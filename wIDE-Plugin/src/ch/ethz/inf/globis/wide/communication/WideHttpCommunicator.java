@@ -1,5 +1,6 @@
 package ch.ethz.inf.globis.wide.communication;
 
+import ch.ethz.inf.globis.wide.logging.WideLogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -15,6 +16,8 @@ import java.net.URL;
  */
 public class WideHttpCommunicator {
 
+    private static final WideLogger LOGGER = new WideLogger(WideHttpCommunicator.class.getName());
+
     private static final String SERVER_HOST = "localhost";
     private static final String SERVER_PORT = "3000";
     private static final String SERVER_PROTOCOL = "http://";
@@ -22,9 +25,10 @@ public class WideHttpCommunicator {
     public static String sendRequest(String request) {
         try {
             URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query");
-            System.out.println("SEND REQUEST: " + request);
+            LOGGER.info("SEND REQUEST: " + request);
             return sendQuery(url, request);
         } catch (MalformedURLException e) {
+            LOGGER.severe("Sending request to " + SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query failed.");
             e.printStackTrace();
             return null;
         }
@@ -64,9 +68,10 @@ public class WideHttpCommunicator {
             }
             rd.close();
 
-            System.out.println("RESPONSE RECEIVED: " + response.toString());
+            LOGGER.info("RESPONSE RECEIVED: " + response.toString());
             return response.toString();
         } catch (Exception e) {
+            LOGGER.severe("Error while receiving data.");
             e.printStackTrace();
             return null;
         } finally {

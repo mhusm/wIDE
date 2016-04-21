@@ -1,7 +1,7 @@
 package ch.ethz.inf.globis.wide.ui.window;
 
-import ch.ethz.inf.globis.wide.parsing.WideMDNExample;
-import ch.ethz.inf.globis.wide.parsing.WideQueryResult;
+import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
+import ch.ethz.inf.globis.wide.lookup.response.mdn.WideMDNExample;
 import ch.ethz.inf.globis.wide.ui.components.WideFullWidthPanel;
 import ch.ethz.inf.globis.wide.ui.editor.WideExampleEditorFactory;
 import com.intellij.ide.highlighter.HtmlHighlighterFactory;
@@ -10,8 +10,6 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import org.intellij.lang.annotations.JdkConstants;
-import sun.font.FontManager;
 
 import javax.swing.*;
 import javax.swing.text.html.HTMLEditorKit;
@@ -23,7 +21,7 @@ import java.util.List;
  */
 public class WideHtmlWindowFactory extends WideWindowFactory {
 
-    public static void createHTMLWindowContent(ToolWindow toolWindow, WideQueryResult result) {
+    public static void createHTMLWindowContent(ToolWindow toolWindow, WideQueryResponse result) {
         HTMLEditorKit kit = buildHtmlEdiorKit();
         toolWindow.getContentManager().removeAllContents(true);
         createSummaryContent(result.getMdn().getSummary(), kit, toolWindow);
@@ -36,6 +34,7 @@ public class WideHtmlWindowFactory extends WideWindowFactory {
         WideFullWidthPanel parentPanel = new WideFullWidthPanel();
 
         for (WideMDNExample example : examples) {
+            // show all Examples
             if (example.getTitle() != null && !example.getTitle().equals("")) {
                 // title
                 JLabel title = new JLabel(example.getTitle());

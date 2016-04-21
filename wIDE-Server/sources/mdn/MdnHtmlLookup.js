@@ -1,6 +1,6 @@
 var https = require('https');
 var htmlParser = require("htmlparser2");
-var queryHandler = require("../../routes/queryHandler");
+var queryHandler = require("../../handler/queryHandler");
 
 var mdnHtml = {
     query: function (result, tag, attributes, callback) {
@@ -79,7 +79,7 @@ var mdnHtml = {
     },
 
     _parsePage: function (result, tag, attributes, page, callback) {
-        result.mdn = {};
+        result.documentation.mdn = {};
 
         var tagAttributes = {};
         var currentKey = undefined;
@@ -118,10 +118,10 @@ var mdnHtml = {
                                         "text": currentExampleText
                                     });
                                 }
-                                result.mdn[prevCategoryName] = examples;
+                                result.documentation.mdn[prevCategoryName] = examples;
 
                             } else {
-                                result.mdn[prevCategoryName] = currentCategoryContent;
+                                result.documentation.mdn[prevCategoryName] = currentCategoryContent;
                             }
                         }
 
@@ -333,7 +333,7 @@ var mdnHtml = {
                             || attributes[attribute].children[i].lang === "CSS")) {
 
                             // Sub JS or CSS -> Get lookup results
-                            var queryHandler = require("../../routes/queryHandler");
+                            var queryHandler = require("../../handler/queryHandler");
                             subNodes.push(queryHandler.handle(
                                 attributes[attribute].children[i].lang,
                                 attributes[attribute].children[i].type,
@@ -346,16 +346,26 @@ var mdnHtml = {
                     // The attribute is supported
                     presentAttributes += attributes[attribute].key + ", ";
                     //console.log("mdnHtml: Present attribute: " + attributes[attribute].key);
-                    result.children.push(
-                        {
-                            "lang": attributes[attribute].lang,
-                            "type": attributes[attribute].type,
-                            "key": attributes[attribute].key,
-                            "value": attributes[attribute].value,
-                            "status": 1,
-                            "children": subNodes,
-                            "info": tagAttributes[attributes[attribute].key]
-                        });
+
+                    var child = {
+                        "lang": attributes[attribute].lang,
+                        "type": attributes[attribute].type,
+                        "key": attributes[attribute].key,
+                        //"value": attributes[attribute].value,
+                        //"status": 1,
+                        "children": subNodes,
+                        "parent": result.key,
+                        "documentation": {
+                            "mdn": {
+                                "summary": tagAttributes[attributes[attribute].key],
+                                "examples": [],
+                            }
+                        }
+                    };
+                    result.children.push(child);
+
+                    var cache = require("../../cache/cache");
+                    cache.refreshDocumentationCache(child);
 
                     delete tagAttributes[attributes[attribute].key];
 
@@ -368,9 +378,13 @@ var mdnHtml = {
                             "lang": attributes[attribute].lang,
                             "type": attributes[attribute].type,
                             "key": attributes[attribute].key,
-                            "value": attributes[attribute].value,
-                            "status": -1,
-                            "info": tagAttributes[attributes[attribute].key]
+                            //"value": attributes[attribute].value,
+                            "documentation": {
+                                "mdn": {
+                                    "summary": tagAttributes[attributes[attribute].key],
+                                    "examples": []
+                                }
+                            }
                         });
 
                     delete tagAttributes[attributes[attribute].key];
@@ -385,14 +399,23 @@ var mdnHtml = {
                 // The attribute is not supported
                 nonPresentAttributes += attribute + ", ";
                 //console.log("mdnHtml: Non present attribute: " + attribute);
-                result.children.push(
-                    {
-                        "lang": "HTML",
-                        "type": "attribute",
-                        "key": attribute,
-                        "status": 0,
-                        "info": tagAttributes[attribute]
-                    });
+                var child = {
+                    "lang": "HTML",
+                    "type": "attribute",
+                    "key": attribute,
+                    "documentation": {
+                        "mdn": {
+                            "summary": tagAttributes[attribute],
+                            "examples": []
+                        }
+                    },
+                    "parent": result.key
+                };
+
+                result.children.push(child);
+
+                var cache = require("../../cache/cache");
+                cache.refreshDocumentationCache(child);
             }
         }
 

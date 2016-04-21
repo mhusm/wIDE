@@ -1,7 +1,6 @@
-package ch.ethz.inf.globis.wide.parsing;
+package ch.ethz.inf.globis.wide.lookup.response;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.json.JsonParser;
+import ch.ethz.inf.globis.wide.lookup.response.mdn.WideMDNResult;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * Created by fabian on 11.03.16.
  */
-public class WideQueryResult {
+public class WideQueryResponse {
     private String lang;
     private String type;
     private String key;
@@ -21,20 +20,18 @@ public class WideQueryResult {
     private int level;
     private String caniuse;
     private WideMDNResult mdn;
-    private List<WideQueryResult> subResults = new ArrayList<WideQueryResult>();
-    private String info;
+    private List<WideQueryResponse> subResults = new ArrayList<WideQueryResponse>();
 
-    public WideQueryResult(String response) {
+    public WideQueryResponse(String response) {
         this(response, 0);
     }
 
-    public void setSubResults(List<WideQueryResult> subResults) {
+    public void setSubResults(List<WideQueryResponse> subResults) {
         this.subResults = subResults;
     }
 
-    public WideQueryResult(String response, int level) {
+    public WideQueryResponse(String response, int level) {
         try {
-
             JSONObject res = new JSONObject(response);
             setLang(res.optString("lang"));
             setType(res.optString("type"));
@@ -42,18 +39,17 @@ public class WideQueryResult {
             setValue(res.optString("value"));
             setCaniuse(res.optString("caniuse"));
             setLevel(level);
-            setInfo(res.optString("info"));
 
             // create mdn result
-            if (res.optString("mdn") != null && res.optString("mdn").length() > 2) {
-                setMdn(new WideMDNResult(new JSONObject(res.optString("mdn"))));
+            if (res.optString("documentation") != null && res.optString("documentation").length() > 2) {
+                resolveDocumentation(new JSONObject(res.optString("documentation")));
             }
 
             JSONArray children = res.optJSONArray("children");
 
             if (children != null) {
                 for (int i = 0; i < children.length(); i++) {
-                    subResults.add(new WideQueryResult(children.getString(i), level + 1));
+                    addSubResult(new WideQueryResponse(children.getString(i), level + 1));
                 }
             }
         } catch (JSONException e) {
@@ -61,12 +57,11 @@ public class WideQueryResult {
         }
     }
 
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
+    public void resolveDocumentation(JSONObject documentation) throws JSONException {
+        // create mdn result
+        if (documentation.optString("mdn") != null && documentation.optString("mdn").length() > 2) {
+            setMdn(new WideMDNResult(new JSONObject(documentation.optString("mdn"))));
+        }
     }
 
     public String getLang() {
@@ -119,17 +114,17 @@ public class WideQueryResult {
         this.mdn = mdn;
     }
 
-    public List<WideQueryResult> getSubResults() {
+    public List<WideQueryResponse> getSubResults() {
         return subResults;
     }
 
-    public void addSubResult(WideQueryResult result) {
+    public void addSubResult(WideQueryResponse result) {
         result.setLevel(getLevel() + 1);
         subResults.add(result);
     }
 
-    public void addAllSubResults(List<WideQueryResult> results) {
-        for (WideQueryResult res : results) {
+    public void addAllSubResults(List<WideQueryResponse> results) {
+        for (WideQueryResponse res : results) {
             addSubResult(res);
         }
     }
@@ -158,7 +153,7 @@ public class WideQueryResult {
             result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getKey();
         }
         result[1] = StringUtils.repeat("    ", this.getLevel()) + this.getLang() + "-" + this.getType();
-        result[2] = StringUtils.repeat("    ", this.getLevel()) + this.getInfo();
+        result[2] = StringUtils.repeat("    ", this.getLevel());
         return result;
     }
 }
