@@ -25,25 +25,28 @@ var cache = {
                     //result.compatibility = rows[0].compatibility;
                     result.documentation = rows[0].documentation;
 
-                    cache._selectChildrenFromCache(lang, type, key, children, function(err, rows, fields) {
-                        if (!err) {
-                            if (rows.length > 0) {
-                                for (row in rows) {
-                                    var child = rows[row];
-                                    child.status = 1;
-                                    result.children.push(child);
+                    // are the children cached?
+                    if (children.length > 0) {
+                        cache._selectChildrenFromCache(lang, type, key, children, function (err, rows, fields) {
+                            if (!err) {
+                                if (rows.length > 0) {
+                                    for (row in rows) {
+                                        var child = rows[row];
+                                        child.status = 1;
+                                        result.children.push(child);
+                                    }
                                 }
+                            } else {
+                                // Error while querying cache -> show error & wait for lookup
+                                console.error('cache: Error while querying children.');
+                                console.error(err);
                             }
-                        } else {
-                            // Error while querying cache -> show error & wait for lookup
-                            console.error('cache: Error while querying children.');
-                            console.error(err);
-                        }
 
-                        if (callback !== undefined) {
-                            callback(result);
-                        }
-                    });
+                            if (callback !== undefined) {
+                                callback(result);
+                            }
+                        });
+                    }
 
                     // still refresh cache
                     queryHandler.handle(lang, type, key, value, children, cache.refreshDocumentationCache);
@@ -93,20 +96,21 @@ var cache = {
                 } else {
                     // Fault
                     console.error("cache: Multiple entries for same key.");
-                    queryHandler.handle(lang, type, key, value, children, callback);
+                    queryHandler.handle(response.lang, response.type, response.key, response.value, response.children, callback);
 
                 }
             } else {
                 // Error while querying cache -> show error & wait for lookup
                 console.error('cache: Error while performing Query.');
                 console.error(err);
-                queryHandler.handle(lang, type, key, value, children, callback);
+                queryHandler.handle(response.lang, response.type, response.key, response.value, response.children, callback);
             }
         });
     },
 
     _selectEntryFromCache: function (lang, type, key, parent, callback) {
-        console.log("cache: Select children for [key] " + key + " [type] " + type + " [parent] " + parent + " [lang] " + lang);
+        //TODO: handle db faults (not available or others)
+        console.log("cache: Select entry for [key] " + key + " [type] " + type + " [parent] " + parent + " [lang] " + lang);
         // create connection to cache-db
         var connection = mysql.createConnection(sqlAccess);
 
@@ -171,6 +175,8 @@ var cache = {
     },
 
     _selectChildrenFromCache: function (lang, type, key, children, callback) {
+        //TODO: handle db faults (not available or others)
+        console.log("cache: Select children for [key] " + key + " [type] " + type + " [lang] " + lang);
         // create connection to cache-db
         var connection = mysql.createConnection(sqlAccess);
 
@@ -208,7 +214,75 @@ var cache = {
         connection.end();
     },
 
+    _searchSuggestionsInCache: function (lang, type, key, parent, callback) {
+        console.log("cache: Search suggestions for [key] " + key + " [type] " + type + " [parent] " + parent + " [lang] " + lang);
+        // create connection to cache-db
+        var connection = mysql.createConnection(sqlAccess);
+
+        // allow :key syntax
+        connection.config.queryFormat = function (query, values) {
+            if (!values) return query;
+            return query.replace(/\:(\w+)/g, function (txt, key) {
+                if (values.hasOwnProperty(key)) {
+                    return this.escape(values[key]);
+                }
+                return txt;
+            }.bind(this));
+        };
+
+        connection.connect();
+
+        if (parent === undefined || parent === null) {
+            connection.query("" +
+                "SELECT `key`, " +
+                "       `lang`, " +
+                "       `type`, " +
+                "       `compatibility`, " +
+                "       `documentation`, " +
+                "       `parent` " +
+                "FROM   cache " +
+                "WHERE  UPPER(`key`) LIKE UPPER(:key) " +
+                "       AND `lang` = :lang " +
+                "       AND `type` = :type " +
+                "       AND `parent` IS NULL " +
+                "ORDER BY `key` ASC ",
+                {
+                    "key": key + "%",
+                    "lang": lang,
+                    "type": type
+                },
+
+                callback);
+        } else {
+            connection.query("" +
+                "SELECT `key`, " +
+                "       `lang`, " +
+                "       `type`, " +
+                "       `compatibility`, " +
+                "       `documentation`, " +
+                "       `parent` " +
+                "FROM   cache " +
+                "WHERE  UPPER(`key`) LIKE UPPER(:key) " +
+                "       AND `lang` = :lang " +
+                "       AND `type` = :type " +
+                "       AND `parent` = :parent " +
+                "ORDER BY `key` ASC ",
+                {
+                    "key": key + "%",
+                    "lang": lang,
+                    "type": type,
+                    "parent": parent
+                },
+
+                callback);
+
+        }
+
+        connection.end();
+    },
+
     _updateEntryInCache: function (entry) {
+        //TODO: handle db faults (not available or others)
         // create connection to cache-db
         var connection = mysql.createConnection(sqlAccess);
 
@@ -285,6 +359,7 @@ var cache = {
     },
 
     _insertEntryToCache: function (entry) {
+        //TODO: handle db faults (not available or others)
         // create connection to cache-db
         var connection = mysql.createConnection(sqlAccess);
 
@@ -367,7 +442,53 @@ var cache = {
     },
 
     suggest: function (lang, type, key, value, children, callback) {
+        console.log("cache: load suggestions for [key] " + key + " [type] " + type + " [parent] " + value + " [lang] " + lang);
+        cache._searchSuggestionsInCache(lang, type, key, value, function (err, rows, fields) {
+            if (!err) {
+                var result = {};
+                result.lang = lang;
+                result.type = type;
+                result.key = key;
+                result.value = value;
+                result.children = [];
 
+                if (rows.length > 0) {
+
+                    for (var row in rows) {
+                        var subResult = {};
+                        subResult.lang = lang;
+                        subResult.type = type;
+                        subResult.key = rows[row].key;
+                        subResult.value = value;
+                        subResult.children = [];
+                        subResult.documentation = rows[row].documentation;
+                        result.children.push(subResult);
+
+                    }
+                    if (callback !== undefined) {
+                        callback(result);
+                    }
+
+                } else {
+                    // No cached result found -> wait for lookup
+                    console.info("cache: No suggestions for [key] " + key + " [type] " + type + " [parent] " + value + " [lang] " + lang);
+
+                    if (callback !== undefined) {
+                        callback(result);
+                    }
+                }
+            } else {
+                // Error while querying cache -> show error & wait for lookup
+                console.error('cache: Error while looking up Suggestions.');
+                console.error(err);
+                if (callback !== undefined) {
+                    callback({
+                        "type": "error",
+                        "message": "cache: Error while looking up suggestions."
+                    });
+                }
+            }
+        });
     }
 }
 

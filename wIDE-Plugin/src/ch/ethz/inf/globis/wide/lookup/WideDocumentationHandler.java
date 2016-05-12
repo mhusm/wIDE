@@ -1,7 +1,7 @@
 package ch.ethz.inf.globis.wide.lookup;
 
 import ch.ethz.inf.globis.wide.logging.WideLogger;
-import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import ch.ethz.inf.globis.wide.parsing.css.WideCssHandler;
 import ch.ethz.inf.globis.wide.parsing.html.WideHtmlHandler;
 import ch.ethz.inf.globis.wide.parsing.javascript.WideJavascriptHandler;
@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Created by fabian on 20.04.16.
  */
-public class WideDocumentationHandler implements IWideLookupHandler {
+public class WideDocumentationHandler {
 
     private final static WideLogger LOGGER = new WideLogger(WideDocumentationHandler.class.getName());
 

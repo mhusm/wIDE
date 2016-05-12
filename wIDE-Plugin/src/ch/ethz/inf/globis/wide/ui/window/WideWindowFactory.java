@@ -1,17 +1,27 @@
 package ch.ethz.inf.globis.wide.ui.window;
 
 import ch.ethz.inf.globis.wide.ui.components.WideContentBuilder;
-import ch.ethz.inf.globis.wide.ui.components.WideImagePanel;
+import ch.ethz.inf.globis.wide.ui.components.panel.WideImagePanel;
+import com.intellij.openapi.progress.AsynchronousExecution;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Box;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.web.WebView;
 
 import javax.swing.*;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 
 /**
@@ -21,34 +31,44 @@ public class WideWindowFactory extends WideContentBuilder implements ToolWindowF
     private Box box;
     private JLabel text;
     private WideImagePanel logo;
-    private JPanel myToolWindowContent;
+    private JFXPanel myToolWindowContent;
     private ToolWindow myToolWindow;
 
-
     public WideWindowFactory() {
-        // load image
-        logo = new WideImagePanel(WideWindowFactory.class.getResource("/logo.png"));
-        logo.setPreferredSize(new Dimension(logo.getImageWidth(), logo.getImageHeight()));
+        // wait for JavaFX to be ready
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                initWideGUI();
+            }
+        });
+    }
 
-        // set description text
-        text = new JLabel("Search documentation with ⌥F", SwingConstants.CENTER);
-        text.setAlignmentX(Component.CENTER_ALIGNMENT);
+    @AsynchronousExecution
+    private void initWideGUI() {
+        myToolWindowContent = new JFXPanel();
 
-        // use box to center image + text
-        box = new Box(BoxLayout.Y_AXIS);
-        box.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-        box.setPreferredSize(new Dimension(100, 100));
-        box.setMaximumSize(new Dimension(100, 100));
-        box.add(Box.createVerticalGlue());
-        box.add(logo);
-        box.add(text);
-        box.add(Box.createVerticalGlue());
+        Text text = new Text("Search documentation with ⌥F");
+        text.setTextAlignment(TextAlignment.CENTER);
 
-        // set panel to toolWindow
-        myToolWindowContent = new JPanel();
-        myToolWindowContent.setLayout(new BorderLayout());
-        myToolWindowContent.setBackground(Color.white);
-        myToolWindowContent.add(box, BorderLayout.CENTER);
+        Image img = new Image(WideWindowFactory.class.getResource("/logo.png").toString());//create an image
+        ImageView v = new ImageView(img);//create an imageView and pass the image
+
+        StackPane stackPane = new StackPane();
+        stackPane.setPrefSize(700, 700);
+
+        VBox vbox = new VBox(5);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setMaxSize(100, 100);
+        vbox.getChildren().addAll(v, text);
+
+        stackPane.getChildren().add(vbox);
+        StackPane.setAlignment(vbox, Pos.CENTER);
+
+        myToolWindowContent.setScene(new Scene(stackPane));
+
+        Platform.setImplicitExit(false);
+
     }
 
     // Create the tool window content.
@@ -61,61 +81,107 @@ public class WideWindowFactory extends WideContentBuilder implements ToolWindowF
         toolWindow.getComponent().setMinimumSize(new Dimension(100, 0));
     }
 
+
     public static void createErrorWindowContent(ToolWindow toolWindow, String error) {
         //TODO: implementation
         // set description text
-        JLabel text = new JLabel(error, SwingConstants.CENTER);
-        text.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // use box to center image + text
-        Box box = new Box(BoxLayout.Y_AXIS);
-        box.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-        box.setPreferredSize(new Dimension(100, 100));
-        box.setMaximumSize(new Dimension(100, 100));
-        box.add(Box.createVerticalGlue());
-        box.add(text);
-        box.add(Box.createVerticalGlue());
-
-        // set panel to toolWindow
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content summaryContent = contentFactory.createContent(box, "Error", false);
-
-        toolWindow.getContentManager().addContent(summaryContent);
+//        JLabel text = new JLabel(error, SwingConstants.CENTER);
+//        text.setAlignmentX(Component.CENTER_ALIGNMENT);
+//
+//        // use box to center image + text
+//        Box box = new Box(BoxLayout.Y_AXIS);
+//        box.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+//        box.setPreferredSize(new Dimension(100, 100));
+//        box.setMaximumSize(new Dimension(100, 100));
+//        box.add(Box.createVerticalGlue());
+//        box.add(text);
+//        box.add(Box.createVerticalGlue());
+//
+//        // set panel to toolWindow
+//        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+//        Content summaryContent = contentFactory.createContent(box, "Error", false);
+//
+//        toolWindow.getContentManager().addContent(summaryContent);
     }
 
-    static void createSummaryContent(String text, HTMLEditorKit kit, ToolWindow toolWindow) {
-        JEditorPane editorPane = createNewEditorPane("<html><body>" + text + "</body></html>", kit);
-        JScrollPane scrollPane = createNewScrollPane(editorPane);
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content summaryContent = contentFactory.createContent(scrollPane, "summary", false);
+    static void createSummaryContent(String text, ToolWindow toolWindow) {
+        JFXPanel panel = createJFXPanel("Summary", toolWindow);
 
-        toolWindow.getContentManager().addContent(summaryContent);
+        // wait for JavaFX to be ready
+        Platform.runLater(new Runnable() {
+            public void run() {
+                createSummaryContentFx(text, panel);
+            }
+        });
     }
 
-    static void createAttributesContent(String text, HTMLEditorKit kit, ToolWindow toolWindow) {
-        JEditorPane editorPane = createNewEditorPane("<html><body>" + text + "</body></html>", kit);
-        JScrollPane scrollPane = createNewScrollPane(editorPane);
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content summaryContent = contentFactory.createContent(scrollPane, "attributes", false);
+    @AsynchronousExecution
+    private static void createSummaryContentFx(String text, JFXPanel panel) {
+        WebView webView = createWebView();
+        webView.getEngine().loadContent("<html><body>" + text + "</body></html>");
 
-        toolWindow.getContentManager().addContent(summaryContent);
+        Scene scene = new Scene(webView);
+        panel.setScene(scene);
     }
 
-    static void createCompatibilityContent(String text, HTMLEditorKit kit, ToolWindow toolWindow) {
-        JEditorPane editorPane = createNewEditorPane("<html><body>" + text + "</body></html>", kit);
-        JScrollPane scrollPane = createNewScrollPane(editorPane);
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content summaryContent = contentFactory.createContent(scrollPane, "compatibility", false);
+    static void createAttributesContent(String text, ToolWindow toolWindow) {
+        JFXPanel panel = createJFXPanel("Attributes", toolWindow);
 
-        toolWindow.getContentManager().addContent(summaryContent);
+        // wait for JavaFX to be ready
+        Platform.runLater(new Runnable() {
+            public void run() {
+                createAttributesContentFx(text, panel);
+            }
+        });
+
     }
 
-    static void createSyntaxContent(String text, HTMLEditorKit kit, ToolWindow toolWindow) {
-        JEditorPane editorPane = createNewEditorPane("<html><body>" + text + "</body></html>", kit);
-        JScrollPane scrollPane = createNewScrollPane(editorPane);
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content summaryContent = contentFactory.createContent(scrollPane, "syntax", false);
+    @AsynchronousExecution
+    private static void createAttributesContentFx(String text, JFXPanel panel) {
+        WebView webView = createWebView();
+        webView.getEngine().loadContent("<html><body>" + text + "</body></html>");
 
-        toolWindow.getContentManager().addContent(summaryContent);
+        Scene scene = new Scene(webView);
+        panel.setScene(scene);
+    }
+
+    static void createCompatibilityContent(String text, ToolWindow toolWindow) {
+        JFXPanel panel = createJFXPanel("Compatibility", toolWindow);
+
+        // wait for JavaFX to be ready
+        Platform.runLater(new Runnable() {
+            public void run() {
+                createCompatibilityContentFx(text, panel);
+            }
+        });
+    }
+
+    @AsynchronousExecution
+    private static void createCompatibilityContentFx(String text, JFXPanel panel) {
+        WebView webView = createWebView();
+        webView.getEngine().loadContent("<html><body>" + text + "</body></html>");
+
+        Scene scene = new Scene(webView);
+        panel.setScene(scene);
+    }
+
+    static void createSyntaxContent(String text, ToolWindow toolWindow) {
+        JFXPanel panel = createJFXPanel("Syntax", toolWindow);
+
+        // wait for JavaFX to be ready
+        Platform.runLater(new Runnable() {
+            public void run() {
+                createSyntaxContentFx(text, panel);
+            }
+        });
+    }
+
+    @AsynchronousExecution
+    private static void createSyntaxContentFx(String text, JFXPanel panel) {
+        WebView webView = createWebView();
+        webView.getEngine().loadContent("<html><body>" + text + "</body></html>");
+
+        Scene scene = new Scene(webView);
+        panel.setScene(scene);
     }
 }

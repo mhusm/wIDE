@@ -1,4 +1,4 @@
-package ch.ethz.inf.globis.wide.lookup.response.mdn;
+package ch.ethz.inf.globis.wide.lookup.io.mdn;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -29,11 +29,13 @@ public class WideMDNResult {
 
         // add examples
         try {
-            JSONArray jsonExamples = new JSONArray(res.optString("examples"));
-            int i = 0;
-            while (i < jsonExamples.length()) {
-                addExample(new WideMDNExample(jsonExamples.getJSONObject(i)));
-                i++;
+            if (res.optString("examples") != null) {
+                JSONArray jsonExamples = new JSONArray(res.optString("examples"));
+                int i = 0;
+                while (i < jsonExamples.length()) {
+                    addExample(new WideMDNExample(jsonExamples.getJSONObject(i)));
+                    i++;
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();

@@ -4,9 +4,9 @@ var queryHandler = require("../../handler/queryHandler");
 
 var mdnJS = {
     resolveFullJSQuery: function(result, func, candidates, callback) {
-        var cand = candidates.shift();
+        var cand = JSON.parse(candidates.shift());
         if (cand !== null) {
-            mdnJS.query(result, cand.key, cand.value.receiver, cand.value.file, candidates, mdnJS.resolveFullJSQuery, callback);
+            mdnJS.query(result, cand.key, JSON.parse(cand.value).receiver, JSON.parse(cand.value).file, candidates, mdnJS.resolveFullJSQuery, callback);
 
         } else if (callback !== undefined) {
             callback(result);

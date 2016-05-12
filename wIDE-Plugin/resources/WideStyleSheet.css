@@ -1,0 +1,28 @@
+.suggestion_receiver {
+    -fx-fill: #666666;
+    -fx-font-size: 12px;
+}
+
+.suggestion_function {
+    -fx-fill: black;
+    -fx-font-size: 12px;
+}
+
+.suggestion_existing_text {
+    -fx-background-color: #0066cc;
+}
+
+.suggestion_details_view {
+}
+
+.list-cell {
+    -fx-start-margin: 10px;
+    -fx-end-margin: -10px;
+}
+
+.list-cell:selected {
+    -fx-background-color: lightgrey;
+}
+
+.suggestion_cell {
+}

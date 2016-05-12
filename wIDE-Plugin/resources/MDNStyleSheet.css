@@ -1,22 +1,26 @@
+html {
+    background: none;
+}
 body {
     font-family: "Calibri";
     padding: 10px;
+    background: inherit;
 }
 
 a {
-    color: orangered;
+    color: #006699;
     text-decoration: none;
 }
 
 a:hover {
-    color: red;
+    color: #0066cc;
     text-decoration: none;
 }
 
 h2 {
     font-family: "Calibri";
     font-size: 30px;
-    color: orangered;
+    color: #006699;
     font-weight: bolder;
     margin: 0px;
     padding: 0px;
@@ -42,21 +46,13 @@ pre {
 
 code {
     font-family: "Courier New";
-    color: #F00;
-}
-
-.pre {
-    color: #F00;
-}
-
-.html {
-    color: #F00;
+    font-weight: bold;
 }
 
 dt {
     font-family: "Calibri";
     color: #000000;
-    padding-top: 30px;
+    padding-top: 20px;
 }
 
 dt strong {
@@ -70,11 +66,12 @@ dt span {
 }
 
 dt span a {
-    color: #00FF00;
+    display: inline-block;
+    padding: 5px 5px 0px 5px;
+    background-color: lightblue;
 }
 
 dt span {
-    color: #FF0000;
     font-size: 15px;
 }
 
@@ -90,10 +87,14 @@ dd ul {
 }
 
 dd ul li {
-    margin: 0px 0px 10px 0px;
+    margin: 10px 0px 0px 0px;
 }
 
 dd ul li code {
-    font-weight: bolder;
+    font-weight: bold;
     color: black;
+}
+
+#suggestion {
+    font-size: 13px;
 }

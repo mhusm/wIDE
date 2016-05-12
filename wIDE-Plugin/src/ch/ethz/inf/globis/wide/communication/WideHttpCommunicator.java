@@ -1,6 +1,8 @@
 package ch.ethz.inf.globis.wide.communication;
 
 import ch.ethz.inf.globis.wide.logging.WideLogger;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -22,13 +24,25 @@ public class WideHttpCommunicator {
     private static final String SERVER_PORT = "3000";
     private static final String SERVER_PROTOCOL = "http://";
 
-    public static String sendRequest(String request) {
+    public static WideQueryResponse sendRequest(WideQueryRequest request) {
         try {
             URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query");
             LOGGER.info("SEND REQUEST: " + request);
-            return sendQuery(url, request);
+            return new WideQueryResponse(sendQuery(url, request.toString()));
         } catch (MalformedURLException e) {
             LOGGER.severe("Sending request to " + SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query failed.");
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static WideQueryResponse sendSuggestionRequest(WideQueryRequest request) {
+        try {
+            URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/suggestions");
+            LOGGER.info("SEND REQUEST: " + request);
+            return new WideQueryResponse(sendQuery(url, request.toString()));
+        } catch (MalformedURLException e) {
+            LOGGER.severe("Sending request to " + SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/suggestions failed.");
             e.printStackTrace();
             return null;
         }

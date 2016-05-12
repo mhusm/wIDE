@@ -1,8 +1,9 @@
 package ch.ethz.inf.globis.wide.parsing.css;
 
 import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
 import ch.ethz.inf.globis.wide.parsing.WideAbstractLanguageHandler;
-import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -16,19 +17,17 @@ import java.util.List;
  */
 public class WideCssHandler implements WideAbstractLanguageHandler {
     public List<WideQueryResponse> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished) {
-
         List<WideQueryResponse> results = new ArrayList<WideQueryResponse>();
 
-        String request = buildRequest(file, startElement, endElement);
-        String response = WideHttpCommunicator.sendRequest(request);
+        WideQueryRequest request = buildRequest(file, startElement, endElement);
+        WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
 
-        WideQueryResponse result = new WideQueryResponse(response);
-        results.add(result);
+        results.add(response);
 
         return results;
     }
 
-    public String buildRequest(PsiFile file, PsiElement startElement, PsiElement endElement) {
+    public WideQueryRequest buildRequest(PsiFile file, PsiElement startElement, PsiElement endElement) {
         if (startElement.equals(endElement)) {
             // only one element.
             System.out.println("Build CSS lookup request: [attribute] " + startElement.getText());
@@ -45,12 +44,11 @@ public class WideCssHandler implements WideAbstractLanguageHandler {
 
             //TODO: pseudo-element
 
-            String request = "{" +
-                    "\"lang\": \"CSS\", " +
-                    "\"type\": \"CSS\", " +
-                    "\"key\": \"" + startElement.getText() + "\", " +
-                    "\"value\": \"" + startElement.getText() + "\" " +
-                    "}";
+            WideQueryRequest request = new WideQueryRequest();
+            request.setLang("CSS");
+            request.setType("CSS");
+            request.setKey(startElement.getText());
+            request.setValue(startElement.getText());
 
             return request;
 
@@ -63,12 +61,11 @@ public class WideCssHandler implements WideAbstractLanguageHandler {
 
             System.out.println("Build CSS lookup request: [attribute] " + parent.getFirstChild().getText() + " [value] " + parent.getLastChild().getText());
 
-            String request = "{" +
-                    "\"lang\": \"CSS\", " +
-                    "\"type\": \"CSS\", " +
-                    "\"key\": \"" + parent.getFirstChild().getText() + "\", " +
-                    "\"value\": \"" + parent.getLastChild().getText() + "\" " +
-                    "}";
+            WideQueryRequest request = new WideQueryRequest();
+            request.setLang("CSS");
+            request.setType("CSS");
+            request.setKey(parent.getFirstChild().getText());
+            request.setValue(parent.getLastChild().getText());
 
             return request;
 

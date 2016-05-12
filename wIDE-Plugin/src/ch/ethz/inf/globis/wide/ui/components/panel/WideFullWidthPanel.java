@@ -1,4 +1,4 @@
-package ch.ethz.inf.globis.wide.ui.components;
+package ch.ethz.inf.globis.wide.ui.components.panel;
 
 import com.intellij.openapi.wm.ToolWindow;
 

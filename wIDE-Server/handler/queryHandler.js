@@ -26,6 +26,10 @@ var queryHandler = {
 
         } else {
             console.log("Unknown language discovered: " + lang);
+            if (callback !== undefined) {
+                callback('{"type": "error", "message": "Unknown language: ' + lang + '"}');
+            }
+
             return '{"type": "error", "message": "Unknown language: ' + lang + '"}'
         }
 

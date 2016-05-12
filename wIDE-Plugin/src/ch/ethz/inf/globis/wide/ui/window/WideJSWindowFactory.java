@@ -1,7 +1,7 @@
 package ch.ethz.inf.globis.wide.ui.window;
 
-import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
-import ch.ethz.inf.globis.wide.lookup.response.mdn.WideMDNExample;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import ch.ethz.inf.globis.wide.lookup.io.mdn.WideMDNExample;
 import ch.ethz.inf.globis.wide.ui.editor.WideExampleEditorFactory;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -21,9 +21,9 @@ public class WideJSWindowFactory extends WideWindowFactory {
     public static void createJSWindowContent(ToolWindow toolWindow, WideQueryResponse result, Project project) {
         HTMLEditorKit kit = buildHtmlEdiorKit();
         toolWindow.getContentManager().removeAllContents(true);
-        createSyntaxContent(result.getMdn().getSyntax(), kit, toolWindow);
+        createSyntaxContent(result.getMdn().getSyntax(), toolWindow);
         createExamplesContent(result.getMdn().getExamples(), kit, toolWindow);
-        createCompatibilityContent(result.getMdn().getCompatibility(), kit, toolWindow);
+        createCompatibilityContent(result.getMdn().getCompatibility(), toolWindow);
     }
 
     private static void createExamplesContent(List<WideMDNExample> examples, HTMLEditorKit kit, ToolWindow toolWindow) {

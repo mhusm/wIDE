@@ -1,13 +1,15 @@
 package ch.ethz.inf.globis.wide.parsing.javascript;
 
 import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
 import ch.ethz.inf.globis.wide.parsing.WideAbstractLanguageHandler;
-import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import com.intellij.lang.javascript.psi.JSCallExpression;
 import com.intellij.lang.javascript.psi.JSDefinitionExpression;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import org.codehaus.jettison.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +24,11 @@ public class WideJavascriptHandler implements WideAbstractLanguageHandler {
         //TODO: multiple calls?
 
         List<WideQueryResponse> results = new ArrayList<WideQueryResponse>();
-        String request = buildRequest(editor, file, startElement, endElement);
+        WideQueryRequest request = buildRequest(editor, file, startElement, endElement);
 
-        if (request != "") {
-            String response = WideHttpCommunicator.sendRequest(request);
-
-            WideQueryResponse result = new WideQueryResponse(response);
-            results.add(result);
+        if (request != null) {
+            WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
+            results.add(response);
         } else {
             //results.add(new WideQueryResponse("No JS function:"));
         }
@@ -36,14 +36,13 @@ public class WideJavascriptHandler implements WideAbstractLanguageHandler {
         return results;
     }
 
-    public String buildRequest(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
+    public WideQueryRequest buildRequest(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
         //TODO: distinguish file
 
         //TODO: multiple calls?
 
         JSCallExpression currentCall = WideJSParser.findLowestCommonCallExpression(startElement, endElement);
 
-        String request = "";
         if (currentCall != null) {
 
             WideJSCall function = new WideJSCall(currentCall);
@@ -52,11 +51,10 @@ public class WideJavascriptHandler implements WideAbstractLanguageHandler {
 
             List<PsiElement> matchingCalls = function.getMatchingFunctions(editor);
 
-            request += "{" +
-                    "    \"lang\": \"JS\", " +
-                    "    \"type\": \"call\", " +
-                    "    \"key\": \"" + function.getMethodNameText() + "\", " +
-                    "    \"children\": [";
+            WideQueryRequest request = new WideQueryRequest();
+            request.setLang("JS");
+            request.setType("call");
+            request.setKey(function.getMethodNameText());
 
             for (PsiElement call : matchingCalls) {
                 PsiElement referencedObject = call;
@@ -67,19 +65,21 @@ public class WideJavascriptHandler implements WideAbstractLanguageHandler {
                         referencedObject = referencedObject.getFirstChild();
                     }
                 }
-                request += "{" +
-                        "    \"lang\": \"JS\", " +
-                        "    \"type\": \"callCandidate\", " +
-                        "    \"key\": \"" + function.getMethodNameText() + "\", " +
-                        "    \"value\": {" +
-                        "        \"receiver\": \"" + referencedObject.getText() + "\", " +
-                        "        \"file\": \"" + call.getContainingFile().getName() + "\"}}, ";
+
+                WideQueryRequest childRequest = new WideQueryRequest();
+                childRequest.setLang("JS");
+                childRequest.setType("callCandidate");
+                childRequest.setKey(function.getMethodNameText());
+                childRequest.setValue("{" +
+                        "     \"receiver\": \"" + referencedObject.getText() + "\", " +
+                        "     \"file\": \"" + call.getContainingFile().getName() + "\"}");
+
+                request.addChild(childRequest);
             }
 
-            request += "null]}";
-
+            return request;
         }
 
-        return request;
+        return null;
     }
 }

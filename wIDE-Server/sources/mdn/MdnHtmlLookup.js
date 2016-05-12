@@ -319,45 +319,46 @@ var mdnHtml = {
             var status = 0;
 
             // filter terminating null
-            if (attributes[attribute] !== null) {
+            var parsedAttribute = JSON.parse(attributes[attribute]);
+            if (parsedAttribute !== null && parsedAttribute !== undefined) {
 
                 // present attribute is supported
-                if (tagAttributes[attributes[attribute].key] !== null) {
+                if (tagAttributes[parsedAttribute.key] !== null) {
                     status = 1;
 
                     // Handle sub JS or CSS
                     var subNodes = [];
-                    for (var i in attributes[attribute].children) {
-                        if (attributes[attribute].children[i] !== null
-                            && (attributes[attribute].children[i].lang === "JS"
-                            || attributes[attribute].children[i].lang === "CSS")) {
+                    for (var i in parsedAttribute.children) {
+                        if (parsedAttribute.children[i] !== null
+                            && (parsedAttribute.children[i].lang === "JS"
+                            || parsedAttribute.children[i].lang === "CSS")) {
 
                             // Sub JS or CSS -> Get lookup results
                             var queryHandler = require("../../handler/queryHandler");
                             subNodes.push(queryHandler.handle(
-                                attributes[attribute].children[i].lang,
-                                attributes[attribute].children[i].type,
-                                attributes[attribute].children[i].key,
-                                attributes[attribute].children[i].value,
-                                attributes[attribute].children[i].children));
+                                parsedAttribute.children[i].lang,
+                                parsedAttribute.children[i].type,
+                                parsedAttribute.children[i].key,
+                                parsedAttribute.children[i].value,
+                                parsedAttribute.children[i].children));
                         }
                     }
 
                     // The attribute is supported
-                    presentAttributes += attributes[attribute].key + ", ";
+                    presentAttributes += parsedAttribute.key + ", ";
                     //console.log("mdnHtml: Present attribute: " + attributes[attribute].key);
 
                     var child = {
-                        "lang": attributes[attribute].lang,
-                        "type": attributes[attribute].type,
-                        "key": attributes[attribute].key,
+                        "lang": parsedAttribute.lang,
+                        "type": parsedAttribute.type,
+                        "key": parsedAttribute.key,
                         //"value": attributes[attribute].value,
                         //"status": 1,
                         "children": subNodes,
                         "parent": result.key,
                         "documentation": {
                             "mdn": {
-                                "summary": tagAttributes[attributes[attribute].key],
+                                "summary": tagAttributes[parsedAttribute.key],
                                 "examples": [],
                             }
                         }
@@ -367,27 +368,27 @@ var mdnHtml = {
                     var cache = require("../../cache/cache");
                     cache.refreshDocumentationCache(child);
 
-                    delete tagAttributes[attributes[attribute].key];
+                    delete tagAttributes[parsedAttribute.key];
 
                 } else {
                     // The attribute is not supported
-                    invalidAttributes += attributes[attribute].key + ", ";
+                    invalidAttributes += parsedAttribute.key + ", ";
                     //console.log("mdnHtml: Not supported attribute: " + attributes[attribute].key);
                     result.children.push(
                         {
-                            "lang": attributes[attribute].lang,
-                            "type": attributes[attribute].type,
-                            "key": attributes[attribute].key,
+                            "lang": parsedAttribute.lang,
+                            "type": parsedAttribute.type,
+                            "key": parsedAttribute.key,
                             //"value": attributes[attribute].value,
                             "documentation": {
                                 "mdn": {
-                                    "summary": tagAttributes[attributes[attribute].key],
+                                    "summary": tagAttributes[parsedAttribute.key],
                                     "examples": []
                                 }
                             }
                         });
 
-                    delete tagAttributes[attributes[attribute].key];
+                    delete tagAttributes[parsedAttribute.key];
                 }
             }
         }

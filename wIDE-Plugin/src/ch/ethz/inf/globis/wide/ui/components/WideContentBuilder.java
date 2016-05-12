@@ -1,6 +1,16 @@
 package ch.ethz.inf.globis.wide.ui.components;
 
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.tools.Tool;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentFactory;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.web.WebView;
+import netscape.javascript.JSException;
 
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
@@ -13,16 +23,12 @@ import java.awt.*;
  */
 public class WideContentBuilder {
 
-
     protected static HTMLEditorKit buildHtmlEdiorKit() {
         // add an html editor kit
         HTMLEditorKit kit = new HTMLEditorKit();
 
         // add some styles to the html
         StyleSheet styleSheet = kit.getStyleSheet();
-//        styleSheet.addRule("body { " +
-//                "font-family: Calibri; " +
-//                "padding: 10px; }");
         try {
             styleSheet.importStyleSheet(WideContentBuilder.class.getResource("/MDNStyleSheet.css"));
         } catch (Exception e) {
@@ -32,13 +38,25 @@ public class WideContentBuilder {
         return kit;
     }
 
+    public static WebView createWebView() {
+        WebView webView = new WebView();
+        webView.getEngine().setUserStyleSheetLocation(WideContentBuilder.class.getResource("/MDNStyleSheet.css").toString());
+
+        return webView;
+    }
+
+    protected static JFXPanel createJFXPanel(String title, ToolWindow toolWindow) {
+        JFXPanel panel = new JFXPanel();
+
+        // set panel to toolWindow
+        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        Content summaryContent = contentFactory.createContent(panel, title, false);
+
+        toolWindow.getContentManager().addContent(summaryContent);
+        return panel;
+    }
+
     protected static JEditorPane createNewEditorPane(String content, HTMLEditorKit kit) {
-//        WebView webView = new WebView();
-//        webView.getEngine().loadContent(content);
-//
-//        // Load CSS
-//        WebEngine engine = webView.getEngine();
-//        engine.setUserStyleSheetLocation(WideWindowFactory.class.getResource("/MDNStyleSheet.css").toString());
 
         // create jeditorpane
         JEditorPane editorPane = new JEditorPane();
@@ -56,13 +74,6 @@ public class WideContentBuilder {
         DefaultCaret caret = (DefaultCaret) editorPane.getCaret();
         caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         editorPane.setCaretPosition(0);
-
-//        Group root = new Group();
-//        Scene scene = new Scene(root);
-//
-//        root.getChildren().add(webView);
-//        JFXPanel jfxPanel = new JFXPanel();
-//        jfxPanel.setScene(scene);
 
         return editorPane;
     }

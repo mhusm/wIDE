@@ -2,8 +2,8 @@ package ch.ethz.inf.globis.wide.parsing.html;
 
 import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
 import ch.ethz.inf.globis.wide.logging.WideLogger;
-import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
-import ch.ethz.inf.globis.wide.lookup.response.mdn.WideMDNResult;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import ch.ethz.inf.globis.wide.parsing.WideAbstractLanguageHandler;
 import ch.ethz.inf.globis.wide.parsing.css.WideCssHandler;
 import ch.ethz.inf.globis.wide.parsing.javascript.WideJavascriptHandler;
@@ -102,40 +102,18 @@ public class WideHtmlHandler implements WideAbstractLanguageHandler {
     }
 
     private static WideQueryResponse lookupTag(Editor editor, PsiFile file, PsiElement tag) {
-
-        String request = buildTagRequest(editor, file, tag);
-        String response = WideHttpCommunicator.sendRequest(request);
-
-        try {
-            //TODO: better structure
-            WideQueryResponse result = new WideQueryResponse(response);
-            return result;
-        } catch(Exception e) {
-        }
-
-        return null;
+        WideQueryRequest request = buildTagRequest(editor, file, tag);
+        WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
+        return response;
     }
 
-    private static WideQueryResponse lookupAttribute(Editor editor, PsiFile file, PsiElement tag, PsiElement attribute, PsiElement value, int parentLevel) {
-
-       String request = "{" +
-               "    \"lang\": \"HTML\", " +
-               "    \"type\": \"tag\", " +
-               "    \"key\": \"" + tag.getText() + "\", " +
-               "    \"children\": [" + buildAttributeRequest(editor, file, attribute, value) + "]}";
-
-        String response = WideHttpCommunicator.sendRequest(request);
-        WideQueryResponse result = new WideQueryResponse(response);
-        return result;
-    }
-
-    private static String buildAttributeRequest(Editor editor, PsiFile file, PsiElement attribute, PsiElement value) {
+    private static WideQueryRequest buildAttributeRequest(Editor editor, PsiFile file, PsiElement attribute, PsiElement value) {
         // LOOKUP HTML ATTRIBUTE
-        String request = "{" +
-                "    \"lang\": \"HTML\", " +
-                "    \"type\": \"attribute\", " +
-                "    \"key\": \"" + attribute.getText() + "\", " +
-                "    \"value\": \"" + value.getText().substring(1, value.getText().length()-1) + "\", ";
+        WideQueryRequest request = new WideQueryRequest();
+        request.setLang("HTML");
+        request.setType("attribute");
+        request.setKey(attribute.getText());
+        request.setValue(value.getText().substring(1, value.getText().length()-1));
 
         // LOOKUP CSS ATTRIBUTES
         if ("style".equals(attribute.getParent().getFirstChild().getText())) {
@@ -153,7 +131,9 @@ public class WideHtmlHandler implements WideAbstractLanguageHandler {
             }
 
             WideCssHandler cssHandler = new WideCssHandler();
-            request += "    \"children\": [" + cssHandler.buildRequest(file, cssStart, cssEnd) + "]}";
+            WideQueryRequest childRequest = new WideQueryRequest();
+            childRequest = cssHandler.buildRequest(file, cssStart, cssEnd);
+            request.addChild(childRequest);
         }
 
         // LOOKUP JS FUNCTIONS
@@ -172,22 +152,20 @@ public class WideHtmlHandler implements WideAbstractLanguageHandler {
             }
 
             WideJavascriptHandler jsHandler = new WideJavascriptHandler();
-            request += "    \"children\": [" + jsHandler.buildRequest(editor, file, jsStart, jsEnd) + "]}";
-        }
-
-        else {
-            request += "    \"children\": []}";
+            WideQueryRequest childRequest = new WideQueryRequest();
+            childRequest = jsHandler.buildRequest(editor, file, jsStart, jsEnd);
+            request.addChild(childRequest);
         }
 
         return request;
     }
 
-    private static String buildTagRequest(Editor editor, PsiFile file, PsiElement tag) {
-        String request = "{" +
-                "\"lang\": \"HTML\", " +
-                "\"type\": \"tag\", " +
-                "\"key\": \"" + tag.getText() + "\", " +
-                "\"children\" : [";
+    private static WideQueryRequest buildTagRequest(Editor editor, PsiFile file, PsiElement tag) {
+
+        WideQueryRequest request = new WideQueryRequest();
+        request.setLang("HTML");
+        request.setType("tag");
+        request.setKey(tag.getText());
 
         PsiElement startElement = tag;
 
@@ -200,7 +178,9 @@ public class WideHtmlHandler implements WideAbstractLanguageHandler {
                 break;
             }
 
-            request += buildAttributeRequest(editor, file, startElement.getFirstChild(), startElement.getLastChild()) + ", ";
+            WideQueryRequest childRequest = new WideQueryRequest();
+            childRequest = buildAttributeRequest(editor, file, startElement.getFirstChild(), startElement.getLastChild());
+            request.addChild(childRequest);
 
             startElement = startElement.getNextSibling();
 
@@ -209,9 +189,6 @@ public class WideHtmlHandler implements WideAbstractLanguageHandler {
             }
 
         }
-
-        request += "null] " +
-                "}";
 
         return request;
     }

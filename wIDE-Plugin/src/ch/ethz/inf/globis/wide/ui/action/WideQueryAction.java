@@ -1,20 +1,26 @@
-package ch.ethz.inf.globis.wide.action;
+package ch.ethz.inf.globis.wide.ui.action;
 
-import ch.ethz.inf.globis.wide.listener.WideInputListener;
+import ch.ethz.inf.globis.wide.ui.listener.WideInputListener;
 import ch.ethz.inf.globis.wide.logging.WideLogger;
 import ch.ethz.inf.globis.wide.lookup.WideDocumentationHandler;
-import ch.ethz.inf.globis.wide.ui.window.WideWindowFactory;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import javafx.scene.input.KeyCode;
 import org.jetbrains.annotations.NotNull;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 
 /**
@@ -64,6 +70,7 @@ public class WideQueryAction extends EditorAction {
 
                     //TODO: maybe move to another location
                     editor.getDocument().addDocumentListener(new WideInputListener(editor));
+                    editor.getSettings().setShowIntentionBulb(false);
                 }
 
             });

@@ -1,6 +1,6 @@
 package ch.ethz.inf.globis.wide.parsing;
 
-import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;

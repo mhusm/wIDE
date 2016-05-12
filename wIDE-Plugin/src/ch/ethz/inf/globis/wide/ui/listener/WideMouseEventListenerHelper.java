@@ -1,6 +1,6 @@
-package ch.ethz.inf.globis.wide.ui.editor;
+package ch.ethz.inf.globis.wide.ui.listener;
 
-import ch.ethz.inf.globis.wide.lookup.response.WideQueryResponse;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import ch.ethz.inf.globis.wide.ui.popup.WidePopupHelper;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.VisualPosition;
