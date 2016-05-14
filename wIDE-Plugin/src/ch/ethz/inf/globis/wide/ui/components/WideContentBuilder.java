@@ -23,7 +23,7 @@ import java.awt.*;
  */
 public class WideContentBuilder {
 
-    protected static HTMLEditorKit buildHtmlEdiorKit() {
+    protected HTMLEditorKit buildHtmlEdiorKit() {
         // add an html editor kit
         HTMLEditorKit kit = new HTMLEditorKit();
 
@@ -45,7 +45,7 @@ public class WideContentBuilder {
         return webView;
     }
 
-    protected static JFXPanel createJFXPanel(String title, ToolWindow toolWindow) {
+    protected JFXPanel addNewJFXPanleToWindow(String title, ToolWindow toolWindow) {
         JFXPanel panel = new JFXPanel();
 
         // set panel to toolWindow
@@ -56,7 +56,7 @@ public class WideContentBuilder {
         return panel;
     }
 
-    protected static JEditorPane createNewEditorPane(String content, HTMLEditorKit kit) {
+    protected JEditorPane createNewEditorPane(String content, HTMLEditorKit kit) {
 
         // create jeditorpane
         JEditorPane editorPane = new JEditorPane();
@@ -78,7 +78,7 @@ public class WideContentBuilder {
         return editorPane;
     }
 
-    protected static JScrollPane createNewScrollPane(Container container) {
+    protected JScrollPane createNewScrollPane(Container container) {
         // create a scrollpane; modify its summary as desired
         JScrollPane scrollPane = new JBScrollPane(container);
         scrollPane.getVerticalScrollBar().setValue(0);

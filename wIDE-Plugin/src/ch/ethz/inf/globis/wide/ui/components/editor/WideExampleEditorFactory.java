@@ -1,4 +1,4 @@
-package ch.ethz.inf.globis.wide.ui.editor;
+package ch.ethz.inf.globis.wide.ui.components.editor;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;

@@ -1,11 +1,12 @@
-package ch.ethz.inf.globis.wide.ui.window;
+package ch.ethz.inf.globis.wide.language.javascript;
 
 import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import ch.ethz.inf.globis.wide.lookup.io.mdn.WideMDNExample;
-import ch.ethz.inf.globis.wide.ui.editor.WideExampleEditorFactory;
+import ch.ethz.inf.globis.wide.ui.components.editor.WideExampleEditorFactory;
+import ch.ethz.inf.globis.wide.ui.components.window.WideWindowFactory;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.psi.PsiElement;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 
@@ -18,7 +19,17 @@ import java.util.List;
  */
 public class WideJSWindowFactory extends WideWindowFactory {
 
-    public static void createJSWindowContent(ToolWindow toolWindow, WideQueryResponse result, Project project) {
+    private static final WideJSWindowFactory INSTANCE = new WideJSWindowFactory();
+
+    private WideJSWindowFactory() {
+
+    }
+
+    public static WideJSWindowFactory getInstance() {
+        return INSTANCE;
+    }
+
+    public void showLookupWindow(ToolWindow toolWindow, WideQueryResponse result) {
         HTMLEditorKit kit = buildHtmlEdiorKit();
         toolWindow.getContentManager().removeAllContents(true);
         createSyntaxContent(result.getMdn().getSyntax(), toolWindow);
@@ -26,7 +37,11 @@ public class WideJSWindowFactory extends WideWindowFactory {
         createCompatibilityContent(result.getMdn().getCompatibility(), toolWindow);
     }
 
-    private static void createExamplesContent(List<WideMDNExample> examples, HTMLEditorKit kit, ToolWindow toolWindow) {
+    public void showSuggestionWindow(WideQueryResponse suggestion, ToolWindow toolWindow, PsiElement element, Editor editor) {
+        //TODO
+    }
+
+    private void createExamplesContent(List<WideMDNExample> examples, HTMLEditorKit kit, ToolWindow toolWindow) {
         JPanel parentPanel = new JPanel();
         parentPanel.setLayout(new BoxLayout(parentPanel, BoxLayout.Y_AXIS));
 

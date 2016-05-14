@@ -73,7 +73,9 @@ public class WideQueryRequest {
             // add children requests in string representation
             obj.putOpt("children", new JSONArray());
             for (WideQueryRequest childRequest : children) {
-                obj.optJSONArray("children").put(childRequest.toString());
+                if (childRequest != null) {
+                    obj.optJSONArray("children").put(childRequest.toString());
+                }
             }
 
             return obj.toString();

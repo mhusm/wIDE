@@ -1,6 +1,5 @@
-package ch.ethz.inf.globis.wide.ui.popup;
+package ch.ethz.inf.globis.wide.ui.components.popup;
 
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import java.util.Vector;
 

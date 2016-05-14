@@ -1,4 +1,4 @@
-package ch.ethz.inf.globis.wide.ui.components.list.cell;
+package ch.ethz.inf.globis.wide.ui.components.list;
 
 import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import ch.ethz.inf.globis.wide.ui.action.WideReplaceAction;

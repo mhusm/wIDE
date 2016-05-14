@@ -1,11 +1,11 @@
-package ch.ethz.inf.globis.wide.ui.components.list.cell;
+package ch.ethz.inf.globis.wide.language.html;
 
 import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import ch.ethz.inf.globis.wide.ui.components.list.WideSuggestionCell;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.html.HtmlTag;
 import com.intellij.psi.xml.XmlToken;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Node;

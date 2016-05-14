@@ -1,4 +1,4 @@
-package ch.ethz.inf.globis.wide.ui.popup;
+package ch.ethz.inf.globis.wide.ui.components.popup;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;

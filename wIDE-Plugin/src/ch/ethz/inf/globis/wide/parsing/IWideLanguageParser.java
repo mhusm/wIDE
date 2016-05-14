@@ -1,5 +1,6 @@
 package ch.ethz.inf.globis.wide.parsing;
 
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
 import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
@@ -10,6 +11,6 @@ import java.util.List;
 /**
  * Created by fabian on 17.03.16.
  */
-public interface WideAbstractLanguageHandler {
-    public List<WideQueryResponse> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished);
+public interface IWideLanguageParser {
+    public WideQueryRequest buildDocumentationQuery(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement);
 }

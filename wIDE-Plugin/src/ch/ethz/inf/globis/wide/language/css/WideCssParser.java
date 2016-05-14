@@ -1,8 +1,8 @@
-package ch.ethz.inf.globis.wide.parsing.css;
+package ch.ethz.inf.globis.wide.language.css;
 
 import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
 import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
-import ch.ethz.inf.globis.wide.parsing.WideAbstractLanguageHandler;
+import ch.ethz.inf.globis.wide.parsing.IWideLanguageParser;
 import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
@@ -15,19 +15,9 @@ import java.util.List;
 /**
  * Created by fabian on 17.03.16.
  */
-public class WideCssHandler implements WideAbstractLanguageHandler {
-    public List<WideQueryResponse> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished) {
-        List<WideQueryResponse> results = new ArrayList<WideQueryResponse>();
+public class WideCssParser implements IWideLanguageParser {
 
-        WideQueryRequest request = buildRequest(file, startElement, endElement);
-        WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
-
-        results.add(response);
-
-        return results;
-    }
-
-    public WideQueryRequest buildRequest(PsiFile file, PsiElement startElement, PsiElement endElement) {
+    public WideQueryRequest buildDocumentationQuery(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
         if (startElement.equals(endElement)) {
             // only one element.
             System.out.println("Build CSS lookup request: [attribute] " + startElement.getText());

@@ -1,4 +1,4 @@
-package ch.ethz.inf.globis.wide.parsing.javascript;
+package ch.ethz.inf.globis.wide.language.javascript;
 
 import com.intellij.lang.javascript.JSElementType;
 import com.intellij.lang.javascript.JavascriptLanguage;

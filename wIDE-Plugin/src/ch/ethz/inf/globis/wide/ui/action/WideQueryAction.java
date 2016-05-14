@@ -13,6 +13,8 @@ import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -63,12 +65,16 @@ public class WideQueryAction extends EditorAction {
                         PsiElement startElement = psiFile.findElementAt(start);
                         PsiElement endElement = psiFile.findElementAt(end);
 
+                        Project project = editor.getProject();
+                        ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+
                         new WideDocumentationHandler().differentiateLanguages(editor, psiFile, startElement, endElement);
                     } else {
                         LOGGER.info("Invalid place to start a query.");
                     }
 
                     //TODO: maybe move to another location
+                    //FIXME: adds multiple listeners!
                     editor.getDocument().addDocumentListener(new WideInputListener(editor));
                     editor.getSettings().setShowIntentionBulb(false);
                 }

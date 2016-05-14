@@ -46,6 +46,8 @@ var cache = {
                                 callback(result);
                             }
                         });
+                    } else  if (callback !== undefined) {
+                        callback(result);
                     }
 
                     // still refresh cache
@@ -56,13 +58,8 @@ var cache = {
                 } else if (rows.length === 0) {
                     // No cached result found -> wait for lookup
                     console.info("cache: No cached data for [key] " + key + " [type] " + type + " [parent] " + parent + " [lang] " + lang);
-                    queryHandler.handle(lang, type, key, value, children, function (response) {
-                        cache.refreshDocumentationCache(response);
-
-                        if (callback !== undefined) {
-                            callback(response);
-                        }
-
+                    queryHandler.handle(lang, type, key, value, children, function (response, callback) {
+                        cache.refreshDocumentationCache(response, callback);
                         return response;
                     });
 
@@ -82,7 +79,7 @@ var cache = {
 
     },
 
-    refreshDocumentationCache: function (response) {
+    refreshDocumentationCache: function (response, callback) {
         cache._selectEntryFromCache(response.lang, response.type, response.key, response.parent, function (err, rows, fields) {
             if (!err) {
                 if (rows.length === 1) {
@@ -320,7 +317,7 @@ var cache = {
                 flatEntry,
                 function (err, rows, fields) {
                     if (!err) {
-                        console.log("cache: Update successful for [key] " + entry.key + " [type] " + entry.type + " [parent] NULL  [lang] " + entry.lang);
+                        console.log("cache: Update successful for [key] " + entry.key + " [type] " + entry.type + " [parent] NULL [lang] " + entry.lang);
                     } else {
                         // Error while querying cache -> show error & wait for lookup
                         console.error("cache: Update failed for [key] " + entry.key + " [type] " + entry.type + " [parent] NULL [lang] " + entry.lang);

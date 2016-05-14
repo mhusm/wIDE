@@ -1,19 +1,12 @@
 package ch.ethz.inf.globis.wide.ui.listener;
 
 
-import ch.ethz.inf.globis.wide.lookup.WideSuggestionHandler;
 import ch.ethz.inf.globis.wide.ui.action.WideSuggestAction;
 import ch.ethz.inf.globis.wide.ui.components.WideDataContext;
-import ch.ethz.inf.globis.wide.ui.popup.WidePopupHelper;
+import ch.ethz.inf.globis.wide.ui.components.popup.WidePopupHelper;
 import com.intellij.ide.IdeEventQueue;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import javafx.application.Platform;
 
 /**
  * Created by fabian on 20.04.16.
