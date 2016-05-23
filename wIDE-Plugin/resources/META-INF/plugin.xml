@@ -38,6 +38,9 @@
     <toolWindow id="wIDE" anchor="right" factoryClass="ch.ethz.inf.globis.wide.ui.components.window.WideInitialWindowFactory"/>
     <annotator language="JavaScript" implementationClass="ch.ethz.inf.globis.wide.ui.annotator.WideAnnotator"/>
     <completion.contributor language="HTML" implementationClass="ch.ethz.inf.globis.wide.completion.WideCompletionContributor"/>
+    <completion.contributor language="JavaScript" implementationClass="ch.ethz.inf.globis.wide.completion.WideCompletionContributor"/>
+    <completion.contributor language="CSS" implementationClass="ch.ethz.inf.globis.wide.completion.WideCompletionContributor"/>
+    <lookup.actionProvider implementation="ch.ethz.inf.globis.wide.completion.WideLookupActionProvider"/>
   </extensions>
 
 </idea-plugin>

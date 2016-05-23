@@ -24,6 +24,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.web.WebView;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -31,9 +32,10 @@ import java.util.List;
  */
 public class WideSuggestionListView extends ListView<WideQueryResponse> {
 
-    public WideSuggestionListView(List<WideQueryResponse> suggestions, JFXPanel panel, PsiElement element, Editor editor, ToolWindow window) {
+    public WideSuggestionListView(List<WideQueryResponse> suggestions, Class<? extends WideSuggestionCell> cellClass, JFXPanel panel, Editor editor, ToolWindow window) {
         super(FXCollections.observableArrayList(suggestions));
-        this.setCellFactory(listView -> new WideHtmlSuggestionCell(panel));
+        this.setCellFactory(listView -> setCellFactory(cellClass, panel));
+
 
         if (suggestions != null && suggestions.size() > 0) {
             this.getSelectionModel().select(0);
@@ -45,6 +47,24 @@ public class WideSuggestionListView extends ListView<WideQueryResponse> {
         // add double click listener
         addDoubleClickListener(editor);
 
+    }
+
+    private WideSuggestionCell setCellFactory(Class<? extends WideSuggestionCell> cellClass, JFXPanel panel) {
+        // Helper class to allow insertion of callback
+        try {
+            WideSuggestionCell cell = cellClass.getConstructor(JFXPanel.class).newInstance(panel);
+            return cell;
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     private void addSelectionListener(ToolWindow window) {

@@ -23,7 +23,6 @@ public class WideHtmlSuggestionCell extends WideSuggestionCell {
 
     public Node createTextFlow(WideQueryResponse suggestion) {
         FlowPane title = new FlowPane();
-        //title.setStyle("-fx-background-color: crimson");
 
         if (suggestion.getValue().equals("")) {
             // Tag lookup, only show tag (in brackets)
@@ -65,7 +64,6 @@ public class WideHtmlSuggestionCell extends WideSuggestionCell {
 
     @Override
     public void insertSuggestion(WideQueryResponse suggestion, Editor editor) {
-
         PsiFile psiFile = PsiDocumentManager.getInstance(editor.getProject()).getPsiFile(editor.getDocument());
         PsiElement element = psiFile.findElementAt(editor.getCaretModel().getOffset()-1);
 

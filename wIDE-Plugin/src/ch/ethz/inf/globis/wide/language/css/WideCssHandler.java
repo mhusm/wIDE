@@ -1,10 +1,21 @@
 package ch.ethz.inf.globis.wide.language.css;
 
+import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
 import ch.ethz.inf.globis.wide.language.IWideLanguageHandler;
+import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
 import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import com.intellij.codeInsight.completion.PrioritizedLookupElement;
+import com.intellij.codeInsight.lookup.Lookup;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.template.emmet.ZenCodingTemplate;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.css.CssDeclaration;
+import com.intellij.psi.css.CssElement;
 import javafx.embed.swing.JFXPanel;
 
 /**
@@ -22,22 +33,55 @@ public class WideCssHandler implements IWideLanguageHandler {
     }
 
     @Override
-    public WideCssSuggestionCell getSuggestionCell(JFXPanel panel) {
-        return new WideCssSuggestionCell(panel);
-    }
-
-    @Override
     public WideCssParser getLanguageParser() {
         return new WideCssParser();
     }
 
     @Override
     public WideQueryResponse lookupDocumentation(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
-        return null;
+        WideQueryRequest request = getLanguageParser().buildDocumentationQuery(editor, file, startElement, endElement);
+        WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
+
+        Project project = editor.getProject();
+        ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+
+        //getPopupHelper().showLookupResults(response, response, editor);
+        getWindowFactory().showLookupWindow(window, response);
+        return response;
     }
 
     @Override
     public void lookupSuggestions(Editor editor, PsiElement element, String newChar) {
 
+    }
+
+    @Override
+    public void getSuggestionDocumentation(LookupElement lookupElement, Lookup lookup) {
+
+            if (lookup.getPsiElement().getPrevSibling() != null
+                    && lookup.getPsiElement().getPrevSibling() instanceof CssDeclaration) {
+                // attribute value
+
+            } else if (lookupElement instanceof PrioritizedLookupElement){
+                // attribute
+
+                WideQueryRequest request = new WideQueryRequest();
+                request.setLang("CSS");
+                request.setType("attribute");
+                request.setKey(lookupElement.getLookupString());
+
+                WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
+
+                Project project = lookup.getEditor().getProject();
+                ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+
+                getWindowFactory().showLookupWindow(window, response);
+
+            } else {
+                //TODO: empty window
+            }
+
+        //TODO: pseudo-selectors
+        //TODO: selectors
     }
 }

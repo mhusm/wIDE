@@ -12,21 +12,21 @@ var caniuseLookup = {
 
         // Search for potential matching features
         // -> Prevent empty return values.
-        var attributes = caniuse.find(key);
+        var attributes = caniuse.find(key.toLowerCase());
         if (attributes != undefined) {
             if (attributes instanceof Array) {
                 // multiple potential results
                 for (var object in attributes) {
-                    if (attributes[object] === key) {
-                        var response = caniuse.getSupport(key);
+                    if (attributes[object] === key.toLowerCase()) {
+                        var response = caniuse.getSupport(key.toLowerCase());
                         console.log("caniuse: lookup [lang] " + lang + " [type] " + type + " [key] " + key + " [response] " + response);
                         return response;
                     }
                 }
             } else {
                 // one potential result
-                if (attributes === attribute_name) {
-                    var response = caniuse.getSupport(attribute_name);
+                if (attributes === key.toLowerCase()) {
+                    var response = caniuse.getSupport(key.toLowerCase());
                     console.log("caniuse: lookup [lang] " + lang + " [type] " + type + " [key] " + key + " [response] " + response);
                     return response;
                 }

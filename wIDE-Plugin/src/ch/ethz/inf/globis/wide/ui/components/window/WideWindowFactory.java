@@ -32,26 +32,45 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
     private ToolWindow myToolWindow;
     private JFXPanel myToolWindowContent;
 
-    public void createErrorWindowContent(ToolWindow toolWindow, String error) {
-        //TODO: implementation
-        // set description text
-//        JLabel text = new JLabel(error, SwingConstants.CENTER);
-//        text.setAlignmentX(Component.CENTER_ALIGNMENT);
-//
-//        // use box to center image + text
-//        Box box = new Box(BoxLayout.Y_AXIS);
-//        box.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-//        box.setPreferredSize(new Dimension(100, 100));
-//        box.setMaximumSize(new Dimension(100, 100));
-//        box.add(Box.createVerticalGlue());
-//        box.add(text);
-//        box.add(Box.createVerticalGlue());
-//
-//        // set panel to toolWindow
-//        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-//        Content summaryContent = contentFactory.createContent(box, "Error", false);
-//
-//        toolWindow.getContentManager().addContent(summaryContent);
+    public void createErrorWindowContent(String error, ToolWindow toolWindow) {
+        toolWindow.getContentManager().removeAllContents(true);
+        JFXPanel panel = addNewJFXPanleToWindow("wIDE", toolWindow);
+
+        // wait for JavaFX to be ready
+        Platform.runLater(new Runnable() {
+            public void run() {
+                createErrorWindowContentFx(error, panel);
+            }
+        });
+    }
+
+    @AsynchronousExecution
+    private void createErrorWindowContentFx(String error, JFXPanel panel) {
+        myToolWindowContent = new JFXPanel();
+
+        Image img = new Image(WideWindowFactory.class.getResource("/logo.png").toString());//create an image
+        ImageView v = new ImageView(img);//create an imageView and pass the image
+
+        Text text = new Text("Search documentation with ⌥F");
+        text.setTextAlignment(TextAlignment.CENTER);
+
+        Text sorry = new Text(error);
+        sorry.setTextAlignment(TextAlignment.CENTER);
+        sorry.setStyle("-fx-fill: darkred; -fx-font-size: 20px; -fx-font-weight: lighter;");
+
+        StackPane stackPane = new StackPane();
+        stackPane.setPrefSize(700, 700);
+
+        VBox vbox = new VBox(5);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setMaxSize(100, 100);
+        vbox.getChildren().addAll(v, text, sorry);
+
+        stackPane.getChildren().add(vbox);
+        StackPane.setAlignment(vbox, Pos.CENTER);
+
+        Scene scene = new Scene(stackPane);
+        panel.setScene(scene);
     }
 
     // Create the tool window content.

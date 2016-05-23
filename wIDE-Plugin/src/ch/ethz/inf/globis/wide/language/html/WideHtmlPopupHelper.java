@@ -1,6 +1,7 @@
 package ch.ethz.inf.globis.wide.language.html;
 
 import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import ch.ethz.inf.globis.wide.ui.components.list.WideSuggestionCell;
 import ch.ethz.inf.globis.wide.ui.components.list.WideSuggestionListView;
 import ch.ethz.inf.globis.wide.ui.components.panel.WideSuggestionJFXPanel;
 import ch.ethz.inf.globis.wide.ui.listener.WideMouseEventListenerHelper;
@@ -121,7 +122,7 @@ public class WideHtmlPopupHelper extends WidePopupHelper {
 
     @AsynchronousExecution
     private void createHtmlSuggestionContentFx(java.util.List<WideQueryResponse> suggestions, WideSuggestionJFXPanel panel, PsiElement element, Editor editor, ToolWindow window) {
-        WideSuggestionListView list = new WideSuggestionListView(suggestions, panel, element, editor, window);
+        WideSuggestionListView list = new WideSuggestionListView(suggestions, WideHtmlSuggestionCell.class, panel, editor, window);
         panel.setList(list, editor);
     }
 }

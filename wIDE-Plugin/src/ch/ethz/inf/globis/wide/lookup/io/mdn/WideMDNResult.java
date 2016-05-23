@@ -38,7 +38,8 @@ public class WideMDNResult {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            // dont' do anything -> no examples found.
         }
     }
 

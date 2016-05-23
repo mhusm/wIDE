@@ -6,6 +6,8 @@ import ch.ethz.inf.globis.wide.lookup.WideDocumentationHandler;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.application.ApplicationListener;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
@@ -32,6 +34,8 @@ public class WideQueryAction extends EditorAction {
 
     private final static WideLogger LOGGER = new WideLogger(WideQueryAction.class.getName());
 
+    private Editor currentEditor;
+
     protected WideQueryAction() {
         super(new WideQueryHandler());
     }
@@ -46,7 +50,20 @@ public class WideQueryAction extends EditorAction {
 
         //Set visibility only in case of existing project and editor and there is selected text
         e.getPresentation().setVisible((project != null && editor != null && editor.getSelectionModel().hasSelection()));
+
     }
+
+    @Override
+    public void updateForKeyboardAccess(Editor editor, Presentation presentation, DataContext dataContext) {
+        this.update(editor, presentation, dataContext);
+    }
+
+    @Override
+    public void update(Editor editor, Presentation presentation, DataContext dataContext) {
+        presentation.setEnabled(this.getHandler().isEnabled(editor, (Caret)null, dataContext));
+    }
+
+
 
 
     public static class WideQueryHandler extends EditorActionHandler {

@@ -15,21 +15,13 @@ public class WideSuggestionHandler {
     private final static WideLogger LOGGER = new WideLogger(WideDocumentationHandler.class.getName());
 
     public static void differentiateElements(Editor editor, PsiElement element, String newChar) {
-
-        IWideLanguageHandler handler = WideLanguageRegistry.getInstance().getLanguageHandler(element.getParent().getClass());
-
-        if (handler != null) {
-            handler.lookupSuggestions(editor, element, newChar);
-        } else {
-            LOGGER.info("Tried to lookup suggestions for unknown Language.");
-        }
-    }
-
-    private static void handleCss(Editor editor, PsiElement element, String newChar) {
-        //TODO
-        if (element.getParent() instanceof CssElement) {
-            System.out.println("Writing CSS");
-        }
-
+//
+//        IWideLanguageHandler handler = WideLanguageRegistry.getInstance().getLanguageHandler(element.getParent().getClass());
+//
+//        if (handler != null) {
+//            handler.lookupSuggestions(editor, element, newChar);
+//        } else {
+//            LOGGER.info("Tried to lookup suggestions for unknown Language.");
+//        }
     }
 }

@@ -4,13 +4,18 @@ var queryHandler = require("../../handler/queryHandler");
 
 var mdnJS = {
     resolveFullJSQuery: function(result, func, candidates, callback) {
-        var cand = JSON.parse(candidates.shift());
-        if (cand !== null) {
-            mdnJS.query(result, cand.key, JSON.parse(cand.value).receiver, JSON.parse(cand.value).file, candidates, mdnJS.resolveFullJSQuery, callback);
+        if (candidates !== undefined && candidates.length > 0) {
+            var cand = JSON.parse(candidates.shift());
+            if (cand !== null) {
+                mdnJS.query(result, cand.key, JSON.parse(cand.value).receiver, JSON.parse(cand.value).file, candidates, mdnJS.resolveFullJSQuery, callback);
 
+            } else if (callback !== undefined) {
+                // no valid candidate
+                callback(result);
+            }
         } else if (callback !== undefined) {
+            // no more candidates
             callback(result);
-            console.log("callback");
         }
     },
 
@@ -35,19 +40,55 @@ var mdnJS = {
         if (file === "DOMCore.js" || file === "DOMEvents.js" || file === "DHTML.js") {
             // Default JS-DOM functionality
             mdnJS._loadDOMFunctionPage(results, result, func, receiver, page, candidates, next, callback);
+        } else {
+            mdnJS._loadGlobalObjectFunctionPage(results, result, func, receiver, page, candidates, next, callback);
         }
 
-        else if (callback !== undefined) {
-            callback(results);
-        }
+        //else if (next !== undefined) {
+        //    next(results, func, candidates, callback);
+        //}
         //mdnHtml._loadFunctionsPage(result, func, callee, callback);
     },
 
     _loadDOMFunctionPage: function (results, result, func, receiver, page, candidates, next, callback) {
-        console.log("mdnJS: load function " + receiver + "." + func + "()");
+        console.log("mdnJS: load DOM function " + receiver + "." + func + "()");
         var options = {
             host: 'developer.mozilla.org',
             path: '/en-US/docs/Web/API/' + receiver + "/" + func,
+            method: 'GET',
+            headers: {
+                'Content-Length': 0
+            }
+        };
+
+        var httpreq = https.request(options, function (response) {
+            response.setEncoding('utf8');
+
+            // ERROR HANDLING
+            response.on('error', function (error) {
+                console.log('mdnJS: Error while receiving MDN response.');
+                console.log(error);
+            });
+
+            // DATA RECEIVING
+            response.on('data', function (chunk) {
+                page += chunk;
+            });
+
+            // FULL DATA RECEIVED: DO SEARCH.
+            response.on('end', function () {
+                mdnJS._parseFunctionPage(results, result, func, receiver, page, candidates, next, callback);
+            });
+        });
+
+        httpreq.end();
+    },
+
+    _loadGlobalObjectFunctionPage: function (results, result, func, receiver, page, candidates, next, callback) {
+        console.log("mdnJS: load  object function " + receiver + "." + func + "()");
+        var options = {
+            host: 'developer.mozilla.org',
+            path: '/en-US/docs/Web/JavaScript/Reference/Global_Objects/' + receiver + "/" + func,
             method: 'GET',
             headers: {
                 'Content-Length': 0
@@ -239,13 +280,19 @@ var mdnJS = {
 
         result.documentation.mdn = mdn;
 
-        if (callback !== undefined) {
-            callback(results, func, candidates, next);
+        if (next !== undefined) {
+            next(results, func, candidates, callback);
         }
 
         var cache = require("../../cache/cache");
         cache.refreshDocumentationCache(result);
 
+        // create a reference entry in the cache -> support suggestions
+        var objectResult = {};
+        objectResult.lang = "JS";
+        objectResult.type = "reference";
+        objectResult.key = result.key;
+        cache.refreshDocumentationCache(objectResult);
     }
 }
 

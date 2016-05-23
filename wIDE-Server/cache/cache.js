@@ -58,8 +58,11 @@ var cache = {
                 } else if (rows.length === 0) {
                     // No cached result found -> wait for lookup
                     console.info("cache: No cached data for [key] " + key + " [type] " + type + " [parent] " + parent + " [lang] " + lang);
-                    queryHandler.handle(lang, type, key, value, children, function (response, callback) {
-                        cache.refreshDocumentationCache(response, callback);
+                    queryHandler.handle(lang, type, key, value, children, function (response) {
+                        cache.refreshDocumentationCache(response);
+                        if (callback !== undefined) {
+                            callback(response);
+                        }
                         return response;
                     });
 
@@ -79,7 +82,7 @@ var cache = {
 
     },
 
-    refreshDocumentationCache: function (response, callback) {
+    refreshDocumentationCache: function (response) {
         cache._selectEntryFromCache(response.lang, response.type, response.key, response.parent, function (err, rows, fields) {
             if (!err) {
                 if (rows.length === 1) {
@@ -93,14 +96,14 @@ var cache = {
                 } else {
                     // Fault
                     console.error("cache: Multiple entries for same key.");
-                    queryHandler.handle(response.lang, response.type, response.key, response.value, response.children, callback);
+                    queryHandler.handle(response.lang, response.type, response.key, response.value, response.children);
 
                 }
             } else {
                 // Error while querying cache -> show error & wait for lookup
                 console.error('cache: Error while performing Query.');
                 console.error(err);
-                queryHandler.handle(response.lang, response.type, response.key, response.value, response.children, callback);
+                queryHandler.handle(response.lang, response.type, response.key, response.value, response.children);
             }
         });
     },
@@ -240,13 +243,11 @@ var cache = {
                 "FROM   cache " +
                 "WHERE  UPPER(`key`) LIKE UPPER(:key) " +
                 "       AND `lang` = :lang " +
-                "       AND `type` = :type " +
                 "       AND `parent` IS NULL " +
                 "ORDER BY `key` ASC ",
                 {
                     "key": key + "%",
-                    "lang": lang,
-                    "type": type
+                    "lang": lang
                 },
 
                 callback);
@@ -261,14 +262,12 @@ var cache = {
                 "FROM   cache " +
                 "WHERE  UPPER(`key`) LIKE UPPER(:key) " +
                 "       AND `lang` = :lang " +
-                "       AND `type` = :type " +
-                "       AND `parent` = :parent " +
+                "       AND UPPER(`parent`) LIKE UPPER(:parent) " +
                 "ORDER BY `key` ASC ",
                 {
                     "key": key + "%",
                     "lang": lang,
-                    "type": type,
-                    "parent": parent
+                    "parent": parent + "%"
                 },
 
                 callback);
@@ -456,7 +455,12 @@ var cache = {
                         subResult.lang = lang;
                         subResult.type = type;
                         subResult.key = rows[row].key;
-                        subResult.value = value;
+
+                        // for JS: if parent is not null, set it
+                        if (rows[row].parent !== undefined && rows[row].parent !== null) {
+                            subResult.value = rows[row].parent;
+                        }
+
                         subResult.children = [];
                         subResult.documentation = rows[row].documentation;
                         result.children.push(subResult);
