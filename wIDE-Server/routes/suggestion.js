@@ -7,10 +7,10 @@ var cache = require("../cache/cache");
 suggestion.use('/', function(req, res) {
     var params = req.body.parameters;
 
-    console.log("REQUEST: " + params);
+    console.log("SUGGESTION REQUEST: " + params);
 
     if (params === undefined) {
-        console.error("Incomplete query request received.")
+        console.error("Incomplete suggestion request received.")
         res.send('{ "type": "error", "message": "Incomplete request."}');
         return;
     }
@@ -25,7 +25,7 @@ suggestion.use('/', function(req, res) {
     //queryHandler.handle(lang, type, key, value, children,
     var response = cache.suggest(lang, type, key, value, children, function(response) {
         var stringResponse = JSON.stringify(response);
-        console.log("RESPONSE: " + stringResponse);
+        console.log("SUGGESTION RESPONSE: " + stringResponse);
         res.send(stringResponse);
     });
 });

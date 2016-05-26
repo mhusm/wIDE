@@ -1,6 +1,6 @@
-package ch.ethz.inf.globis.wide.lookup.io;
+package ch.ethz.inf.globis.wide.io.query;
 
-import ch.ethz.inf.globis.wide.lookup.io.mdn.WideMDNResult;
+import ch.ethz.inf.globis.wide.io.query.mdn.WideMDNResult;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;

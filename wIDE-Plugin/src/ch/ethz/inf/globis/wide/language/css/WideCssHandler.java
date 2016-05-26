@@ -2,12 +2,11 @@ package ch.ethz.inf.globis.wide.language.css;
 
 import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
 import ch.ethz.inf.globis.wide.language.IWideLanguageHandler;
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
+import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.Lookup;
 import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.template.emmet.ZenCodingTemplate;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -15,8 +14,6 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.css.CssDeclaration;
-import com.intellij.psi.css.CssElement;
-import javafx.embed.swing.JFXPanel;
 
 /**
  * Created by fabian on 12.05.16.
@@ -50,10 +47,10 @@ public class WideCssHandler implements IWideLanguageHandler {
         return response;
     }
 
-    @Override
-    public void lookupSuggestions(Editor editor, PsiElement element, String newChar) {
-
-    }
+//    @Override
+//    public void lookupSuggestions(Editor editor, PsiElement element, String newChar) {
+//
+//    }
 
     @Override
     public void getSuggestionDocumentation(LookupElement lookupElement, Lookup lookup) {

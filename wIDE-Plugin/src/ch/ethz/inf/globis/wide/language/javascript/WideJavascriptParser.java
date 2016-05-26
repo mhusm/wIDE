@@ -1,9 +1,7 @@
 package ch.ethz.inf.globis.wide.language.javascript;
 
-import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
-import ch.ethz.inf.globis.wide.parsing.IWideLanguageParser;
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
+import ch.ethz.inf.globis.wide.language.IWideLanguageParser;
 import com.intellij.lang.javascript.psi.JSCallExpression;
 import com.intellij.lang.javascript.psi.JSDefinitionExpression;
 import com.intellij.lang.javascript.psi.impl.JSCallExpressionImpl;
@@ -11,7 +9,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

@@ -1,10 +1,8 @@
 package ch.ethz.inf.globis.wide.language.html;
 
-import ch.ethz.inf.globis.wide.language.IWideLanguageHandler;
 import ch.ethz.inf.globis.wide.logging.WideLogger;
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
-import ch.ethz.inf.globis.wide.parsing.IWideLanguageParser;
-import ch.ethz.inf.globis.wide.language.css.WideCssParser;
+import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
+import ch.ethz.inf.globis.wide.language.IWideLanguageParser;
 import ch.ethz.inf.globis.wide.registry.WideLanguageRegistry;
 import com.intellij.lang.javascript.psi.JSElement;
 import com.intellij.openapi.editor.Editor;

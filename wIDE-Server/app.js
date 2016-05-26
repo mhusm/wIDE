@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var query = require("./routes/query");
 var suggest = require("./routes/suggestion");
+var compatibility = require("./routes/compatibility");
 var app = express();
 
 // view engine setup
@@ -24,12 +25,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/query', query);
 app.use('/suggestions', suggest);
+app.use('/compatibility', compatibility);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handlers

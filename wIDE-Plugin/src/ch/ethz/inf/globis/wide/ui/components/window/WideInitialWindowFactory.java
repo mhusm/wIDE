@@ -1,6 +1,6 @@
 package ch.ethz.inf.globis.wide.ui.components.window;
 
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;

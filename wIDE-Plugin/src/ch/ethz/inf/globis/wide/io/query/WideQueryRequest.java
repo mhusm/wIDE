@@ -1,10 +1,9 @@
-package ch.ethz.inf.globis.wide.lookup.io;
+package ch.ethz.inf.globis.wide.io.query;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,12 +1,10 @@
 package ch.ethz.inf.globis.wide.ui.components.popup;
 
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import ch.ethz.inf.globis.wide.ui.components.WideContentBuilder;
 import ch.ethz.inf.globis.wide.ui.listener.WideMouseEventListenerHelper;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.ui.popup.*;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.psi.PsiElement;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -71,5 +69,5 @@ public abstract class WidePopupHelper extends WideContentBuilder {
     }
 
     public abstract void showLookupResults(WideQueryResponse parentResult, WideQueryResponse subResult, Editor editor);
-    public abstract void showSuggestions(java.util.List<WideQueryResponse> suggestions, ToolWindow toolWindow, PsiElement element, Editor editor);
+    //public abstract void showSuggestions(java.util.List<WideQueryResponse> suggestions, ToolWindow toolWindow, PsiElement element, Editor editor);
 }

@@ -1,5 +1,6 @@
 package ch.ethz.inf.globis.wide.ui.components;
 
+import ch.ethz.inf.globis.wide.ui.components.panel.WideJFXPanel;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.tools.Tool;
 import com.intellij.ui.components.JBScrollPane;
@@ -23,21 +24,6 @@ import java.awt.*;
  */
 public class WideContentBuilder {
 
-    protected HTMLEditorKit buildHtmlEdiorKit() {
-        // add an html editor kit
-        HTMLEditorKit kit = new HTMLEditorKit();
-
-        // add some styles to the html
-        StyleSheet styleSheet = kit.getStyleSheet();
-        try {
-            styleSheet.importStyleSheet(WideContentBuilder.class.getResource("/MDNStyleSheet.css"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return kit;
-    }
-
     public static WebView createWebView() {
         WebView webView = new WebView();
         webView.getEngine().setUserStyleSheetLocation(WideContentBuilder.class.getResource("/MDNStyleSheet.css").toString());
@@ -45,13 +31,14 @@ public class WideContentBuilder {
         return webView;
     }
 
-    protected JFXPanel addNewJFXPanleToWindow(String title, ToolWindow toolWindow) {
-        JFXPanel panel = new JFXPanel();
+    protected WideJFXPanel addNewJFXPanleToWindow(String title, ToolWindow toolWindow) {
+        WideJFXPanel panel = new WideJFXPanel();
 
         // set panel to toolWindow
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content summaryContent = contentFactory.createContent(panel, title, false);
 
+        toolWindow.getContentManager().removeAllContents(true);
         toolWindow.getContentManager().addContent(summaryContent);
         return panel;
     }

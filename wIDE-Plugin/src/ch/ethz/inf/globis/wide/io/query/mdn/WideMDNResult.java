@@ -1,4 +1,4 @@
-package ch.ethz.inf.globis.wide.lookup.io.mdn;
+package ch.ethz.inf.globis.wide.io.query.mdn;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;

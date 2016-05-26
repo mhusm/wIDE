@@ -1,8 +1,9 @@
 package ch.ethz.inf.globis.wide.communication;
 
+import ch.ethz.inf.globis.wide.io.compatibility.WideBrowserVersionResponse;
 import ch.ethz.inf.globis.wide.logging.WideLogger;
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
+import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -38,6 +39,7 @@ public class WideHttpCommunicator {
         }
     }
 
+    @Deprecated
     public static WideQueryResponse sendSuggestionRequest(WideQueryRequest request) {
         synchronized (LOGGER) {
             try {
@@ -46,6 +48,20 @@ public class WideHttpCommunicator {
                 return new WideQueryResponse(sendQuery(url, request.toString()));
             } catch (MalformedURLException e) {
                 LOGGER.severe("Sending request to " + SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/suggestions failed.");
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
+
+    public static WideBrowserVersionResponse sendBrowserVersionRequest() {
+        synchronized (LOGGER) {
+            try {
+                URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/compatibility/browser_versions");
+                LOGGER.info("SEND REQUEST: Get Compatibility Browser Versions.");
+                return new WideBrowserVersionResponse(sendQuery(url, ""));
+            } catch (MalformedURLException e) {
+                LOGGER.severe("Sending request to " + SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/compatibility failed.");
                 e.printStackTrace();
                 return null;
             }

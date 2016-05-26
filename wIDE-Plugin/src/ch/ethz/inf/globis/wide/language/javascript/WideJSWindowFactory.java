@@ -1,14 +1,18 @@
 package ch.ethz.inf.globis.wide.language.javascript;
 
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
-import ch.ethz.inf.globis.wide.lookup.io.mdn.WideMDNExample;
+import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
+import ch.ethz.inf.globis.wide.io.query.mdn.WideMDNExample;
 import ch.ethz.inf.globis.wide.ui.components.editor.WideExampleEditorFactory;
+import ch.ethz.inf.globis.wide.ui.components.panel.WideJFXPanel;
 import ch.ethz.inf.globis.wide.ui.components.window.WideWindowFactory;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import javafx.application.Platform;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 
 import javax.swing.*;
 import javax.swing.text.html.HTMLEditorKit;
@@ -30,11 +34,19 @@ public class WideJSWindowFactory extends WideWindowFactory {
     }
 
     public void showLookupWindow(ToolWindow toolWindow, WideQueryResponse result) {
-        HTMLEditorKit kit = buildHtmlEdiorKit();
-        toolWindow.getContentManager().removeAllContents(true);
-        createSyntaxContent(result.getMdn().getSyntax(), toolWindow);
-        createExamplesContent(result.getMdn().getExamples(), kit, toolWindow);
-        createCompatibilityContent(result.getMdn().getCompatibility(), toolWindow);
+        WideJFXPanel panel = addNewJFXPanleToWindow("wIDE", toolWindow);
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                TabPane tabPane = new TabPane();
+                tabPane.getTabs().add(createSyntaxTabFx(result.getMdn().getSyntax()));
+                tabPane.getTabs().add(createCompatibilityTabFx(result.getMdn().getCompatibility()));
+                //tabPane.getTabs().add(createExamplesContent(result.getMdn().getExamples()));
+
+                panel.getEmptyContentPane().getChildren().add(tabPane);
+            }
+        });
     }
 
     public void showSuggestionWindow(WideQueryResponse suggestion, ToolWindow toolWindow, PsiElement element, Editor editor) {
@@ -42,6 +54,7 @@ public class WideJSWindowFactory extends WideWindowFactory {
     }
 
     private void createExamplesContent(List<WideMDNExample> examples, HTMLEditorKit kit, ToolWindow toolWindow) {
+        //TODO: switch to JavaFx
         JPanel parentPanel = new JPanel();
         parentPanel.setLayout(new BoxLayout(parentPanel, BoxLayout.Y_AXIS));
 

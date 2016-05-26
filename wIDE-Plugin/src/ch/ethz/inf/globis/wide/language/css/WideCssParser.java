@@ -1,16 +1,11 @@
 package ch.ethz.inf.globis.wide.language.css;
 
-import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryRequest;
-import ch.ethz.inf.globis.wide.parsing.IWideLanguageParser;
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
+import ch.ethz.inf.globis.wide.language.IWideLanguageParser;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.css.CssDeclaration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by fabian on 17.03.16.

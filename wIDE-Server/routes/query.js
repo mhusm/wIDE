@@ -8,7 +8,7 @@ var queryHandler = require("./../handler/queryHandler");
 query.use('/', function(req, res) {
     var params = req.body.parameters;
 
-    console.log("REQUEST: " + params);
+    console.log("QUERY REQUEST: " + params);
 
     if (params === undefined) {
         console.error("Incomplete query request received.")
@@ -26,7 +26,7 @@ query.use('/', function(req, res) {
     //queryHandler.handle(lang, type, key, value, children,
     var response = cache.lookupDocumentation(lang, type, key, value, null, children, function(response) {
         var stringResponse = JSON.stringify(response);
-        console.log("RESPONSE: " + stringResponse);
+        console.log("QUERY RESPONSE: " + stringResponse);
         res.send(stringResponse);
     });
 });

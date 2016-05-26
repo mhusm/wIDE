@@ -1,17 +1,14 @@
 package ch.ethz.inf.globis.wide.language.css;
 
-import ch.ethz.inf.globis.wide.lookup.io.WideQueryResponse;
+import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import ch.ethz.inf.globis.wide.ui.components.popup.WidePopupHelper;
 import ch.ethz.inf.globis.wide.ui.components.popup.WideTableCellRenderer;
 import ch.ethz.inf.globis.wide.ui.components.popup.WideTableModel;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.psi.PsiElement;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 /**
  * Created by fabian on 12.05.16.
@@ -45,8 +42,8 @@ public class WideCssPopupHelper extends WidePopupHelper {
         showPopup(popupTable, new Dimension(600, 200), "Lookup Results", editor);
     }
 
-    @Override
-    public void showSuggestions(List<WideQueryResponse> suggestions, ToolWindow toolWindow, PsiElement element, Editor editor) {
-
-    }
+//    @Override
+//    public void showSuggestions(List<WideQueryResponse> suggestions, ToolWindow toolWindow, PsiElement element, Editor editor) {
+//
+//    }
 }
