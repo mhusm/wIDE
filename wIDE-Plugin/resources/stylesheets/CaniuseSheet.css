@@ -1,0 +1,228 @@
+body {
+    font-family: Calibri;
+    overflow: hidden;
+    padding: 10px;
+}
+
+h1 {
+    font-family: "Calibri";
+    font-size: 30px;
+    color: #006699;
+    font-weight: bolder;
+    margin: 0px;
+    padding: 0px;
+}
+
+h2 {
+    font-size: 15px;
+    text-align: center;
+}
+
+h3 {
+    font-size: 15px;
+    text-align: center;
+    margin: 30px 0px 25px 0px;
+}
+
+.browser_tile {
+    padding: 10px;
+    position: relative;
+
+    display: inline-block;
+}
+
+.compatibility_container {
+    width: 10px;
+    height: 100px;
+    margin: 0px 25px 0px 25px;
+    border: solid 1px #bbbbbb;
+}
+
+.whatever {
+    background-color: #bbbbbb;
+}
+
+.not_supported {
+    background-color: darkred;
+}
+
+.partially_supported {
+    background-color: darkorange;
+}
+
+.prefixed {
+    background-color: gold;
+}
+
+.supported {
+    background-color: darkgreen;
+}
+
+.version {
+    font-size: 12px;
+    color: #646464;
+    margin-top: -6px;
+}
+
+.version:nth-of-type(4n-3) {
+    position: absolute;
+    left: 5px;
+    width: 30px;
+    text-align: center;
+    color: #666666;
+    background-color: #eeeeee;
+    border-radius: 3px;
+    padding: 2px 0px 0px 0px;
+    margin: -8px 0px 0px 0px;
+}
+
+.version:nth-of-type(4n-3)::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 4px;
+    width: 0;
+    height: 0;
+    margin: -1px 0px 0px 0px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid #eeeeee;
+    clear: both;
+}
+
+.version:nth-of-type(4n-1) {
+    position: absolute;
+    left: 46px;
+    width: 30px;
+    text-align: center;
+    color: #666666;
+    background-color: #eeeeee;
+    border-radius: 5px;
+    padding: 2px 0px 0px 0px;
+    margin: -8px 0px 0px 0px;
+}
+
+.version:nth-of-type(4n-1)::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 4px;
+    width: 0;
+    height: 0;
+    margin: -1px 0px 0px 0px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 5px solid #eeeeee;
+    clear: both;
+}
+
+.usage_container {
+    position: relative;
+    height: 20px;
+    margin: -5px 20px 0px 20px;
+    border: solid 1px #bbbbbb;
+}
+
+.usage_whatever {
+    background-color: #bbbbbb;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 5px 0px 1px 0px;
+    font-size: 12px;
+    display: inline-block;
+    height: 14px;
+}
+
+.usage_not_supported {
+    background-color: darkred;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 5px 0px 1px 0px;
+    font-size: 12px;
+    display: inline-block;
+    height: 14px;
+}
+
+.usage_partially_supported {
+    background-color: darkorange;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 5px 0px 1px 0px;
+    font-size: 12px;
+    display: inline-block;
+    height: 14px;
+}
+
+.usage_prefixed {
+    background-color: gold;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 5px 0px 1px 0px;
+    font-size: 12px;
+    display: inline-block;
+    height: 14px;
+}
+
+.usage_supported {
+    background-color: darkgreen;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 5px 0px 1px 0px;
+    font-size: 12px;
+    display: inline-block;
+    height: 14px;
+}
+
+.usage_supported .usage_tag, .usage_not_supported .usage_tag {
+    position: absolute;
+    background-color: #666666;
+    border-radius: 5px;
+    display: inline-block;
+    top: 30px;
+    width: 50px;
+    padding: 3px 0px 1px 0px;
+    margin: 0px 0px 0px -25px;
+}
+
+.usage_supported .usage_tag::after, .usage_not_supported .usage_tag::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: -8px;
+    width: 0;
+    height: 0;
+    margin: -1px 0px 0px 0px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #666666;
+    clear: both;
+}
+
+.usage_prefixed .usage_tag,
+.usage_partially_supported .usage_tag,
+.usage_whatever .usage_tag  {
+    position: absolute;
+    background-color: #666666;
+    border-radius: 5px;
+    display: inline-block;
+    top: -29px;
+    width: 50px;
+    padding: 3px 0px 1px 0px;
+    margin: 0px 0px 0px -25px;
+}
+
+.usage_prefixed .usage_tag::after,
+.usage_partially_supported .usage_tag::after,
+.usage_whatever .usage_tag::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 100%;
+    width: 0;
+    height: 0;
+    margin: -1px 0px 0px 0px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #666666;
+    clear: both;
+}

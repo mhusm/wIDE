@@ -5,6 +5,7 @@ body {
     font-family: "Calibri";
     padding: 10px;
     background: inherit;
+    overflow: hidden;
 }
 
 a {

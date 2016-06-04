@@ -22,7 +22,7 @@ public class WideBrowserVersionResponse {
             // create an object for every browser
             for (int i = 0; i < array.length(); i++) {
                 WideBrowser browser = new WideBrowser(array.getJSONObject(i));
-                browsers.put(browser.getBrowserName(), browser);
+                browsers.put(browser.getBrowserName().toLowerCase(), browser);
             }
         } catch (JSONException e) {
             LOGGER.warning("Invalid WideBrowserVersionResponse received.");
@@ -51,9 +51,10 @@ public class WideBrowserVersionResponse {
                 try {
                     double versionNumber = Double.parseDouble(version.getString("version"));
                     double versionUsage = Double.parseDouble(version.getString("usage"));
-                    versions.put(versionNumber, versionUsage);
 
                     totalUsage += versionUsage;
+
+                    versions.put(versionNumber, totalUsage);
 
                 } catch (NumberFormatException e) {
                     LOGGER.warning("Invalid compatibility browser version data received.");
@@ -80,7 +81,7 @@ public class WideBrowserVersionResponse {
             return versions.navigableKeySet();
         }
 
-        public double getPercentageOfVersion(int version) {
+        public double getCumulativePercentageUntilVersion(double version) {
             return versions.get(version);
         }
 

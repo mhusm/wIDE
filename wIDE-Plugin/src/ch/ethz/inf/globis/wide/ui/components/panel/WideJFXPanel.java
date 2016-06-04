@@ -2,26 +2,19 @@ package ch.ethz.inf.globis.wide.ui.components.panel;
 
 import ch.ethz.inf.globis.wide.ui.components.dialog.WideCompatibilityPreferenceDialog;
 import com.intellij.ide.IdeEventQueue;
-import com.intellij.util.containers.Stack;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-
-import javax.swing.*;
 
 /**
  * Created by fabian on 26.05.16.
@@ -40,12 +33,17 @@ public class WideJFXPanel extends JFXPanel {
         });
     }
 
+    public StackPane getContentPane() {
+        return content;
+    }
+
     public StackPane getEmptyContentPane() {
         this.content.getChildren().clear();
         return this.content;
     }
 
     private void initializePanelFx(WideJFXPanel panel) {
+        //this.content.setStyle("-fx-background-color: lightgray;");
         StackPane stackPane = new StackPane();
         stackPane.setPrefSize(700, 700);
 
@@ -102,6 +100,7 @@ public class WideJFXPanel extends JFXPanel {
         StackPane.setAlignment(menu, Pos.TOP_CENTER);
 
         Scene scene = new Scene(stackPane);
+        scene.getStylesheets().add(WideJFXPanel.class.getResource("/stylesheets/WideStyleSheet.css").toString());
         this.setScene(scene);
     }
 }

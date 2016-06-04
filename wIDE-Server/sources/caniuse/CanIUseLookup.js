@@ -33,7 +33,7 @@ var caniuseLookup = {
             }
         }
         console.log("caniuse: No caniuse result found: [lang] " + lang + " [type] " + type + " [key] " + key);
-        return "No caniuse result.";
+        return; // "No caniuse result.";
     }
 }
 

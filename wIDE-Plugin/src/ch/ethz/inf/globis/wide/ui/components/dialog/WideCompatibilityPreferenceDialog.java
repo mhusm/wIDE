@@ -20,6 +20,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.controlsfx.control.RangeSlider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -87,6 +89,14 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
 
             prefs.buildDefaultPreferences();
             createCenterPanelFx(panel);
+
+        } catch (JSONException e) {
+            // Some preferences have been stored wrong -> rebuild preferences to default and restart
+            LOGGER.warning("Browser Compatibility Preferences have been invalid. Reset them.");
+            e.printStackTrace();
+
+            prefs.buildDefaultPreferences();
+            createCenterPanelFx(panel);
         }
 
         Scene scene = new Scene(pane);
@@ -99,7 +109,7 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
      * @param pane a TabPane in which the browser version compatibility dialog will be put
      * @throws ClassCastException
      */
-    private void createBrowserTabFx(TabPane pane) throws ClassCastException {
+    private void createBrowserTabFx(TabPane pane) throws ClassCastException, JSONException {
         VBox vBox = new VBox(5);
         vBox.setMinHeight(300);
         vBox.setPadding(new Insets(10, 10, 10, 10));
@@ -116,25 +126,36 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
             Text browserTitle = new Text(browser.name());
 
             // load values from preferences
-            double min = 1.0 * response.getBrowsers().get(browser.name()).getMinVersion(); //0; //(double) prefs.getData("min", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name());
-            double max = 1.0 * response.getBrowsers().get(browser.name()).getMaxVersion(); //(double) prefs.getData("max", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name());
+            double min = 1.0 * response.getBrowsers().get(browser.name().toLowerCase()).getMinVersion(); //0; //(double) prefs.getData("min", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name());
+            prefs.putData(min, "min", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
+
+            double max = 1.0 * response.getBrowsers().get(browser.name().toLowerCase()).getMaxVersion(); //(double) prefs.getData("max", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name());
+            prefs.putData(max, "max", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
 
             // workaround: if start or end are integer, the conversion to double needs to be made exlicitely
-            Object start = prefs.getData("start", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name());
+            Object start = prefs.getData("start", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
             if (start instanceof Integer) {
                 start = 1.0 * (Integer) start;
             } else if (start == null) {
                 start = min;
+                prefs.putData(start, "start", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
+
             }
-            Number end = (Number) prefs.getData("end", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name());
+            Number end = (Number) prefs.getData("end", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
             if (end instanceof Integer) {
                 end = 1.0 * (Integer) end;
             } else if (end == null) {
                 end = max;
+                prefs.putData(end, "end", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
             }
 
             // get versions of current browser
-            NavigableSet<Double> versions = response.getBrowsers().get(browser.name()).getVersions();
+            NavigableSet<Double> versions = response.getBrowsers().get(browser.name().toLowerCase()).getVersions();
+            JSONObject jsonVersions = new JSONObject();
+            for (Double version : versions) {
+                jsonVersions.put(version.toString(), response.getBrowsers().get(browser.name().toLowerCase()).getCumulativePercentageUntilVersion(version));
+                prefs.putData(jsonVersions, "versions", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
+            }
 
             RangeSlider browserVersionSlider = new RangeSlider(min, max, (Double) start, (Double) end);
 
@@ -169,13 +190,13 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
             browserVersionSlider.highValueProperty().addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    prefs.putData((Double) newValue, "end", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name());
+                    prefs.putData(versions.ceiling((Double) newValue), "end", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
                 }
             });
             browserVersionSlider.lowValueProperty().addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    prefs.putData((Double) newValue, "start", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name());
+                    prefs.putData(versions.floor((Double) newValue), "start", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
                 }
             });
 
@@ -215,8 +236,8 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
             // load values from preferences
             double min = 0; //(double) prefs.getData("min", WideCompatibilityPreferences.prefTypes.BROWSER_YEAR.name(), browser.name());
             double max = 100; //(double) prefs.getData("max", WideCompatibilityPreferences.prefTypes.BROWSER_YEAR.name(), browser.name());
-            Integer start = (Integer) prefs.getData("start", WideCompatibilityPreferences.prefTypes.BROWSER_YEAR.name(), browser.name());
-            Integer end = (Integer) prefs.getData("end", WideCompatibilityPreferences.prefTypes.BROWSER_YEAR.name(), browser.name());
+            Integer start = (Integer) prefs.getData("start", WideCompatibilityPreferences.prefTypes.BROWSER_YEAR.name(), browser.name().toLowerCase());
+            Integer end = (Integer) prefs.getData("end", WideCompatibilityPreferences.prefTypes.BROWSER_YEAR.name(), browser.name().toLowerCase());
             RangeSlider browserYearSlider = new RangeSlider(2000, 2016, start, end);
 
             // bug, rangeslider does not set the low-value properly
@@ -247,13 +268,13 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
             browserYearSlider.highValueProperty().addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    prefs.putData(Math.round((Double) newValue), "end", WideCompatibilityPreferences.prefTypes.BROWSER_YEAR.name(), browser.name());
+                    prefs.putData(Math.round((Double) newValue), "end", WideCompatibilityPreferences.prefTypes.BROWSER_YEAR.name(), browser.name().toLowerCase());
                 }
             });
             browserYearSlider.lowValueProperty().addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    prefs.putData(Math.round((Double) newValue), "start", WideCompatibilityPreferences.prefTypes.BROWSER_YEAR.name(), browser.name());
+                    prefs.putData(Math.round((Double) newValue), "start", WideCompatibilityPreferences.prefTypes.BROWSER_YEAR.name(), browser.name().toLowerCase());
                 }
             });
 

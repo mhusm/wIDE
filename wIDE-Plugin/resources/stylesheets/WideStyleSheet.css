@@ -1,4 +1,21 @@
-.suggestion_receiver {
+.tab-pane *.tab-header-area {
+    -fx-padding: 10px 0 0 0;
+}
+
+.combo-box {
+    -fx-max-width: 50px;
+}
+
+.combo-box-popup {
+    -fx-min-width: 300px;
+}
+
+body {
+    overflow: hidden;
+    background-color: #ff0000;
+}
+
+/*.suggestion_receiver {
     -fx-fill: #666666;
     -fx-font-size: 12px;
 }
@@ -25,4 +42,4 @@
 }
 
 .suggestion_cell {
-}
+}*/

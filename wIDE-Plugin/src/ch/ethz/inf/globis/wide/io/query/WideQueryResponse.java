@@ -1,13 +1,17 @@
 package ch.ethz.inf.globis.wide.io.query;
 
-import ch.ethz.inf.globis.wide.io.query.mdn.WideMDNResult;
+import ch.ethz.inf.globis.wide.registry.WideSourceRegistry;
+import ch.ethz.inf.globis.wide.ui.components.panel.WideResizablePaneBox;
+import javafx.scene.control.TabPane;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by fabian on 11.03.16.
@@ -18,9 +22,11 @@ public class WideQueryResponse {
     private String key;
     private String value;
     private int level;
-    private String caniuse;
-    private WideMDNResult mdn;
+//    private WideCaniuseResult caniuse;
+//    private WideMDNResult mdn;
     private List<WideQueryResponse> subResults = new ArrayList<WideQueryResponse>();
+
+    private Map<String, AbstractWideSourceResult> sources = new HashMap();
 
     public WideQueryResponse(String response) {
         this(response, 0);
@@ -37,7 +43,6 @@ public class WideQueryResponse {
             setType(res.optString("type"));
             setKey(res.optString("key"));
             setValue(res.optString("value"));
-            setCaniuse(res.optString("caniuse"));
             setLevel(level);
 
             // create mdn result
@@ -58,9 +63,31 @@ public class WideQueryResponse {
     }
 
     public void resolveDocumentation(JSONObject documentation) throws JSONException {
+
+        WideSourceRegistry sourceRegistry = WideSourceRegistry.getInstance();
+
+        for (String source : sourceRegistry.getSources()) {
+            if (documentation.optString(source) != null && documentation.optString(source).length() > 2) {
+                JSONObject sourceContent = new JSONObject(documentation.optString(source));
+                setDocumentation(source, sourceRegistry.instantiateResult(source, sourceContent));
+            }
+        }
         // create mdn result
-        if (documentation.optString("mdn") != null && documentation.optString("mdn").length() > 2) {
-            setMdn(new WideMDNResult(new JSONObject(documentation.optString("mdn"))));
+//        if (documentation.optString("mdn") != null && documentation.optString("mdn").length() > 2) {
+//
+//            setMdn(new WideMDNResult(new JSONObject(documentation.optString("mdn"))));
+//        }
+//
+//        if (documentation.optJSONObject("caniuse") != null) {
+//            setCaniuse(new WideCaniuseResult(documentation.optJSONObject("caniuse")));
+//        }
+    }
+
+    public void showDocumentation(WideResizablePaneBox paneBox) {
+        for (String source : sources.keySet()) {
+            if (sources.get(source) != null) {
+                sources.get(source).showContent(paneBox);
+            }
         }
     }
 
@@ -98,21 +125,29 @@ public class WideQueryResponse {
         this.level = level;
     }
 
-    public String getCaniuse() {
-        return caniuse;
+    public AbstractWideSourceResult getDocumentation(String source) {
+        return sources.get(source);
     }
 
-    public void setCaniuse(String caniuse) {
-        this.caniuse = caniuse;
+    protected void setDocumentation(String source, AbstractWideSourceResult sourceContent) {
+        sources.put(source, sourceContent);
     }
 
-    public WideMDNResult getMdn() {
-        return mdn;
-    }
-
-    public void setMdn(WideMDNResult mdn) {
-        this.mdn = mdn;
-    }
+//    public WideCaniuseResult getCaniuse() {
+//        return caniuse;
+//    }
+//
+//    public void setCaniuse(WideCaniuseResult caniuse) {
+//        this.caniuse = caniuse;
+//    }
+//
+//    public WideMDNResult getMdn() {
+//        return mdn;
+//    }
+//
+//    public void setMdn(WideMDNResult mdn) {
+//        this.mdn = mdn;
+//    }
 
     public List<WideQueryResponse> getSubResults() {
         return subResults;

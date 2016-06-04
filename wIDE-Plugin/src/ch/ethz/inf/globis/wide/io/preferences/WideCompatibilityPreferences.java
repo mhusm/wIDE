@@ -75,31 +75,31 @@ public class WideCompatibilityPreferences {
         JSONObject fireFoxVersion = new JSONObject();
         fireFoxVersion.put("start", 1);
         fireFoxVersion.put("end", 100);
-        browserVersionPrefs.put(browserTypes.Firefox.name(), fireFoxVersion);
+        browserVersionPrefs.put(browserTypes.Firefox.name().toLowerCase(), fireFoxVersion);
 
         // Chrome
         JSONObject chromeVersion = new JSONObject();
         chromeVersion.put("start", 1);
         chromeVersion.put("end", 100);
-        browserVersionPrefs.put(browserTypes.Chrome.name(), chromeVersion);
+        browserVersionPrefs.put(browserTypes.Chrome.name().toLowerCase(), chromeVersion);
 
         // IE
         JSONObject ieVersion = new JSONObject();
         ieVersion.put("start", 1);
         ieVersion.put("end", 100);
-        browserVersionPrefs.put(browserTypes.IE.name(), ieVersion);
+        browserVersionPrefs.put(browserTypes.IE.name().toLowerCase(), ieVersion);
 
         // Safari
         JSONObject safariVersion = new JSONObject();
         safariVersion.put("start", 1);
         safariVersion.put("end", 100);
-        browserVersionPrefs.put(browserTypes.Safari.name(), safariVersion);
+        browserVersionPrefs.put(browserTypes.Safari.name().toLowerCase(), safariVersion);
 
         // Opera
         JSONObject operaVersion = new JSONObject();
         operaVersion.put("start", 1);
         operaVersion.put("end", 100);
-        browserVersionPrefs.put(browserTypes.Opera.name(), operaVersion);
+        browserVersionPrefs.put(browserTypes.Opera.name().toLowerCase(), operaVersion);
 
         return browserVersionPrefs;
     }
@@ -111,31 +111,31 @@ public class WideCompatibilityPreferences {
         JSONObject fireFoxYear = new JSONObject();
         fireFoxYear.put("start", 2008);
         fireFoxYear.put("end", 2016);
-        browserYearPrefs.put(browserTypes.Firefox.name(), fireFoxYear);
+        browserYearPrefs.put(browserTypes.Firefox.name().toLowerCase(), fireFoxYear);
 
         // Chrome
         JSONObject chromeYear = new JSONObject();
         chromeYear.put("start", 2008);
         chromeYear.put("end", 2016);
-        browserYearPrefs.put(browserTypes.Chrome.name(), chromeYear);
+        browserYearPrefs.put(browserTypes.Chrome.name().toLowerCase(), chromeYear);
 
         // IE
         JSONObject ieYear = new JSONObject();
         ieYear.put("start", 2008);
         ieYear.put("end", 2016);
-        browserYearPrefs.put(browserTypes.IE.name(), ieYear);
+        browserYearPrefs.put(browserTypes.IE.name().toLowerCase(), ieYear);
 
         // Safari
         JSONObject safariYear = new JSONObject();
         safariYear.put("start", 2008);
         safariYear.put("end", 2016);
-        browserYearPrefs.put(browserTypes.Safari.name(), safariYear);
+        browserYearPrefs.put(browserTypes.Safari.name().toLowerCase(), safariYear);
 
         // Opera
         JSONObject operaYear = new JSONObject();
         operaYear.put("start", 2008);
         operaYear.put("end", 2016);
-        browserYearPrefs.put(browserTypes.Opera.name(), operaYear);
+        browserYearPrefs.put(browserTypes.Opera.name().toLowerCase(), operaYear);
 
         return browserYearPrefs;
     }
@@ -182,34 +182,6 @@ public class WideCompatibilityPreferences {
             }
             LOGGER.warning("Illegal path to compatibility preference node: [path] " + pathString + " [type] load");
             return null;
-        }
-    }
-
-    public JSONObject getPrefs() {
-        try {
-            return new JSONObject(prefs.toString());
-        } catch (JSONException e) {
-            LOGGER.warning("Invalid compatibility preference object.");
-            e.printStackTrace();
-
-            // create new preferences
-            buildDefaultPreferences();
-            return prefs;
-        }
-    }
-
-    public JSONObject setPrefs(JSONObject preferences) {
-        try {
-            this.prefs = new JSONObject(preferences.toString());
-            return prefs;
-        } catch (JSONException e) {
-
-            LOGGER.warning("Invalid compatibility preference object.");
-            e.printStackTrace();
-
-            // create new preferences
-            buildDefaultPreferences();
-            return prefs;
         }
     }
 

@@ -4,6 +4,11 @@ var http = require('http');
 var htmlParser = require("htmlparser2");
 
 var compatibilityHandler = {
+
+    getCompatibility: function(name, callback) {
+
+    },
+
     getBrowserVersions: function(callback) {
         var page = "";
         compatibilityHandler._loadBrowserPage(page, callback);
@@ -48,8 +53,6 @@ var compatibilityHandler = {
     },
 
     _parsePage: function (page, callback) {
-
-
         var browsers = [];
         var currentBrowser = {};
         var currentVersion = {};
@@ -60,6 +63,8 @@ var compatibilityHandler = {
         var inTitle = false;
         var inVersion = false;
         var inPercentage = false;
+
+        var cumulativePercentage = 0;
 
         // PARSE CANIUSE RESPONSE.
         var parser = new htmlParser.Parser({
@@ -78,6 +83,7 @@ var compatibilityHandler = {
                             && attribs.class.indexOf("support-list") === 0) {
 
                             inList = true;
+                            cumulativePercentage = 0;
                         }
                     }
 
@@ -120,7 +126,6 @@ var compatibilityHandler = {
                     } else if (inPercentage) {
                         console.log("Browser percentage: " + text.replace("%", ""));
                         currentVersion.usage = text.replace("%", "");
-
                     }
                 },
                 onclosetag: function (tagname) {

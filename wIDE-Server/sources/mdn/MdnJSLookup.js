@@ -1,6 +1,7 @@
 var https = require('https');
 var htmlParser = require("htmlparser2");
 var queryHandler = require("../../handler/queryHandler");
+var caniuse = require("../caniuse/CanIUseLookup");
 
 var mdnJS = {
     resolveFullJSQuery: function(result, func, candidates, callback) {
@@ -33,6 +34,7 @@ var mdnJS = {
         result.parent = func;
         result.value = {"receiver": receiver, "file": file};
         result.documentation = {};
+        result.documentation.caniuse = caniuse.query(result, "JS", "callCandidate", func);
         results.children.push(result);
 
         var page = "";

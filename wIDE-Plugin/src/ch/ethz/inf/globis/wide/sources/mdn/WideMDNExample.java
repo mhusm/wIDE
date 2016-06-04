@@ -1,4 +1,4 @@
-package ch.ethz.inf.globis.wide.io.query.mdn;
+package ch.ethz.inf.globis.wide.sources.mdn;
 
 import org.codehaus.jettison.json.JSONObject;
 

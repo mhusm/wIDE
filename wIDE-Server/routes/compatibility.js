@@ -7,6 +7,26 @@ var compatibilityHandler = require("./../handler/compatibilityHandler");
 compatibility.use('/browser_versions/', function(req, res) {
     var params = req.body.parameters;
 
+    console.log("BROWSER VERSIONS REQUEST: " + params);
+
+    if (params === undefined) {
+        console.error("Incomplete browser versions request received.")
+        res.send('{ "type": "error", "message": "Incomplete request."}');
+        return;
+    }
+
+    //queryHandler.handle(lang, type, key, value, children,
+    var response = compatibilityHandler.getBrowserVersions(function(response) {
+        var stringResponse = JSON.stringify(response);
+        console.log("BROWSER VERSIONS RESPONSE: " + stringResponse);
+        res.send(stringResponse);
+    });
+});
+
+// TODO: find compatibility
+compatibility.use('/support/', function(req, res) {
+    var params = req.body.parameters;
+
     console.log("COMPATIBILITY REQUEST: " + params);
 
     if (params === undefined) {
@@ -22,7 +42,5 @@ compatibility.use('/browser_versions/', function(req, res) {
         res.send(stringResponse);
     });
 });
-
-// TODO: find compatibility
 
 module.exports = compatibility;

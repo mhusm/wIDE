@@ -47,26 +47,27 @@ public class WideJavascriptHandler implements IWideLanguageHandler{
             Project project = editor.getProject();
             ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
 
-            if (response.getSubResults().size() > 0) {
-                for (WideQueryResponse resp : response.getSubResults()) {
-                    if (resp.getMdn() != null) {
-                        getWindowFactory().showLookupWindow(window, resp);
-                        //getPopupHelper().showLookupResults(resp, null, editor);
-                        hasValidResult = true;
-                    }
-                }
-            }
+            getWindowFactory().showLookupWindow(window, response);
+//            if (response.getSubResults().size() > 0) {
+//                for (WideQueryResponse resp : response.getSubResults()) {
+//                    if (resp.getMdn() != null) {
+//                        getWindowFactory().showLookupWindow(window, resp);
+//                        //getPopupHelper().showLookupResults(resp, null, editor);
+//                        hasValidResult = true;
+//                    }
+//                }
+//            }
         }
 
-        if (!hasValidResult) {
-            // no valid result -> (assume) invalid selection
-            Project project = editor.getProject();
-            ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
-            getWindowFactory().createErrorWindowContent("\n" +
-                    " Sorry, we did not find \n" +
-                    " any documentation \n" +
-                    " for the selection.", window);
-        }
+//        if (!hasValidResult) {
+//            // no valid result -> (assume) invalid selection
+//            Project project = editor.getProject();
+//            ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+//            getWindowFactory().createErrorWindowContent("\n" +
+//                    " Sorry, we did not find \n" +
+//                    " any documentation \n" +
+//                    " for the selection.", window);
+//        }
 
         return response;
     }
@@ -168,7 +169,7 @@ public class WideJavascriptHandler implements IWideLanguageHandler{
 
         if (response.getSubResults().size() > 0) {
             for (WideQueryResponse resp : response.getSubResults()) {
-                if (resp.getMdn() != null) {
+                if (resp.getDocumentation("mdn") != null) {
                     getWindowFactory().showLookupWindow(window, resp);
                     //getPopupHelper().showLookupResults(resp, null, editor);
                 }
