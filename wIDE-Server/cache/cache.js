@@ -1,5 +1,5 @@
 var queryHandler = require("../handler/queryHandler");
-var suggestionHandler = require("../handler/suggestionHandler");
+var compatibilityHandler = require("../handler/compatibilityHandler");
 
 var mysql = require("mysql");
 var sqlAccess = {
@@ -10,7 +10,7 @@ var sqlAccess = {
 };
 
 var cache = {
-    lookupDocumentation: function (lang, type, key, value, parent, children, callback) {
+    lookupDocumentation: function (lang, type, key, value, parent, children, onlyCompatibilityLookup, callback) {
         cache._selectEntryFromCache(lang, type, key, parent, function (err, rows, fields) {
             if (!err) {
                 if (rows.length === 1) {
@@ -22,7 +22,6 @@ var cache = {
                     result.key = key;
                     result.value = value;
                     result.children = [];
-                    //result.compatibility = rows[0].compatibility;
                     result.documentation = rows[0].documentation;
 
                     // are the children cached?
@@ -58,13 +57,27 @@ var cache = {
                 } else if (rows.length === 0) {
                     // No cached result found -> wait for lookup
                     console.info("cache: No cached data for [key] " + key + " [type] " + type + " [parent] " + parent + " [lang] " + lang);
-                    queryHandler.handle(lang, type, key, value, children, function (response) {
-                        cache.refreshDocumentationCache(response);
-                        if (callback !== undefined) {
-                            callback(response);
-                        }
-                        return response;
-                    });
+
+                    if (onlyCompatibilityLookup) {
+                        // requestor is only interested in compatibility data
+                        compatibilityHandler.handle(lang, type, key, value, children, function (response) {
+                            if (callback !== undefined) {
+                                callback(response);
+                            }
+
+                            return response;
+                        });
+
+                    } else {
+                        // full documentation lookup
+                        queryHandler.handle(lang, type, key, value, children, function (response) {
+                            cache.refreshDocumentationCache(response);
+                            if (callback !== undefined) {
+                                callback(response);
+                            }
+                            return response;
+                        });
+                    }
 
                 } else {
                     // Multiple rows found -> show error & wait for lookup

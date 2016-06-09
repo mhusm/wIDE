@@ -39,15 +39,14 @@ public class WideHttpCommunicator {
         }
     }
 
-    @Deprecated
-    public static WideQueryResponse sendSuggestionRequest(WideQueryRequest request) {
+    public static WideQueryResponse sendCompatibilityRequest(WideQueryRequest request) {
         synchronized (LOGGER) {
             try {
-                URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/suggestions");
+                URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/compatibility/support");
                 LOGGER.info("SEND REQUEST: " + request);
                 return new WideQueryResponse(sendQuery(url, request.toString()));
             } catch (MalformedURLException e) {
-                LOGGER.severe("Sending request to " + SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/suggestions failed.");
+                LOGGER.severe("Sending request to " + SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/compatibility/support failed.");
                 e.printStackTrace();
                 return null;
             }

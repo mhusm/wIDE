@@ -35,12 +35,16 @@ compatibility.use('/support/', function(req, res) {
         return;
     }
 
-    //queryHandler.handle(lang, type, key, value, children,
-    var response = compatibilityHandler.getBrowserVersions(function(response) {
+    var parameters = JSON.parse(params);
+    var children = parameters.children;
+
+    var response = compatibilityHandler.handle(children, function(response) {
         var stringResponse = JSON.stringify(response);
         console.log("COMPATIBILITY RESPONSE: " + stringResponse);
         res.send(stringResponse);
     });
+
+    return response;
 });
 
 module.exports = compatibility;

@@ -30,7 +30,7 @@ public class WideJSCall {
         this.methodName = callExpression.getMethodExpression().getLastChild();
         this.methodReceiver = callExpression.getMethodExpression().getFirstChild();
 
-        System.out.println("Call: " + callExpression.getText());
+        System.out.println("Call:"); // + callExpression.getText());
         System.out.println("      Method Expression: " + callExpression.getMethodExpression().getText());
         System.out.println("      Method Name: " + this.methodName.getText() + " [" + this.methodName.getClass() + "]");
         System.out.println("      Method Receiver: " + this.methodReceiver.getText() + " [" + this.methodReceiver.getClass() + "]");

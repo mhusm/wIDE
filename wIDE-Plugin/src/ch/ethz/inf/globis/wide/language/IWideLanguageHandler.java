@@ -18,6 +18,7 @@ public interface IWideLanguageHandler {
     IWideLanguageParser getLanguageParser();
 
     WideQueryResponse lookupDocumentation(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement);
-   // void lookupSuggestions(Editor editor, PsiElement element, String newChar);
     void getSuggestionDocumentation(LookupElement lookupElement, Lookup lookup);
+    boolean isRelevantForCompatibilityQuery(PsiElement element);
+    String getLanguageAbbreviation();
 }

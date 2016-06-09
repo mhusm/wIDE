@@ -14,6 +14,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.css.CssDeclaration;
+import com.intellij.psi.css.CssElement;
 
 /**
  * Created by fabian on 12.05.16.
@@ -35,6 +36,16 @@ public class WideCssHandler implements IWideLanguageHandler {
     }
 
     @Override
+    public boolean isRelevantForCompatibilityQuery(PsiElement element) {
+        return (element instanceof CssElement && !(element instanceof CssDeclaration));
+    }
+
+    @Override
+    public String getLanguageAbbreviation() {
+        return "CSS";
+    }
+
+    @Override
     public WideQueryResponse lookupDocumentation(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
         WideQueryRequest request = getLanguageParser().buildDocumentationQuery(editor, file, startElement, endElement);
         WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
@@ -42,15 +53,9 @@ public class WideCssHandler implements IWideLanguageHandler {
         Project project = editor.getProject();
         ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
 
-        //getPopupHelper().showLookupResults(response, response, editor);
         getWindowFactory().showLookupWindow(window, response);
         return response;
     }
-
-//    @Override
-//    public void lookupSuggestions(Editor editor, PsiElement element, String newChar) {
-//
-//    }
 
     @Override
     public void getSuggestionDocumentation(LookupElement lookupElement, Lookup lookup) {
@@ -63,7 +68,7 @@ public class WideCssHandler implements IWideLanguageHandler {
                 // attribute
 
                 WideQueryRequest request = new WideQueryRequest();
-                request.setLang("CSS");
+                request.setLang(getLanguageAbbreviation());
                 request.setType("attribute");
                 request.setKey(lookupElement.getLookupString());
 

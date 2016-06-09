@@ -33,7 +33,7 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
 
     private JFXPanel myToolWindowContent;
 
-    public void createErrorWindowContent(String error, ToolWindow toolWindow) {
+    public void showErrorWindow(String error, ToolWindow toolWindow) {
         toolWindow.getContentManager().removeAllContents(true);
         WideJFXPanel panel = addNewJFXPanleToWindow("wIDE", toolWindow);
 
@@ -77,46 +77,6 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
         Platform.setImplicitExit(false);
 
     }
-
-//    @AsynchronousExecution
-//    protected Tab createSummaryTabFx(String content) {
-//        WebView webView = createWebView();
-//        webView.getEngine().loadContent("<html><body>" + content + "</body></html>");
-//
-//        Tab tab = new Tab("Summary", webView);
-//        tab.setClosable(false);
-//        return tab;
-//    }
-
-//    @AsynchronousExecution
-//    protected Tab createAttributesTabFx(String content) {
-//        WebView webView = createWebView();
-//        webView.getEngine().loadContent("<html><body>" + content + "</body></html>");
-//
-//        Tab tab = new Tab("Attributes", webView);
-//        tab.setClosable(false);
-//        return tab;
-//    }
-
-//    @AsynchronousExecution
-//    protected Tab createCompatibilityTabFx(String content) {
-//        WebView webView = createWebView();
-//        webView.getEngine().loadContent("<html><body>" + content + "</body></html>");
-//
-//        Tab tab = new Tab("Compatibility", webView);
-//        tab.setClosable(false);
-//        return tab;
-//    }
-
-//    @AsynchronousExecution
-//    protected Tab createSyntaxTabFx(String content) {
-//        WebView webView = createWebView();
-//        webView.getEngine().loadContent("<html><body>" + content + "</body></html>");
-//
-//        Tab tab = new Tab("Syntax", webView);
-//        tab.setClosable(false);
-//        return tab;
-//    }
 
     public abstract void showLookupWindow(ToolWindow toolWindow, WideQueryResponse result);
     public abstract void showSuggestionWindow(WideQueryResponse suggestion, ToolWindow toolWindow, PsiElement element, Editor editor);

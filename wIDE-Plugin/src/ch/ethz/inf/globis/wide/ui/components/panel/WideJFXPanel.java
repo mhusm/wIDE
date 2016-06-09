@@ -43,7 +43,6 @@ public class WideJFXPanel extends JFXPanel {
     }
 
     private void initializePanelFx(WideJFXPanel panel) {
-        //this.content.setStyle("-fx-background-color: lightgray;");
         StackPane stackPane = new StackPane();
         stackPane.setPrefSize(700, 700);
 

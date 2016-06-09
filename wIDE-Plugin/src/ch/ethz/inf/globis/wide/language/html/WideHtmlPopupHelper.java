@@ -21,7 +21,6 @@ public class WideHtmlPopupHelper extends WidePopupHelper {
     private static final WideHtmlPopupHelper INSTANCE = new WideHtmlPopupHelper();
 
     private WideHtmlPopupHelper() {
-
     }
 
     public static WideHtmlPopupHelper getInstance() {
@@ -29,70 +28,55 @@ public class WideHtmlPopupHelper extends WidePopupHelper {
     }
 
     public void showLookupResults(WideQueryResponse parentResult, WideQueryResponse result, Editor editor) {
-//        if (result.getType().equals("tag")) {
-//            showHtmlTagLookupResults(parentResult, result, editor);
-//        } else if (result.getType().equals("attribute")) {
-//            showHtmlAttributeLookupResult(parentResult, result, editor);
-//        }
+        if (result.getType().equals("tag")) {
+            showHtmlTagLookupResults(parentResult, result, editor);
+        } else if (result.getType().equals("attribute")) {
+            showHtmlAttributeLookupResult(parentResult, result, editor);
+        }
 
     }
 
-//    private void showHtmlTagLookupResults(WideQueryResponse parentResult, WideQueryResponse result, Editor editor) {
-//        // Show appropriate content of an HTML attribute
-//        JFXPanel panel = new JFXPanel();
-//        showPopup(panel, new Dimension(300, 200), result.getKey(), editor);
-//
-//        // run in JavaFX Thread
-//        Platform.runLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                createHtlTagLookupResultFx(result, panel);
-//            }
-//        });
-//
-//        WideMouseEventListenerHelper.getInstance().registerMouseEventListener(parentResult, result, editor);
-//    }
+    private void showHtmlTagLookupResults(WideQueryResponse parentResult, WideQueryResponse result, Editor editor) {
+        // Show appropriate content of an HTML attribute
+        JFXPanel panel = new JFXPanel();
+        showPopup(panel, new Dimension(300, 200), result.getKey(), editor);
 
-//    @AsynchronousExecution
-//    private void createHtlTagLookupResultFx(WideQueryResponse result, JFXPanel panel) {
-//        WebView webView = createWebView();
-//        webView.getEngine().loadContent("<html><body>" + ((WideMDNResult) result.getDocumentation("mdn")).getSummary() + "</body></html>");
-//
-//        Scene scene = new Scene(webView);
-//        panel.setScene(scene);
-//    }
+        // run in JavaFX Thread
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                createHtlTagLookupResultFx(result, panel);
+            }
+        });
 
-//    private void showHtmlNewTagLookupResults(WideQueryResponse result, Editor editor) {
-//        // Show appropriate content of a new HTML Tag
-//        JEditorPane editorPane = createNewEditorPane("<html><body>" + result.getMdn().getExamples() + "</body></html>", buildHtmlEdiorKit());
-//        JScrollPane scrollPane = createNewScrollPane(editorPane);
-//        showPopup(scrollPane, new Dimension(600, 200), "Lookup Results", editor);
-//    }
+        WideMouseEventListenerHelper.getInstance().registerMouseEventListener(parentResult, result, editor);
+    }
+
+    @AsynchronousExecution
+    private void createHtlTagLookupResultFx(WideQueryResponse result, JFXPanel panel) {
+        result.getDocumentation("mdn").showPopup(panel);
+    }
 
     private void showHtmlAttributeLookupResult(WideQueryResponse parentResult, WideQueryResponse result, Editor editor) {
-//        // Show appropriate content of an HTML attribute
-//        JFXPanel panel = new JFXPanel();
-//        showPopup(panel, new Dimension(300, 200), result.getKey(), editor);
-//
-//        // run in JavaFX Thread
-//        Platform.runLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                createHtlAttributeLookupResultFx(result, panel);
-//            }
-//        });
-//
-//        WideMouseEventListenerHelper.getInstance().registerMouseEventListener(parentResult, result, editor);
+        // Show appropriate content of an HTML attribute
+        JFXPanel panel = new JFXPanel();
+        showPopup(panel, new Dimension(300, 200), result.getKey(), editor);
+
+        // run in JavaFX Thread
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                createHtlAttributeLookupResultFx(result, panel);
+            }
+        });
+
+        WideMouseEventListenerHelper.getInstance().registerMouseEventListener(parentResult, result, editor);
     }
 
-//    @AsynchronousExecution
-//    private void createHtlAttributeLookupResultFx(WideQueryResponse result, JFXPanel panel) {
-//        WebView webView = createWebView();
-//        webView.getEngine().loadContent("<html><body>" + ((WideMDNResult) result.getDocumentation("mdn")).getSummary() + "</body></html>");
-//
-//        Scene scene = new Scene(webView);
-//        panel.setScene(scene);
-//    }
+    @AsynchronousExecution
+    private void createHtlAttributeLookupResultFx(WideQueryResponse result, JFXPanel panel) {
+        result.getDocumentation("mdn").showPopup(panel);
+    }
 
 //    public void showSuggestions(java.util.List<WideQueryResponse> suggestions, ToolWindow toolWindow, PsiElement element, Editor editor) {
 //        toolWindow.getContentManager().removeAllContents(true);

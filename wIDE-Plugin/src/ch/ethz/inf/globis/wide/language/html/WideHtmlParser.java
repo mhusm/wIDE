@@ -49,6 +49,11 @@ public class WideHtmlParser implements IWideLanguageParser {
         return request;
     }
 
+    @Override
+    public PsiElement getRelevantElement(PsiElement element) {
+        return element;
+    }
+
     private static WideQueryRequest buildAttributeRequest(Editor editor, PsiFile file, PsiElement attribute, PsiElement value) {
         // LOOKUP HTML ATTRIBUTE
         WideQueryRequest request = new WideQueryRequest();
@@ -101,4 +106,6 @@ public class WideHtmlParser implements IWideLanguageParser {
 
         return request;
     }
+
+
 }

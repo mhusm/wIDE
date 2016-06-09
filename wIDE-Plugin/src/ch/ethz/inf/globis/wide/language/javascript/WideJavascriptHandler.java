@@ -36,99 +36,39 @@ public class WideJavascriptHandler implements IWideLanguageHandler{
     }
 
     @Override
+    public boolean isRelevantForCompatibilityQuery(PsiElement element) {
+        return element instanceof JSCallExpression;
+    }
+
+    @Override
+    public String getLanguageAbbreviation() {
+        return "JS";
+    }
+
+    @Override
     public WideQueryResponse lookupDocumentation(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
         WideQueryResponse response = null;
-        boolean hasValidResult = false;
 
         WideQueryRequest request = getLanguageParser().buildDocumentationQuery(editor, file, startElement, endElement);
+        Project project = editor.getProject();
+        ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+
         if (request != null) {
+            // is a valid function call
             response = WideHttpCommunicator.sendRequest(request);
-
-            Project project = editor.getProject();
-            ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
-
             getWindowFactory().showLookupWindow(window, response);
-//            if (response.getSubResults().size() > 0) {
-//                for (WideQueryResponse resp : response.getSubResults()) {
-//                    if (resp.getMdn() != null) {
-//                        getWindowFactory().showLookupWindow(window, resp);
-//                        //getPopupHelper().showLookupResults(resp, null, editor);
-//                        hasValidResult = true;
-//                    }
-//                }
-//            }
+        } else {
+            // is not a valid function call -> show error
+            getWindowFactory().showErrorWindow("Sorry, this element is not supported.", window);
         }
-
-//        if (!hasValidResult) {
-//            // no valid result -> (assume) invalid selection
-//            Project project = editor.getProject();
-//            ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
-//            getWindowFactory().createErrorWindowContent("\n" +
-//                    " Sorry, we did not find \n" +
-//                    " any documentation \n" +
-//                    " for the selection.", window);
-//        }
 
         return response;
     }
 
-//    @Override
-//    public void lookupSuggestions(Editor editor, PsiElement element, String newChar) {
-//        WideQueryRequest request = new WideQueryRequest();
-//        request.setLang("JS");
-//
-//        if (newChar != "") {
-//            // writing a char
-//            if (element.getText().replace("\n", "").replace(" ", "").equals("")) {
-//                // started to newly write a call or reference
-//                System.out.println("Writing JS call or reference.");
-//                request.setKey(newChar);
-//
-//            } else if (element.getParent().getParent() instanceof JSCallExpression) {
-//                System.out.println("Writing JS call to receiver " + element.getParent().getParent().getFirstChild().getText());
-//                System.out.println(element.getParent().getParent().getText());
-//                request.setValue(element.getParent().getParent().getText());
-//                request.setKey(element.getParent().getParent().getFirstChild().getText());
-//                request.setType("callCandidate");
-//
-//            } else if (element.getParent() instanceof JSReferenceExpression) {
-//                if (newChar.equals(".")) {
-//                    System.out.println("Writing JS call to receiver " + element.getParent().getText());
-//                    request.setKey(element.getParent().getText());
-//                    request.setValue("");
-//                    request.setType("callCandidate");
-//                } else {
-//                    System.out.println("Writing JS reference");
-//                    request.setKey(element.getParent().getText() + newChar);
-//                    request.setType("callCandidate");
-//                }
-//            } else if (element.getParent() instanceof JSBlockStatement) {
-//                System.out.println("Writing JS BlockStatement");
-//
-//            } else if (element.getParent() instanceof JSFunction) {
-//                System.out.println("Writing JS Function");
-//
-//            } else {
-//                //System.out.println("Unknown element: " + element.getParent().getClass());
-//            }
-//
-//        } else {
-//            // deleting a char
-//            //TODO: implementation
-//        }
-//
-//        WideQueryResponse response = WideHttpCommunicator.sendSuggestionRequest(request);
-//
-//        Project project = editor.getProject();
-//        ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
-//
-//        getPopupHelper().showSuggestions(response.getSubResults(), window, element, editor);
-//    }
-
     @Override
     public void getSuggestionDocumentation(LookupElement lookupElement, Lookup lookup) {
         WideQueryRequest request = new WideQueryRequest();
-        request.setLang("JS");
+        request.setLang(getLanguageAbbreviation());
         request.setType("call");
         request.setKey(((LookupItem) lookupElement).getPresentableText());
 

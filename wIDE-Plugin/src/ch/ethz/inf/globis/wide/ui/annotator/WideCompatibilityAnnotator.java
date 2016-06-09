@@ -11,16 +11,18 @@ import com.intellij.psi.css.CssElement;
 import com.intellij.psi.xml.XmlElement;
 import org.jetbrains.annotations.NotNull;
 
-public class WideAnnotator implements Annotator {
+public class WideCompatibilityAnnotator implements Annotator {
     @Override
     public void annotate(@NotNull final PsiElement element, @NotNull AnnotationHolder holder) {
-        if (element.getParent() instanceof XmlElement) {
-            annotateHtml(element, holder);
-        } else if (element instanceof JSCallExpression) {
-            annotateJS(((JSCallExpression) element).getMethodExpression().getLastChild(), holder);
-        } else if (element instanceof CssElement) {
-            annotateCss(element, holder);
-        }
+//        if (element.getParent() instanceof XmlElement) {
+//            annotateHtml(element, holder);
+//        } else if (element instanceof JSCallExpression) {
+//            annotateJS(((JSCallExpression) element).getMethodExpression().getLastChild(), holder);
+//        } else if (element instanceof CssElement) {
+//            annotateCss(element, holder);
+//        }
+
+
     }
 
     private void annotateHtml(@NotNull final PsiElement element, @NotNull AnnotationHolder holder) {

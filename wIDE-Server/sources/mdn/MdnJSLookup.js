@@ -147,20 +147,20 @@ var mdnJS = {
                     var prevCategoryName = currentCategory.toString();
                     if (prevCategoryName !== "") {
                         // Write content of category to result
-                        if (prevCategoryName === "examples") {
-                            if (currentExampleTitle != ""
-                                || currentExampleCode != ""
-                                ||currentExampleText != "") {
-                                examples.push({
-                                    "title": currentExampleTitle,
-                                    "code": currentExampleCode,
-                                    "text": currentExampleText});
-                            }
-                            mdn[prevCategoryName] = examples;
-
-                        } else {
+                        //if (prevCategoryName === "examples") {
+                        //    if (currentExampleTitle != ""
+                        //        || currentExampleCode != ""
+                        //        ||currentExampleText != "") {
+                        //        examples.push({
+                        //            "title": currentExampleTitle,
+                        //            "code": currentExampleCode,
+                        //            "text": currentExampleText});
+                        //    }
+                        //    mdn[prevCategoryName] = examples;
+                        //
+                        //} else {
                             mdn[prevCategoryName] = currentCategoryContent;
-                        }
+                        //}
                     }
 
                     switch (attribs.id) {
@@ -189,92 +189,100 @@ var mdnJS = {
 
                 }
 
-                if (currentCategory === "examples") {
-
-                    if ((name === "h3" || name === "h2")
-                        && (currentExampleTitle != "" || currentExampleCode != "" || currentExampleText != "")) {
-                        examples.push({
-                            "title": currentExampleTitle,
-                            "code": currentExampleCode,
-                            "text": currentExampleText});
-
-                        currentExampleTitle = "";
-                        currentExampleCode = "";
-                        currentExampleText = "";
-                    }
-
-                    // add content to part of example
-                    if (inExampleTitle) {
-                        currentExampleTitle += " <" + name;
-                        for (attr in attribs) {
-                            currentExampleTitle += ' ' + attr + '="' + attribs[attr] + '"';
-                        }
-                        currentExampleTitle += ">";
-
-                    } else if (inExampleCode) {
-                        currentExampleCode += " <" + name;
-                        for (attr in attribs) {
-                            currentExampleCode += ' ' + attr + '="' + attribs[attr] + '"';
-                        }
-                        currentExampleCode += ">";
-
-                    } else {
-                        currentExampleText += " <" + name;
-                        for (attr in attribs) {
-                            currentExampleText += ' ' + attr + '="' + attribs[attr] + '"';
-                        }
-
-                        currentExampleText += ">";
-                    }
-
-                    // store examples one-by-one
-                    if (name === "h3") {
-                        inExampleTitle = true;
-                    } else if (name === "pre") {
-                        inExampleCode = true;
-                    }
-                }
+                //if (currentCategory === "examples") {
+                //
+                //    if ((name === "h3" || name === "h2")
+                //        && (currentExampleTitle != "" || currentExampleCode != "" || currentExampleText != "")) {
+                //        examples.push({
+                //            "title": currentExampleTitle,
+                //            "code": currentExampleCode,
+                //            "text": currentExampleText});
+                //
+                //        currentExampleTitle = "";
+                //        currentExampleCode = "";
+                //        currentExampleText = "";
+                //    }
+                //
+                //    // add content to part of example
+                //    if (inExampleTitle) {
+                //        currentExampleTitle += " <" + name;
+                //        for (attr in attribs) {
+                //            currentExampleTitle += ' ' + attr + '="' + attribs[attr] + '"';
+                //        }
+                //        currentExampleTitle += ">";
+                //
+                //    } else if (inExampleCode) {
+                //        currentExampleCode += " <" + name;
+                //        for (attr in attribs) {
+                //            currentExampleCode += ' ' + attr + '="' + attribs[attr] + '"';
+                //        }
+                //        currentExampleCode += ">";
+                //
+                //    } else {
+                //        currentExampleText += " <" + name;
+                //        for (attr in attribs) {
+                //            currentExampleText += ' ' + attr + '="' + attribs[attr] + '"';
+                //        }
+                //
+                //        currentExampleText += ">";
+                //    }
+                //
+                //    // store examples one-by-one
+                //    if (name === "h3") {
+                //        inExampleTitle = true;
+                //    } else if (name === "pre") {
+                //        inExampleCode = true;
+                //    }
+                //}
 
                 if (currentCategory !== "") {
-                    currentCategoryContent += " <" + name;
-                    for (attr in attribs) {
-                        currentCategoryContent += ' ' + attr + '="' + attribs[attr] + '"';
-                    }
+                    if (name === "pre") {
+                        if (!inCode) {
+                            inCode = true;
+                            currentCategoryContent += '<pre><code class="language-javascript line-numbers">';
+                        }
+                    } else {
+                        currentCategoryContent += " <" + name;
+                        for (attr in attribs) {
+                            currentCategoryContent += ' ' + attr + '="' + attribs[attr] + '"';
+                        }
 
-                    currentCategoryContent += ">";
-
-                    if (name === "code" || name === "pre") {
-                        inCode = true;
+                        currentCategoryContent += ">";
                     }
                 }
             },
             ontext: function (text) {
                 if (currentCategory !== "") {
-                    currentCategoryContent += text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;").replace("\n", "")
+                    currentCategoryContent += text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;").replace("\n", "<br />")
                 }
 
                 // text for examples
-                if (inExampleTitle) {
-                    currentExampleTitle += text;
-                } else if (inExampleCode) {
-                    currentExampleCode += text;
-                }
+                //if (inExampleTitle) {
+                //    currentExampleTitle += text;
+                //} else if (inExampleCode) {
+                //    currentExampleCode += text;
+                //}
             },
             onclosetag: function (tagname) {
                 if (currentCategory !== "") {
-                    if (tagname === "code" || tagname === "pre") {
-                        inCode = false;
+                    if (tagname === "pre") {
+                        if (inCode) {
+                            currentCategoryContent += "</code></pre>";
+                            inCode = false;
+                        }
+                        currentCategoryContent += "</code>";
+                    } else {
+                        currentCategoryContent += "</" + tagname + ">";
                     }
-                    currentCategoryContent += "</" + tagname + ">";
                 }
 
-                if (currentCategory === "examples") {
-                    if (tagname === "h3") {
-                        inExampleTitle = false;
-                    } else if (tagname === "pre") {
-                        inExampleCode = false;
-                    }
-                }
+                //if (currentCategory === "examples") {
+                //    if (tagname === "h3") {
+                //        inExampleTitle = false;
+                //    } else if (tagname === "pre") {
+                //        inExampleCode = false;
+                //    }
+                //}
             }
         }, {decodeEntities: true});
         parser.write(page);

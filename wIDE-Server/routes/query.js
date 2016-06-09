@@ -24,11 +24,13 @@ query.use('/', function(req, res) {
     var children = parameters.children;
 
     //queryHandler.handle(lang, type, key, value, children,
-    var response = cache.lookupDocumentation(lang, type, key, value, null, children, function(response) {
+    var response = cache.lookupDocumentation(lang, type, key, value, null, children, false, function(response) {
         var stringResponse = JSON.stringify(response);
         console.log("QUERY RESPONSE: " + stringResponse);
         res.send(stringResponse);
     });
+
+    return response;
 });
 
 module.exports = query;

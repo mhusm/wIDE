@@ -15,23 +15,6 @@ import java.util.List;
  * Created by fabian on 17.03.16.
  */
 public class WideJavascriptParser implements IWideLanguageParser {
-//    public List<WideQueryResponse> handle(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement, boolean isFinished) {
-//        //TODO: distinguish file
-//
-//        //TODO: multiple calls?
-//
-//        List<WideQueryResponse> results = new ArrayList<WideQueryResponse>();
-//        WideQueryRequest request = buildRequest(editor, file, startElement, endElement);
-//
-//        if (request != null) {
-//            WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
-//            results.add(response);
-//        } else {
-//            //results.add(new WideQueryResponse("No JS function:"));
-//        }
-//
-//        return results;
-//    }
 
     public WideQueryRequest buildDocumentationQuery(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
         //TODO: distinguish file
@@ -80,9 +63,19 @@ public class WideJavascriptParser implements IWideLanguageParser {
         return null;
     }
 
+    @Override
+    public PsiElement getRelevantElement(PsiElement element) {
+        PsiElement callExpression = findLowestCallExpression(element);
+        if (findLowestCallExpression(element) != null) {
+            return ((JSCallExpression) callExpression).getMethodExpression().getLastChild();
+        }
+
+        return null;
+    }
+
     /*
-  Find the lowest Common Call Expression of two PsiElements
-  Returns null, if the two PsiElements are not in the same PsiTree
+    Find the lowest Common Call Expression of two PsiElements
+    Returns null, if the two PsiElements are not in the same PsiTree
    */
     public static JSCallExpression findLowestCommonCallExpression(PsiElement leftElement, PsiElement rightElement) {
         //traverse tree from start to end
@@ -143,7 +136,7 @@ public class WideJavascriptParser implements IWideLanguageParser {
 
         while (currentCall == null && !(element == null)) {
             element = element.getParent();
-            if (element instanceof JSCallExpression) {
+            if (element instanceof JSCallExpressionImpl) {
                 JSCallExpression expr = (JSCallExpressionImpl) element;
                 currentCall = expr;
             }
@@ -151,4 +144,5 @@ public class WideJavascriptParser implements IWideLanguageParser {
 
         return currentCall;
     }
+
 }

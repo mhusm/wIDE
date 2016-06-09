@@ -108,21 +108,21 @@ var mdnHtml = {
                         var prevCategoryName = currentCategory.toString();
                         if (prevCategoryName !== "") {
                             // Write content of category to result
-                            if (prevCategoryName === "examples") {
-                                if (currentExampleTitle != ""
-                                    || currentExampleCode != ""
-                                    || currentExampleText != "") {
-                                    examples.push({
-                                        "title": currentExampleTitle,
-                                        "code": currentExampleCode,
-                                        "text": currentExampleText
-                                    });
-                                }
-                                result.documentation.mdn[prevCategoryName] = examples;
-
-                            } else {
-                                result.documentation.mdn[prevCategoryName] = currentCategoryContent;
-                            }
+                            //if (prevCategoryName === "examples") {
+                            //    if (currentExampleTitle != ""
+                            //        || currentExampleCode != ""
+                            //        || currentExampleText != "") {
+                            //        examples.push({
+                            //            "title": currentExampleTitle,
+                            //            "code": currentExampleCode,
+                            //            "text": currentExampleText
+                            //        });
+                            //    }
+                            //    result.documentation.mdn[prevCategoryName] = examples;
+                            //
+                            //} else {
+                            result.documentation.mdn[prevCategoryName] = currentCategoryContent;
+                            //}
                         }
 
                         switch (attribs.id) {
@@ -180,63 +180,66 @@ var mdnHtml = {
 
                     }
 
-                    if (currentCategory === "examples") {
-
-                        if ((name === "h3" || name === "h2")
-                            && (currentExampleTitle != "" || currentExampleCode != "" || currentExampleText != "")) {
-                            examples.push({
-                                "title": currentExampleTitle,
-                                "code": currentExampleCode,
-                                "text": currentExampleText
-                            });
-
-                            currentExampleTitle = "";
-                            currentExampleCode = "";
-                            currentExampleText = "";
-                        }
-
-                        // add content to part of example
-                        if (inExampleTitle) {
-                            currentExampleTitle += " <" + name;
-                            for (attr in attribs) {
-                                currentExampleTitle += ' ' + attr + '="' + attribs[attr] + '"';
-                            }
-                            currentExampleTitle += ">";
-
-                        } else if (inExampleCode) {
-                            currentExampleCode += " <" + name;
-                            for (attr in attribs) {
-                                currentExampleCode += ' ' + attr + '="' + attribs[attr] + '"';
-                            }
-                            currentExampleCode += ">";
-
-                        } else if (name !== "pre" && name !== "h3") {
-                            currentExampleText += " <" + name;
-                            for (attr in attribs) {
-                                currentExampleText += ' ' + attr + '="' + attribs[attr] + '"';
-                            }
-
-                            currentExampleText += ">";
-                        }
-
-                        // store examples one-by-one
-                        if (name === "h3") {
-                            inExampleTitle = true;
-                        } else if (name === "pre") {
-                            inExampleCode = true;
-                        }
-                    }
+                    //if (currentCategory === "examples") {
+                    //
+                    //    if ((name === "h3" || name === "h2")
+                    //        && (currentExampleTitle != "" || currentExampleCode != "" || currentExampleText != "")) {
+                    //        examples.push({
+                    //            "title": currentExampleTitle,
+                    //            "code": currentExampleCode,
+                    //            "text": currentExampleText
+                    //        });
+                    //
+                    //        currentExampleTitle = "";
+                    //        currentExampleCode = "";
+                    //        currentExampleText = "";
+                    //    }
+                    //
+                    //    // add content to part of example
+                    //    if (inExampleTitle) {
+                    //        currentExampleTitle += " <" + name;
+                    //        for (attr in attribs) {
+                    //            currentExampleTitle += ' ' + attr + '="' + attribs[attr] + '"';
+                    //        }
+                    //        currentExampleTitle += ">";
+                    //
+                    //    } else if (inExampleCode) {
+                    //        currentExampleCode += " <" + name;
+                    //        for (attr in attribs) {
+                    //            currentExampleCode += ' ' + attr + '="' + attribs[attr] + '"';
+                    //        }
+                    //        currentExampleCode += ">";
+                    //
+                    //    } else if (name !== "pre" && name !== "h3") {
+                    //        currentExampleText += " <" + name;
+                    //        for (attr in attribs) {
+                    //            currentExampleText += ' ' + attr + '="' + attribs[attr] + '"';
+                    //        }
+                    //
+                    //        currentExampleText += ">";
+                    //    }
+                    //
+                    //    // store examples one-by-one
+                    //    if (name === "h3") {
+                    //        inExampleTitle = true;
+                    //    } else if (name === "pre") {
+                    //        inExampleCode = true;
+                    //    }
+                    //}
 
                     if (currentCategory !== "") {
-                        currentCategoryContent += " <" + name;
-                        for (attr in attribs) {
-                            currentCategoryContent += ' ' + attr + '="' + attribs[attr] + '"';
-                        }
+                        if (name === "pre") {
+                            if (!inCode) {
+                                inCode = true;
+                                currentCategoryContent += '<pre><code class="language-html line-numbers">';
+                            }
+                        } else {
+                            currentCategoryContent += " <" + name;
+                            for (attr in attribs) {
+                                currentCategoryContent += ' ' + attr + '="' + attribs[attr] + '"';
+                            }
 
-                        currentCategoryContent += ">";
-
-                        if (name === "code" || name === "pre") {
-                            inCode = true;
+                            currentCategoryContent += ">";
                         }
                     }
                 },
@@ -246,19 +249,19 @@ var mdnHtml = {
                     }
 
                     if (currentCategory !== "") {
-                        currentCategoryContent += text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;").replace("\n", "")
+                        currentCategoryContent += text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;").replace("\n", "<br />");
                     }
 
-                    if (currentCategory === "examples") {
-                        // text for examples
-                        if (inExampleTitle) {
-                            currentExampleTitle += text;
-                        } else if (inExampleCode) {
-                            currentExampleCode += text;
-                        } else {
-                            currentExampleText += text;
-                        }
-                    }
+                    //if (currentCategory === "examples") {
+                    //    // text for examples
+                    //    if (inExampleTitle) {
+                    //        currentExampleTitle += text;
+                    //    } else if (inExampleCode) {
+                    //        currentExampleCode += text;
+                    //    } else {
+                    //        currentExampleText += text;
+                    //    }
+                    //}
                 },
                 onclosetag: function (tagname) {
 
@@ -274,27 +277,34 @@ var mdnHtml = {
                     }
 
                     if (currentCategory !== "") {
-                        if (tagname === "code" || tagname === "pre") {
-                            inCode = false;
-                        }
-
-                        currentCategoryContent += "</" + tagname + ">";
-
-                    }
-
-                    if (currentCategory === "examples") {
-                        if (tagname === "h3") {
-                            inExampleTitle = false;
-                        } else if (tagname === "pre") {
-                            inExampleCode = false;
-                        } else if (inExampleTitle) {
-                            currentExampleTitle += "</" + tagname + ">";
-                        } else if (inExampleCode) {
-                            currentExampleCode += "</" + tagname + ">";
+                        if (tagname === "pre") {
+                            if (inCode) {
+                                currentCategoryContent += "</code></pre>";
+                                inCode = false;
+                            }
+                            currentCategoryContent += "</code>";
                         } else {
-                            currentExampleText += "</" + tagname + ">";
+                            if (tagname === "code" || tagname === "pre") {
+                                inCode = false;
+                            }
+
+                            currentCategoryContent += "</" + tagname + ">";
                         }
                     }
+
+                    //if (currentCategory === "examples") {
+                    //    if (tagname === "h3") {
+                    //        inExampleTitle = false;
+                    //    } else if (tagname === "pre") {
+                    //        inExampleCode = false;
+                    //    } else if (inExampleTitle) {
+                    //        currentExampleTitle += "</" + tagname + ">";
+                    //    } else if (inExampleCode) {
+                    //        currentExampleCode += "</" + tagname + ">";
+                    //    } else {
+                    //        currentExampleText += "</" + tagname + ">";
+                    //    }
+                    //}
                 }
             },
             {

@@ -91,6 +91,17 @@ public class WideQueryResponse {
         }
     }
 
+    public double calculateCompatibility() {
+        double minCompatibility = 1.0;
+        for (String source : sources.keySet()) {
+            if (sources.get(source) != null) {
+                minCompatibility = Math.min(sources.get(source).calculateCompatibility(), minCompatibility);
+            }
+        }
+
+        return minCompatibility;
+    }
+
     public String getLang() {
         return lang;
     }

@@ -28,15 +28,20 @@
 
   <actions>
     <!-- Add your actions here -->
-    <action id="wIDE-query" class="ch.ethz.inf.globis.wide.ui.action.WideQueryAction" text="Query function...">
+    <action id="wIDE-query" class="ch.ethz.inf.globis.wide.ui.action.WideQueryAction" text="Query documentation...">
       <add-to-group group-id="EditorPopupMenu" anchor="first"/>
       <keyboard-shortcut first-keystroke="alt F" keymap="$default"/>
+    </action>
+
+    <action id="wIDE-compatibility" class="ch.ethz.inf.globis.wide.ui.action.WideCompatibilityAction" text="Check compatibilty of file...">
+      <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+      <keyboard-shortcut first-keystroke="alt C" keymap="$default"/>
     </action>
   </actions>
 
   <extensions defaultExtensionNs="com.intellij">
     <toolWindow id="wIDE" anchor="right" factoryClass="ch.ethz.inf.globis.wide.ui.components.window.WideInitialWindowFactory"/>
-    <annotator language="JavaScript" implementationClass="ch.ethz.inf.globis.wide.ui.annotator.WideAnnotator"/>
+    <annotator language="JavaScript" implementationClass="ch.ethz.inf.globis.wide.ui.annotator.WideCompatibilityAnnotator"/>
     <completion.contributor language="HTML" implementationClass="ch.ethz.inf.globis.wide.completion.WideCompletionContributor"/>
     <completion.contributor language="JavaScript" implementationClass="ch.ethz.inf.globis.wide.completion.WideCompletionContributor"/>
     <completion.contributor language="CSS" implementationClass="ch.ethz.inf.globis.wide.completion.WideCompletionContributor"/>

@@ -6,6 +6,7 @@ import ch.ethz.inf.globis.wide.logging.WideLogger;
 import ch.ethz.inf.globis.wide.ui.components.WideContentBuilder;
 import ch.ethz.inf.globis.wide.ui.components.panel.WideResizablePane;
 import ch.ethz.inf.globis.wide.ui.components.panel.WideResizablePaneBox;
+import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.web.WebView;
@@ -76,6 +77,50 @@ public class WideCaniuseResult extends AbstractWideSourceResult {
         webView.getEngine().loadContent(buildContent());
         WideResizablePane pane = new WideResizablePane(webView);
         paneBox.addPane(pane);
+    }
+
+    public void showPopup(JFXPanel panel) {
+
+    }
+
+    @Override
+    public double calculateCompatibility() {
+        int not_supported = 0;
+        int partially_supported = 0;
+        int prefixed = 0;
+        int supported = 0;
+        int total = 0;
+
+        for (String browserName : support.keySet()) {
+            WideFeatureSupport featureSupport = support.get(browserName);
+
+            if (featureSupport.getSupportedSince() <= featureSupport.getStartVersion()) {
+                supported++;
+            } else if (featureSupport.getPartiallySupportedSince() <= featureSupport.getStartVersion()) {
+                partially_supported++;
+            } else if (featureSupport.getPrefixedSince() <= featureSupport.getStartVersion()) {
+                prefixed++;
+            } else {
+                not_supported++;
+            }
+
+            total++;
+        }
+
+        if (not_supported > 0) {
+            // some browsers do not support it
+            // max 0.25
+            return 0.45 * ((supported + partially_supported + prefixed) / total);
+
+        } else if (partially_supported > 0 || prefixed > 0) {
+            // some browsers do only partially support it
+            // max 0.75
+            return 0.5 + 0.45 * (supported / total);
+
+        } else {
+            // all browsers support
+            return 1.0;
+        }
     }
 
     public String buildContent() {
@@ -249,64 +294,33 @@ public class WideCaniuseResult extends AbstractWideSourceResult {
             return maxVersion;
         }
 
-        public void setMaxVersion(double maxVersion) {
-            this.maxVersion = maxVersion;
-        }
-
         public double getMinVersion() {
             return minVersion;
-        }
-
-        public void setMinVersion(double minVersion) {
-            this.minVersion = minVersion;
         }
 
         public double getPartiallySupportedSince() {
             return partiallySupportedSince;
         }
 
-        public void setPartiallySupportedSince(double partiallySupportedSince) {
-            this.partiallySupportedSince = partiallySupportedSince;
-        }
-
         public double getNotSupportedUntil() {
             return notSupportedUntil;
-        }
-
-        public void setNotSupportedUntil(double notSupportedUntil) {
-            this.notSupportedUntil = notSupportedUntil;
         }
 
         public double getSupportedSince() {
             return supportedSince;
         }
 
-        public void setSupportedSince(double supportedSince) {
-            this.supportedSince = supportedSince;
-        }
-
         public double getPrefixedSince() {
             return prefixedSince;
-        }
-
-        public void setPrefixedSince(double prefixedSince) {
-            this.prefixedSince = prefixedSince;
         }
 
         public double getStartVersion() {
             return startVersion;
         }
 
-        public void setStartVersion(double startVersion) {
-            this.startVersion = startVersion;
-        }
-
         public double getEndVersion() {
             return endVersion;
         }
 
-        public void setEndVersion(double endVersion) {
-            this.endVersion = endVersion;
-        }
     }
 }

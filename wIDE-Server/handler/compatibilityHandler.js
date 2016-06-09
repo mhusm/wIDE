@@ -5,17 +5,38 @@ var htmlParser = require("htmlparser2");
 
 var compatibilityHandler = {
 
-    getCompatibility: function(name, callback) {
+    handle: function(children, callback) {
+        var result = {};
+        result.children = [];
+        result.documentation = {}
 
+        for (child in children) {
+            compatibilityHandler._handleChild(result, JSON.parse(children[child]));
+        }
+
+        if (callback !== undefined) {
+            callback(result);
+        }
+
+        return result;
+    },
+
+    _handleChild: function(result, child) {
+        childResult = {};
+        childResult.key = child.key;
+        childResult.value = child.value;
+        childResult.lang = child.lang;
+        childResult.type = child.type;
+        childResult.children = [];
+        childResult.documentation = {};
+        childResult.documentation.caniuse = caniuse.query(childResult, child.lang, child.type, child.key);
+
+        result.children.push(childResult)
     },
 
     getBrowserVersions: function(callback) {
         var page = "";
         compatibilityHandler._loadBrowserPage(page, callback);
-    },
-
-    _updateBrowserVersions: function() {
-
     },
 
     _loadBrowserPage: function (page, callback) {

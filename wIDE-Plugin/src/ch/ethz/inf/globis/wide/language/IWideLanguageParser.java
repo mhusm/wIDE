@@ -10,4 +10,5 @@ import com.intellij.psi.PsiFile;
  */
 public interface IWideLanguageParser {
     WideQueryRequest buildDocumentationQuery(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement);
+    PsiElement getRelevantElement(PsiElement element);
 }
