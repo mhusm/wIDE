@@ -84,6 +84,7 @@ var compatibilityHandler = {
         var inTitle = false;
         var inVersion = false;
         var inPercentage = false;
+        var isCurrent = false;
 
         var cumulativePercentage = 0;
 
@@ -114,6 +115,14 @@ var compatibilityHandler = {
                             && attribs.class.indexOf("stat-cell") === 0) {
 
                             inCell = true;
+                        }
+
+                        if (inList
+                            && attribs.class !== undefined
+                            && attribs.class.indexOf("current") !== -1) {
+                            isCurrent = true;
+                        } else {
+                            isCurrent = false;
                         }
                     }
 
@@ -171,6 +180,10 @@ var compatibilityHandler = {
                             if (currentVersion !== {}) {
                                 if (currentBrowser.versions === undefined) {
                                     currentBrowser.versions = [];
+                                }
+
+                                if (isCurrent) {
+                                    currentBrowser.current = currentVersion.version;
                                 }
 
                                 currentBrowser.versions.push(currentVersion);

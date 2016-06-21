@@ -6,7 +6,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var query = require("./routes/query");
-//var suggest = require("./routes/suggestion");
 var compatibility = require("./routes/compatibility");
 var app = express();
 
@@ -24,7 +23,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/query', query);
-//app.use('/suggestions', suggest);
 app.use('/compatibility', compatibility);
 
 // catch 404 and forward to error handler
