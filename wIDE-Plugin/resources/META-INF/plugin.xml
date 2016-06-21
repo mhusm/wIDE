@@ -40,7 +40,7 @@
   </actions>
 
   <extensions defaultExtensionNs="com.intellij">
-    <toolWindow id="wIDE" anchor="right" factoryClass="ch.ethz.inf.globis.wide.ui.components.window.WideInitialWindowFactory"/>
+    <toolWindow id="wIDE" anchor="right" factoryClass="ch.ethz.inf.globis.wide.ui.components.window.WideDefaultWindowFactory"/>
     <annotator language="JavaScript" implementationClass="ch.ethz.inf.globis.wide.ui.annotator.WideCompatibilityAnnotator"/>
     <completion.contributor language="HTML" implementationClass="ch.ethz.inf.globis.wide.completion.WideCompletionContributor"/>
     <completion.contributor language="JavaScript" implementationClass="ch.ethz.inf.globis.wide.completion.WideCompletionContributor"/>

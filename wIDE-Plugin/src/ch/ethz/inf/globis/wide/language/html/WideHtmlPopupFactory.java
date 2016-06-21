@@ -1,29 +1,26 @@
 package ch.ethz.inf.globis.wide.language.html;
 
 import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
-import ch.ethz.inf.globis.wide.sources.mdn.WideMDNResult;
 import ch.ethz.inf.globis.wide.ui.listener.WideMouseEventListenerHelper;
-import ch.ethz.inf.globis.wide.ui.components.popup.WidePopupHelper;
+import ch.ethz.inf.globis.wide.ui.components.popup.WidePopupFactory;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.AsynchronousExecution;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.Scene;
-import javafx.scene.web.WebView;
 
 import java.awt.*;
 
 /**
  * Created by fabian on 12.05.16.
  */
-public class WideHtmlPopupHelper extends WidePopupHelper {
+public class WideHtmlPopupFactory extends WidePopupFactory {
 
-    private static final WideHtmlPopupHelper INSTANCE = new WideHtmlPopupHelper();
+    private static final WideHtmlPopupFactory INSTANCE = new WideHtmlPopupFactory();
 
-    private WideHtmlPopupHelper() {
+    private WideHtmlPopupFactory() {
     }
 
-    public static WideHtmlPopupHelper getInstance() {
+    public static WideHtmlPopupFactory getInstance() {
         return INSTANCE;
     }
 
@@ -77,31 +74,4 @@ public class WideHtmlPopupHelper extends WidePopupHelper {
     private void createHtlAttributeLookupResultFx(WideQueryResponse result, JFXPanel panel) {
         result.getDocumentation("mdn").showPopup(panel);
     }
-
-//    public void showSuggestions(java.util.List<WideQueryResponse> suggestions, ToolWindow toolWindow, PsiElement element, Editor editor) {
-//        toolWindow.getContentManager().removeAllContents(true);
-//        WideSuggestionJFXPanel panel = new WideSuggestionJFXPanel();
-//
-//        // run in JavaFX Thread
-//        Platform.runLater(new Runnable() {
-//            public void run() {
-//                createHtmlSuggestionContentFx(suggestions, panel, element, editor, toolWindow);
-//            }
-//        });
-//
-//        if (suggestions != null && suggestions.size() > 0) {
-//            showPopup(panel, new Dimension(600, 200), null, editor);
-//            panel.requestFocus();
-//
-//        } else {
-//            hidePopup(editor);
-//        }
-//
-//    }
-//
-//    @AsynchronousExecution
-//    private void createHtmlSuggestionContentFx(java.util.List<WideQueryResponse> suggestions, WideSuggestionJFXPanel panel, PsiElement element, Editor editor, ToolWindow window) {
-//        WideSuggestionListView list = new WideSuggestionListView(suggestions, WideHtmlSuggestionCell.class, panel, editor, window);
-//        panel.setList(list, editor);
-//    }
 }

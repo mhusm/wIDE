@@ -7,6 +7,7 @@ import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.Lookup;
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -21,8 +22,8 @@ import com.intellij.psi.css.CssElement;
  */
 public class WideCssHandler implements IWideLanguageHandler {
     @Override
-    public WideCssPopupHelper getPopupHelper() {
-        return WideCssPopupHelper.getInstance();
+    public WideCssPopupFactory getPopupHelper() {
+        return WideCssPopupFactory.getInstance();
     }
 
     @Override
@@ -50,10 +51,16 @@ public class WideCssHandler implements IWideLanguageHandler {
         WideQueryRequest request = getLanguageParser().buildDocumentationQuery(editor, file, startElement, endElement);
         WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
 
+
         Project project = editor.getProject();
         ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
 
-        getWindowFactory().showLookupWindow(window, response);
+        if (response != null) {
+            getWindowFactory().showLookupWindow(window, response);
+        } else {
+            getWindowFactory().showErrorWindow("Sorry, this element is not supported.", window);
+        }
+
         return response;
     }
 
@@ -71,13 +78,16 @@ public class WideCssHandler implements IWideLanguageHandler {
                 request.setLang(getLanguageAbbreviation());
                 request.setType("attribute");
                 request.setKey(lookupElement.getLookupString());
+                        WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
 
-                WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
+                        Project project = lookup.getEditor().getProject();
+                        ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
 
-                Project project = lookup.getEditor().getProject();
-                ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
-
-                getWindowFactory().showLookupWindow(window, response);
+                        if (response != null) {
+                            getWindowFactory().showLookupWindow(window, response);
+                        } else {
+                            getWindowFactory().showErrorWindow("No documentation found.", window);
+                        }
 
             } else {
                 //TODO: empty window

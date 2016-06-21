@@ -3,6 +3,7 @@ package ch.ethz.inf.globis.wide.ui.action;
 import ch.ethz.inf.globis.wide.language.IWideLanguageHandler;
 import ch.ethz.inf.globis.wide.logging.WideLogger;
 import ch.ethz.inf.globis.wide.registry.WideLanguageRegistry;
+import ch.ethz.inf.globis.wide.ui.components.window.WideDefaultWindowFactory;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -51,6 +52,13 @@ public class WideQueryAction extends EditorAction {
     public static class WideQueryHandler extends EditorActionHandler {
         @Override
         public void doExecute(final Editor editor, final Caret caret, final DataContext dataContext) {
+
+            // Show waiting window
+            Project project = editor.getProject();
+            ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+            WideDefaultWindowFactory windowFactory = new WideDefaultWindowFactory();
+            windowFactory.showWaitingWindow(window);
+
             ApplicationManager.getApplication().runWriteAction(new Runnable() {
                 @Override
                 public void run() {

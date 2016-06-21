@@ -28,33 +28,4 @@ public class WideContentBuilder {
         toolWindow.getContentManager().addContent(summaryContent);
         return panel;
     }
-
-    protected JEditorPane createNewEditorPane(String content, HTMLEditorKit kit) {
-
-        // create jeditorpane
-        JEditorPane editorPane = new JEditorPane();
-
-        // make it read-only
-        editorPane.setEditable(false);
-        editorPane.setContentType("text/html");
-        editorPane.setEditorKit(kit);
-
-        // create a document, set it on the jeditorpane, then add the html
-        javax.swing.text.Document summaryDoc = kit.createDefaultDocument();
-        editorPane.setDocument(summaryDoc);
-        editorPane.setText(content);
-
-        DefaultCaret caret = (DefaultCaret) editorPane.getCaret();
-        caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
-        editorPane.setCaretPosition(0);
-
-        return editorPane;
-    }
-
-    protected JScrollPane createNewScrollPane(Container container) {
-        // create a scrollpane; modify its summary as desired
-        JScrollPane scrollPane = new JBScrollPane(container);
-        scrollPane.getVerticalScrollBar().setValue(0);
-        return scrollPane;
-    }
 }

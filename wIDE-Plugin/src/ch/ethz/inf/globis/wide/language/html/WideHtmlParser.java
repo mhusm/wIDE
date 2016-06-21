@@ -10,7 +10,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.css.CssElement;
+import com.intellij.psi.html.HtmlTag;
 import com.intellij.psi.xml.XmlAttribute;
+import com.sun.tools.doclets.formats.html.markup.HtmlAttr;
 
 /**
  * Created by fabian on 17.03.16.
@@ -20,37 +22,47 @@ public class WideHtmlParser implements IWideLanguageParser {
     private static final WideLogger LOGGER = new WideLogger(WideHtmlParser.class.getName());
 
     public WideQueryRequest buildDocumentationQuery(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
-        WideQueryRequest request = new WideQueryRequest();
-        request.setLang("HTML");
-        request.setType("tag");
-        request.setKey(startElement.getText());
+        if (startElement instanceof HtmlTag) {
+            WideQueryRequest request = new WideQueryRequest();
+            request.setLang("HTML");
+            request.setType("tag");
+            request.setKey(startElement.getFirstChild().getNextSibling().getText());
 
-        while (!(">".equals(startElement.getText())) && !("/>".equals(startElement.getText()))) {
-            while (!( startElement == null) && !(startElement instanceof XmlAttribute)) {
+            startElement = startElement.getFirstChild().getNextSibling();
+
+            while (!(">".equals(startElement.getText())) && !("/>".equals(startElement.getText()))) {
+                while (!( startElement == null) && !(startElement instanceof XmlAttribute)) {
+                    startElement = startElement.getNextSibling();
+                }
+
+                if (startElement == null) {
+                    break;
+                }
+
+                WideQueryRequest childRequest = new WideQueryRequest();
+                childRequest = buildAttributeRequest(editor, file, startElement.getFirstChild(), startElement.getLastChild());
+                request.addChild(childRequest);
+
                 startElement = startElement.getNextSibling();
+
+                while (startElement instanceof PsiWhiteSpace) {
+                    startElement = startElement.getNextSibling();
+                }
+
             }
 
-            if (startElement == null) {
-                break;
-            }
-
-            WideQueryRequest childRequest = new WideQueryRequest();
-            childRequest = buildAttributeRequest(editor, file, startElement.getFirstChild(), startElement.getLastChild());
-            request.addChild(childRequest);
-
-            startElement = startElement.getNextSibling();
-
-            while (startElement instanceof PsiWhiteSpace) {
-                startElement = startElement.getNextSibling();
-            }
-
+            return request;
+        } else {
+            return null;
         }
-
-        return request;
     }
 
     @Override
     public PsiElement getRelevantElement(PsiElement element) {
+        if (element instanceof HtmlTag) {
+            return element.getFirstChild().getNextSibling();
+        }
+
         return element;
     }
 

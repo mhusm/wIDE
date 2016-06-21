@@ -22,8 +22,6 @@ public class WideQueryResponse {
     private String key;
     private String value;
     private int level;
-//    private WideCaniuseResult caniuse;
-//    private WideMDNResult mdn;
     private List<WideQueryResponse> subResults = new ArrayList<WideQueryResponse>();
 
     private Map<String, AbstractWideSourceResult> sources = new HashMap();

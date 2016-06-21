@@ -24,26 +24,6 @@ public class WideResizablePaneBox extends ScrollPane {
         this.setFitToWidth(true);
     }
 
-//    @Override
-//    public ObservableList<Node> getChildren() {
-//        return box.getChildren();
-//    }
-
-//    public void addMdnPane(String content) {
-//        WebView webView = WideContentBuilder.createWebView();
-//        webView.getEngine().loadContent(content);
-//        WideResizablePane pane = new WideResizablePane(webView);
-//        box.getChildren().add(pane);
-//    }
-//
-//    public void addCaniusePane(String content) {
-//        WebView webView = new WebView();
-//        webView.getEngine().setUserStyleSheetLocation(WideContentBuilder.class.getResource("/stylesheets/CaniuseSheet.css").toString());
-//        webView.getEngine().loadContent(content);
-//        WideResizablePane pane = new WideResizablePane(webView);
-//        box.getChildren().add(pane);
-//    }
-
     @Deprecated
     public ObservableList<Node> getChildren() {
         return super.getChildren();

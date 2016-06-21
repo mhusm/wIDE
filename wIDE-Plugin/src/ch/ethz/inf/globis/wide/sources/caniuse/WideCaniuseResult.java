@@ -85,11 +85,11 @@ public class WideCaniuseResult extends AbstractWideSourceResult {
 
     @Override
     public double calculateCompatibility() {
-        int not_supported = 0;
-        int partially_supported = 0;
-        int prefixed = 0;
-        int supported = 0;
-        int total = 0;
+        double not_supported = 0;
+        double partially_supported = 0;
+        double prefixed = 0;
+        double supported = 0;
+        double total = 0;
 
         for (String browserName : support.keySet()) {
             WideFeatureSupport featureSupport = support.get(browserName);

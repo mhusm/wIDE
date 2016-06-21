@@ -8,6 +8,7 @@ import ch.ethz.inf.globis.wide.ui.components.window.WideWindowFactory;
 import com.intellij.codeInsight.lookup.Lookup;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupItem;
+import com.intellij.ide.IdeEventQueue;
 import com.intellij.lang.javascript.psi.*;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -21,8 +22,8 @@ import com.intellij.psi.PsiFile;
  */
 public class WideJavascriptHandler implements IWideLanguageHandler{
     @Override
-    public WideJSPopupHelper getPopupHelper() {
-        return WideJSPopupHelper.getInstance();
+    public WideJSPopupFactory getPopupHelper() {
+        return WideJSPopupFactory.getInstance();
     }
 
     @Override
@@ -95,28 +96,31 @@ public class WideJavascriptHandler implements IWideLanguageHandler{
             request.addChild(subRequest);
 
         } else if (lookupElement.getPsiElement().getParent().getLastChild() instanceof JSReferenceExpression) {
-//            System.out.println("reference expression: " + lookupElement.getPsiElement().getText());
-//            request.setKey(lookupElement.getPsiElement().getText());
-//            request.setType("callCandidate");
-
             // TODO: allow reference infos as well?
         }
 
-        WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
+                WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
 
-        Project project = lookupElement.getPsiElement().getProject();
-        ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+                Project project = lookup.getEditor().getProject();
+                ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
 
-        if (response.getSubResults().size() > 0) {
-            for (WideQueryResponse resp : response.getSubResults()) {
-                if (resp.getDocumentation("mdn") != null) {
-                    getWindowFactory().showLookupWindow(window, resp);
-                    //getPopupHelper().showLookupResults(resp, null, editor);
-                }
-            }
-        }
+                IdeEventQueue.getInstance().doWhenReady(new Runnable() {
+                    @Override
+                    public void run() {
 
-        //getWindowFactory().showLookupWindow(window, response.getSubResults().get(0));
+                        if (response.getSubResults().size() > 0) {
+                            for (WideQueryResponse resp : response.getSubResults()) {
+                                if (resp.getDocumentation("mdn") != null) {
+                                    getWindowFactory().showLookupWindow(window, resp);
+                                    return;
+                                    //getPopupHelper().showLookupResults(resp, null, editor);
+                                }
+                            }
+                        }
+
+                        getWindowFactory().showErrorWindow("No documentation found.", window);
+                    }
+                });
 
     }
 }

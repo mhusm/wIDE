@@ -1,36 +1,20 @@
 package ch.ethz.inf.globis.wide.language.javascript;
 
 import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
-import ch.ethz.inf.globis.wide.sources.caniuse.WideCaniuseResult;
-import ch.ethz.inf.globis.wide.sources.mdn.WideMDNExample;
-import ch.ethz.inf.globis.wide.sources.mdn.WideMDNResult;
-import ch.ethz.inf.globis.wide.ui.components.editor.WideExampleEditorFactory;
 import ch.ethz.inf.globis.wide.ui.components.panel.WideJFXPanel;
-import ch.ethz.inf.globis.wide.ui.components.panel.WideResizablePane;
 import ch.ethz.inf.globis.wide.ui.components.panel.WideResizablePaneBox;
 import ch.ethz.inf.globis.wide.ui.components.window.WideWindowFactory;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.scene.web.WebView;
-
-import javax.swing.*;
-import javax.swing.text.html.HTMLEditorKit;
-import java.util.List;
 
 /**
  * Created by fabian on 16.04.16.
@@ -48,7 +32,7 @@ public class WideJSWindowFactory extends WideWindowFactory {
     }
 
     public void showLookupWindow(ToolWindow toolWindow, WideQueryResponse result) {
-        WideJFXPanel panel = addNewJFXPanleToWindow("wIDE", toolWindow);
+        WideJFXPanel panel = getJFXPanel(toolWindow);
 
         Platform.runLater(new Runnable() {
             @Override
@@ -109,32 +93,5 @@ public class WideJSWindowFactory extends WideWindowFactory {
     public void showSuggestionWindow(WideQueryResponse suggestion, ToolWindow toolWindow, PsiElement element, Editor editor) {
         //TODO
     }
-
-    private void createExamplesContent(List<WideMDNExample> examples, HTMLEditorKit kit, ToolWindow toolWindow) {
-        //TODO: switch to JavaFx
-        JPanel parentPanel = new JPanel();
-        parentPanel.setLayout(new BoxLayout(parentPanel, BoxLayout.Y_AXIS));
-
-        for (WideMDNExample example : examples) {
-            parentPanel.add(createNewEditorPane(example.getResult(), kit));
-            Editor editor = WideExampleEditorFactory.createExampleEditor(example.getCode(), null);
-            parentPanel.add(editor.getComponent());
-        }
-
-        JScrollPane scrollPane = createNewScrollPane(parentPanel);
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content summaryContent = contentFactory.createContent(scrollPane, "examples", false);
-
-        toolWindow.getContentManager().addContent(summaryContent);
-    }
-
-//    private Tab createCaniuseTabFx(WideCaniuseResult content) {
-//        WebView webView = createWebView();
-//        webView.getEngine().loadContent("<html><body>" + content + "</body></html>");
-//
-//        Tab tab = new Tab("CanIUse Compatibility", webView);
-//        tab.setClosable(false);
-//        return tab;
-//    }
 
 }

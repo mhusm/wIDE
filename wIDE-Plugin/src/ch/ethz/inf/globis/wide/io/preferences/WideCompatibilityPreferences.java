@@ -35,8 +35,7 @@ public class WideCompatibilityPreferences {
         // Retrieve the user preference node
         Preferences preferences = Preferences.userNodeForPackage(WideCompatibilityPreferences.class);
         String prefString = preferences.get(PREF_NAME, null);
-
-//        buildDefaultPreferences();
+        
         if (prefString != null) {
             buildPreferenceFromString(prefString);
         } else {

@@ -10,9 +10,9 @@ import javax.swing.*;
 /**
  * Created by fabian on 12.05.16.
  */
-public class WideInitialWindowFactory extends WideWindowFactory {
+public class WideDefaultWindowFactory extends WideWindowFactory {
 
-    public WideInitialWindowFactory() {
+    public WideDefaultWindowFactory() {
         // wait for JavaFX to be ready
         SwingUtilities.invokeLater(new Runnable() {
             @Override

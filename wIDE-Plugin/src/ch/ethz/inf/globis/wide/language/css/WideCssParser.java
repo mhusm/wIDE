@@ -14,47 +14,49 @@ import com.intellij.psi.css.CssDeclaration;
 public class WideCssParser implements IWideLanguageParser {
 
     public WideQueryRequest buildDocumentationQuery(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
-        if (startElement.equals(endElement)) {
-            // only one element.
-            //TODO: class - unused?
+        if (startElement.equals(endElement)
+                && startElement.getParent() instanceof CssDeclaration) {
+                // only one element.
+                //TODO: class - unused?
 
-            //TODO: id - unused?
+                //TODO: id - unused?
 
-            //TODO: simple-selector - unused?
+                //TODO: simple-selector - unused?
 
-            //TODO: attribute
+                //TODO: attribute
 
-            //TODO: attribute-right-side
+                //TODO: attribute-right-side
 
-            //TODO: pseudo-element
+                //TODO: pseudo-element
 
-            WideQueryRequest request = new WideQueryRequest();
-            request.setLang("CSS");
-            request.setType("CSS");
-            request.setKey(startElement.getText());
-            request.setValue(startElement.getText());
+                WideQueryRequest request = new WideQueryRequest();
+                request.setLang("CSS");
+                request.setType("CSS");
+                request.setKey(startElement.getParent().getFirstChild().getText());
+                request.setValue(startElement.getParent().getLastChild().getText());
 
-            return request;
-
+                return request;
         } else {
+//
+//            PsiElement parent = startElement;
+//            while (!(parent instanceof CssDeclaration)) {
+//                if (parent == null) {
+//                    return null;
+//                }
+//                parent = parent.getParent();
+//            }
+//            WideQueryRequest request = new WideQueryRequest();
+//            request.setLang("CSS");
+//            request.setType("CSS");
+//            request.setKey(parent.getFirstChild().getText());
+//            request.setValue(parent.getLastChild().getText());
 
-            PsiElement parent = startElement;
-            while (!(parent instanceof CssDeclaration)) {
-                parent = parent.getParent();
-            }
-            WideQueryRequest request = new WideQueryRequest();
-            request.setLang("CSS");
-            request.setType("CSS");
-            request.setKey(parent.getFirstChild().getText());
-            request.setValue(parent.getLastChild().getText());
-
-            return request;
-
+            return null;
         }
     }
 
     @Override
     public PsiElement getRelevantElement(PsiElement element) {
-        return element;
+        return element.getParent().getFirstChild();
     }
 }

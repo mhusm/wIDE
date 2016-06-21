@@ -1,7 +1,7 @@
 package ch.ethz.inf.globis.wide.language;
 
 import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
-import ch.ethz.inf.globis.wide.ui.components.popup.WidePopupHelper;
+import ch.ethz.inf.globis.wide.ui.components.popup.WidePopupFactory;
 import ch.ethz.inf.globis.wide.ui.components.window.WideWindowFactory;
 import com.intellij.codeInsight.lookup.Lookup;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -13,7 +13,7 @@ import com.intellij.psi.PsiFile;
  * Created by fabian on 12.05.16.
  */
 public interface IWideLanguageHandler {
-    WidePopupHelper getPopupHelper();
+    WidePopupFactory getPopupHelper();
     WideWindowFactory getWindowFactory();
     IWideLanguageParser getLanguageParser();
 

@@ -4,6 +4,7 @@ import ch.ethz.inf.globis.wide.io.compatibility.WideBrowserVersionResponse;
 import ch.ethz.inf.globis.wide.logging.WideLogger;
 import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
 import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
+import ch.ethz.inf.globis.wide.ui.components.window.WideDefaultWindowFactory;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -26,17 +27,21 @@ public class WideHttpCommunicator {
     private static final String SERVER_PROTOCOL = "http://";
 
     public static WideQueryResponse sendRequest(WideQueryRequest request) {
-        synchronized (LOGGER) {
-            try {
-                URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query");
-                LOGGER.info("SEND REQUEST: " + request);
-                return new WideQueryResponse(sendQuery(url, request.toString()));
-            } catch (MalformedURLException e) {
-                LOGGER.severe("Sending request to " + SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query failed.");
-                e.printStackTrace();
-                return null;
+        if (request != null) {
+            synchronized (LOGGER) {
+                try {
+                    URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query");
+                    LOGGER.info("SEND REQUEST: " + request);
+                    return new WideQueryResponse(sendQuery(url, request.toString()));
+                } catch (MalformedURLException e) {
+                    LOGGER.severe("Sending request to " + SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query failed.");
+                    e.printStackTrace();
+                    return null;
+                }
             }
         }
+
+        return null;
     }
 
     public static WideQueryResponse sendCompatibilityRequest(WideQueryRequest request) {

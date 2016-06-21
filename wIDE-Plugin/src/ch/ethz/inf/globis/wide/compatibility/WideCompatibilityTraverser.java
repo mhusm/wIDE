@@ -5,18 +5,24 @@ import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
 import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import ch.ethz.inf.globis.wide.language.IWideLanguageHandler;
 import ch.ethz.inf.globis.wide.registry.WideLanguageRegistry;
+import ch.ethz.inf.globis.wide.ui.components.window.WideDefaultWindowFactory;
 import com.intellij.codeInsight.highlighting.HighlightManager;
+import com.intellij.ide.IdeEventQueue;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.TextAttributes;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import io.netty.util.internal.ConcurrentSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -24,23 +30,51 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WideCompatibilityTraverser {
 
-    private Map<String, WidePsiElementRequestEntry> registeredObjects;
+    private ConcurrentHashMap<String, WidePsiElementRequestEntry> registeredObjects;
+    private Map<String, WideQueryRequest> keysToBeHandled;
+    private Map<String, Double> keyToCompatibiltiyMap;
+    private TreeMap<Double, Set> registeredIssues;
+
     private Editor editor;
     private PsiFile file;
 
     public WideCompatibilityTraverser() {
-        this.registeredObjects = new HashMap();
+        this.registeredObjects = new ConcurrentHashMap();
+        this.keyToCompatibiltiyMap = new HashMap();
+        this.keysToBeHandled = new HashMap();
+        this.registeredIssues = new TreeMap();
     }
 
-    public void traverseFile(Editor editor, PsiFile file) {
+    public void traverseFile(Editor editor) {
         // reset Objects all the time
         this.registeredObjects = new ConcurrentHashMap();
+        this.keyToCompatibiltiyMap = new HashMap();
+        this.keysToBeHandled = new HashMap();
+        this.registeredIssues = new TreeMap();
+
         this.editor = editor;
-        traverseFileRec(file);
+
+        ApplicationManager.getApplication().runReadAction(new Runnable() {
+            @Override
+            public void run() {
+                file = PsiDocumentManager.getInstance(editor.getProject()).getPsiFile(editor.getDocument());
+                traverseFileRec(file);
+            }
+        });
 
         WideQueryRequest request = buildRequest();
         WideQueryResponse response = WideHttpCommunicator.sendCompatibilityRequest(request);
-        handleResponse(response);
+
+        IdeEventQueue.getInstance().doWhenReady(new Runnable() {
+            @Override
+            public void run() {
+                handleResponse(response);
+
+                Project project = editor.getProject();
+                ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+                new WideDefaultWindowFactory().showCompatibilityIssues(registeredIssues, window, editor);
+            }
+        });
     }
 
     private void traverseFileRec(PsiElement element) {
@@ -52,10 +86,46 @@ public class WideCompatibilityTraverser {
 
                 PsiElement actualElement = handler.getLanguageParser().getRelevantElement(element);
                 if (actualElement != null) {
-                    registeredObjects.putIfAbsent(key, new WidePsiElementRequestEntry(new ConcurrentSet(), request));
-                    registeredObjects.get(key).addElement(actualElement);
+                    if (!registeredObjects.containsKey(key)) {
+                        // mark element as (potentially) new issue
+                        registeredObjects.putIfAbsent(key, new WidePsiElementRequestEntry(new ConcurrentSet(), request));
+                        registeredObjects.get(key).addElement(actualElement);
+                        keysToBeHandled.put(key, request);
+
+                    } else if (!keysToBeHandled.keySet().contains(key)) {
+                        // register element for compatibiltiy query
+                        registeredObjects.get(key).addElement(actualElement);
+
+                        IdeEventQueue.getInstance().doWhenReady(new Runnable() {
+                            @Override
+                            public void run() {
+                                registeredIssues.get(keyToCompatibiltiyMap.get(key)).add(actualElement);
+                                Color highlightColor = getHighlightColor(keyToCompatibiltiyMap.get(key));
+                                highlightElement(actualElement, highlightColor);
+                            }
+                        });
+
+                    } else {
+                        registeredObjects.get(key).addElement(actualElement);
+                        keysToBeHandled.put(key, request);
+                    }
                 }
             }
+        }
+
+        if (keysToBeHandled.size() > 10) {
+            WideQueryRequest compatibilityQuery = buildRequest();
+            keysToBeHandled = new HashMap();
+
+            WideQueryResponse response = WideHttpCommunicator.sendCompatibilityRequest(compatibilityQuery);
+            updateKeyToCompatibilityMap(response);
+
+            IdeEventQueue.getInstance().doWhenReady(new Runnable() {
+                @Override
+                public void run() {
+                    handleResponse(response);
+                }
+            });
         }
 
         for (PsiElement child : element.getChildren()) {
@@ -66,35 +136,78 @@ public class WideCompatibilityTraverser {
     private WideQueryRequest buildRequest() {
         WideQueryRequest request = new WideQueryRequest();
 
-        for (WidePsiElementRequestEntry entry : registeredObjects.values()) {
-            request.addChild(entry.getRequest());
+        for (WideQueryRequest subRequest : keysToBeHandled.values()) {
+            request.addChild(subRequest);
         }
 
         return request;
     }
 
-    private void handleResponse(WideQueryResponse response) {
+    private void updateKeyToCompatibilityMap(WideQueryResponse response) {
         for (WideQueryResponse childResponse : response.getSubResults()) {
             String key = childResponse.getKey() + "/" + childResponse.getLang();
 
+            double compatibility = childResponse.calculateCompatibility();
+
+            keyToCompatibiltiyMap.put(key, compatibility);
+        }
+    }
+
+    private void highlightElement(PsiElement element, Color highlightColor) {
+        HighlightManager.getInstance(editor.getProject()).addOccurrenceHighlight(
+                editor,
+                element.getTextRange().getStartOffset(),
+                element.getTextRange().getEndOffset(),
+                new TextAttributes(Color.WHITE, highlightColor, null, EffectType.BOXED, 0),
+                HighlightManager.HIDE_BY_ESCAPE,
+                null,
+                highlightColor);
+    }
+
+    private void handleResponse(WideQueryResponse response) {
+
+        for (WideQueryResponse childResponse : response.getSubResults()) {
+            String key = childResponse.getKey() + "/" + childResponse.getLang();
+
+            if (keyToCompatibiltiyMap.get(key) == null) {
+                updateKeyToCompatibilityMap(response);
+            }
+
+            double compatibility = keyToCompatibiltiyMap.get(key);
+            Color highlightColor = getHighlightColor(compatibility);
+
             for (PsiElement element : registeredObjects.get(key).getElements()) {
-                editor.getDocument().createRangeMarker(element.getTextRange());
 
                 // TODO: first remove all other highlights
+                highlightElement(element, highlightColor);
 
-                double compatibility = childResponse.calculateCompatibility();
-
-                //if (compatibility < 2.0) {
-                    int red = (int) Math.floor(150 * (1-compatibility));
-                    Color highlightColor = new Color(red, 150-red, 0);
-
-                    HighlightManager.getInstance(editor.getProject()).addOccurrenceHighlight(editor, element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset(), new TextAttributes(Color.WHITE, highlightColor, Color.BLUE, EffectType.BOXED, 0), HighlightManager.HIDE_BY_ESCAPE, null, highlightColor);
-                //}
+                if (registeredIssues.get(compatibility) == null) {
+                    registeredIssues.put(compatibility, new HashSet());
+                }
+                registeredIssues.get(compatibility).add(element);
             }
         }
     }
 
-    private class WidePsiElementRequestEntry {
+    public static Color getHighlightColor(double compatibility) {
+        int red = 0;
+        int green = 0;
+        int blue = 0;
+
+        if (compatibility >= 0.5) {
+            red = (int) Math.floor(255 + 255 * 2 * (0.5 - compatibility));
+            green = (int) Math.floor(255 + 255 * (0.5 - compatibility));
+            blue = (int) Math.floor(51 + 51 * 2 * (0.5 - compatibility));
+        } else {
+            red = (int) Math.floor(255 - 255 * (0.5 - compatibility));
+            green = (int) Math.floor(255 - 255 * 2 * (0.5 - compatibility));
+            blue = (int) Math.floor(51 - 51 * 2 * (0.5 - compatibility));
+        }
+
+        return new Color(red, green, blue);
+    }
+
+    public class WidePsiElementRequestEntry {
         private ConcurrentSet<PsiElement> elements;
         private WideQueryRequest request;
 

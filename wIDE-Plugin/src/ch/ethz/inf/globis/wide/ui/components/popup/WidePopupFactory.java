@@ -13,7 +13,7 @@ import java.awt.*;
 /**
  * Created by fabian on 06.04.16.
  */
-public abstract class WidePopupHelper extends WideContentBuilder {
+public abstract class WidePopupFactory extends WideContentBuilder {
 
     private JBPopup popup;
 
@@ -47,25 +47,9 @@ public abstract class WidePopupHelper extends WideContentBuilder {
 
             this.popup = popup;
 
-        //popup.setRequestFocus(true);
         popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor));
-//        popup.showInBestPositionFor(editor);
 
         this.popup = popup;
-    }
-
-    public void showError(String error, Editor editor) {
-        //TODO: implementation
-        showPopup(new JLabel(error), new Dimension(300, 50), "Error", editor);
-    }
-
-    protected void addResultsRecursive(DefaultTableModel tableModel, WideQueryResponse response) {
-        for (WideQueryResponse result : response.getSubResults()) {
-            if (result != null) {
-                tableModel.addRow(result.getTableRow());
-                addResultsRecursive(tableModel, result);
-            }
-        }
     }
 
     public abstract void showLookupResults(WideQueryResponse parentResult, WideQueryResponse subResult, Editor editor);
