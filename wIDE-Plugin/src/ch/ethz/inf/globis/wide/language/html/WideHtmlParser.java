@@ -21,7 +21,7 @@ public class WideHtmlParser implements IWideLanguageParser {
 
     private static final WideLogger LOGGER = new WideLogger(WideHtmlParser.class.getName());
 
-    public WideQueryRequest buildDocumentationQuery(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
+    public WideQueryRequest buildDocumentationQuery(PsiFile file, PsiElement startElement, PsiElement endElement) {
         if (startElement instanceof HtmlTag) {
             WideQueryRequest request = new WideQueryRequest();
             request.setLang("HTML");
@@ -40,7 +40,7 @@ public class WideHtmlParser implements IWideLanguageParser {
                 }
 
                 WideQueryRequest childRequest = new WideQueryRequest();
-                childRequest = buildAttributeRequest(editor, file, startElement.getFirstChild(), startElement.getLastChild());
+                childRequest = buildAttributeRequest(file, startElement.getFirstChild(), startElement.getLastChild());
                 request.addChild(childRequest);
 
                 startElement = startElement.getNextSibling();
@@ -66,7 +66,7 @@ public class WideHtmlParser implements IWideLanguageParser {
         return element;
     }
 
-    private static WideQueryRequest buildAttributeRequest(Editor editor, PsiFile file, PsiElement attribute, PsiElement value) {
+    private static WideQueryRequest buildAttributeRequest(PsiFile file, PsiElement attribute, PsiElement value) {
         // LOOKUP HTML ATTRIBUTE
         WideQueryRequest request = new WideQueryRequest();
         request.setLang("HTML");
@@ -91,7 +91,7 @@ public class WideHtmlParser implements IWideLanguageParser {
 
             IWideLanguageParser parser = WideLanguageRegistry.getInstance().getLanguageHandler(CssElement.class).getLanguageParser();
             WideQueryRequest childRequest = new WideQueryRequest();
-            childRequest = parser.buildDocumentationQuery(editor, file, cssStart, cssEnd);
+            childRequest = parser.buildDocumentationQuery(file, cssStart, cssEnd);
             request.addChild(childRequest);
         }
 
@@ -112,7 +112,7 @@ public class WideHtmlParser implements IWideLanguageParser {
 
             IWideLanguageParser parser = WideLanguageRegistry.getInstance().getLanguageHandler(JSElement.class).getLanguageParser();
             WideQueryRequest childRequest = new WideQueryRequest();
-            childRequest = parser.buildDocumentationQuery(editor, file, jsStart, jsEnd);
+            childRequest = parser.buildDocumentationQuery(file, jsStart, jsEnd);
             request.addChild(childRequest);
         }
 

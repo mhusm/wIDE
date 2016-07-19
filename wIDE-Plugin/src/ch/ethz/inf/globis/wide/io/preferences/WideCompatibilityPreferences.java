@@ -35,7 +35,8 @@ public class WideCompatibilityPreferences {
         // Retrieve the user preference node
         Preferences preferences = Preferences.userNodeForPackage(WideCompatibilityPreferences.class);
         String prefString = preferences.get(PREF_NAME, null);
-        
+
+//        buildDefaultPreferences();
         if (prefString != null) {
             buildPreferenceFromString(prefString);
         } else {
@@ -74,30 +75,45 @@ public class WideCompatibilityPreferences {
         JSONObject fireFoxVersion = new JSONObject();
         fireFoxVersion.put("start", 1);
         fireFoxVersion.put("end", 100);
+        fireFoxVersion.put("current", 100);
+        fireFoxVersion.put("isPreviewIncluded", false);
+        fireFoxVersion.put("isUntilLatest", true);
         browserVersionPrefs.put(browserTypes.Firefox.name().toLowerCase(), fireFoxVersion);
 
         // Chrome
         JSONObject chromeVersion = new JSONObject();
         chromeVersion.put("start", 1);
         chromeVersion.put("end", 100);
+        chromeVersion.put("current", 100);
+        chromeVersion.put("isPreviewIncluded", false);
+        chromeVersion.put("isUntilLatest", true);
         browserVersionPrefs.put(browserTypes.Chrome.name().toLowerCase(), chromeVersion);
 
         // IE
         JSONObject ieVersion = new JSONObject();
         ieVersion.put("start", 1);
         ieVersion.put("end", 100);
+        ieVersion.put("current", 100);
+        ieVersion.put("isPreviewIncluded", false);
+        ieVersion.put("isUntilLatest", true);
         browserVersionPrefs.put(browserTypes.IE.name().toLowerCase(), ieVersion);
 
         // Safari
         JSONObject safariVersion = new JSONObject();
         safariVersion.put("start", 1);
         safariVersion.put("end", 100);
+        safariVersion.put("current", 100);
+        safariVersion.put("isPreviewIncluded", false);
+        safariVersion.put("isUntilLatest", true);
         browserVersionPrefs.put(browserTypes.Safari.name().toLowerCase(), safariVersion);
 
         // Opera
         JSONObject operaVersion = new JSONObject();
         operaVersion.put("start", 1);
         operaVersion.put("end", 100);
+        operaVersion.put("current", 100);
+        operaVersion.put("isPreviewIncluded", false);
+        operaVersion.put("isUntilLatest", true);
         browserVersionPrefs.put(browserTypes.Opera.name().toLowerCase(), operaVersion);
 
         return browserVersionPrefs;
@@ -160,7 +176,7 @@ public class WideCompatibilityPreferences {
             for (String p : path) {
                 pathString += p + ">";
             }
-            LOGGER.warning("Illegal path to compatibility preference node: [path] " + pathString + " [data] " + data.toString() + " [type] store");
+            LOGGER.warning("Illegal path to compatibility preference node: [path] " + pathString + key + " [data] " + data.toString() + " [type] store");
         }
     }
 
@@ -179,7 +195,7 @@ public class WideCompatibilityPreferences {
             for (String p : path) {
                 pathString += p + ">";
             }
-            LOGGER.warning("Illegal path to compatibility preference node: [path] " + pathString + " [type] load");
+            LOGGER.warning("Illegal path to compatibility preference node: [path] " + pathString + key + " [type] load");
             return null;
         }
     }

@@ -4,6 +4,7 @@ import ch.ethz.inf.globis.wide.communication.WideHttpCommunicator;
 import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
 import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import ch.ethz.inf.globis.wide.language.IWideLanguageHandler;
+import ch.ethz.inf.globis.wide.logging.WideLogger;
 import ch.ethz.inf.globis.wide.registry.WideLanguageRegistry;
 import ch.ethz.inf.globis.wide.ui.components.window.WideDefaultWindowFactory;
 import com.intellij.codeInsight.highlighting.HighlightManager;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -30,12 +32,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WideCompatibilityTraverser {
 
+    private final static WideLogger LOGGER = new WideLogger(WideCompatibilityTraverser.class.getName());
+
     private ConcurrentHashMap<String, WidePsiElementRequestEntry> registeredObjects;
     private Map<String, WideQueryRequest> keysToBeHandled;
     private Map<String, Double> keyToCompatibiltiyMap;
-    private TreeMap<Double, Set> registeredIssues;
+    private TreeMap<Double, Map> registeredIssues;
 
     private Editor editor;
+
     private PsiFile file;
 
     public WideCompatibilityTraverser() {
@@ -43,6 +48,46 @@ public class WideCompatibilityTraverser {
         this.keyToCompatibiltiyMap = new HashMap();
         this.keysToBeHandled = new HashMap();
         this.registeredIssues = new TreeMap();
+    }
+
+    public void traverseProject(Project project, List<PsiFile> files) {
+        // reset Objects all the time
+        this.registeredObjects = new ConcurrentHashMap();
+        this.keyToCompatibiltiyMap = new HashMap();
+        this.keysToBeHandled = new HashMap();
+        this.registeredIssues = new TreeMap();
+
+        this.editor = null;
+
+        for (PsiFile psiFile : files) {
+            LOGGER.info("Scan compatibiltiy for: " + psiFile.getName());
+
+            // Show waiting window
+            ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+            WideDefaultWindowFactory windowFactory = new WideDefaultWindowFactory();
+            windowFactory.showWaitingWindow(window);
+
+            ApplicationManager.getApplication().runReadAction(new Runnable() {
+                @Override
+                public void run() {
+                    file = psiFile;
+                    traverseFileRec(psiFile);
+                }
+            });
+
+            WideQueryRequest request = buildRequest();
+            WideQueryResponse response = WideHttpCommunicator.sendCompatibilityRequest(request);
+
+            IdeEventQueue.getInstance().doWhenReady(new Runnable() {
+                @Override
+                public void run() {
+                    handleResponse(response);
+
+                    ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+                    new WideDefaultWindowFactory().showCompatibilityIssues(registeredIssues, window, editor);
+                }
+            });
+        }
     }
 
     public void traverseFile(Editor editor) {
@@ -70,8 +115,7 @@ public class WideCompatibilityTraverser {
             public void run() {
                 handleResponse(response);
 
-                Project project = editor.getProject();
-                ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+                ToolWindow window = ToolWindowManager.getInstance(editor.getProject()).getToolWindow("wIDE");
                 new WideDefaultWindowFactory().showCompatibilityIssues(registeredIssues, window, editor);
             }
         });
@@ -80,7 +124,7 @@ public class WideCompatibilityTraverser {
     private void traverseFileRec(PsiElement element) {
         IWideLanguageHandler handler = WideLanguageRegistry.getInstance().getLanguageHandler(element.getClass());
         if (handler != null) {
-            WideQueryRequest request = handler.getLanguageParser().buildDocumentationQuery(editor, file, element, element);
+            WideQueryRequest request = handler.getLanguageParser().buildDocumentationQuery(file, element, element);
             if (request != null) {
                 String key = request.getKey() + "/" + handler.getLanguageAbbreviation();
 
@@ -99,7 +143,7 @@ public class WideCompatibilityTraverser {
                         IdeEventQueue.getInstance().doWhenReady(new Runnable() {
                             @Override
                             public void run() {
-                                registeredIssues.get(keyToCompatibiltiyMap.get(key)).add(actualElement);
+                                registeredIssues.get(keyToCompatibiltiyMap.get(key)).putIfAbsent(key, registeredObjects.get(key)); //add(actualElement);
                                 Color highlightColor = getHighlightColor(keyToCompatibiltiyMap.get(key));
                                 highlightElement(actualElement, highlightColor);
                             }
@@ -154,14 +198,16 @@ public class WideCompatibilityTraverser {
     }
 
     private void highlightElement(PsiElement element, Color highlightColor) {
-        HighlightManager.getInstance(editor.getProject()).addOccurrenceHighlight(
-                editor,
-                element.getTextRange().getStartOffset(),
-                element.getTextRange().getEndOffset(),
-                new TextAttributes(Color.WHITE, highlightColor, null, EffectType.BOXED, 0),
-                HighlightManager.HIDE_BY_ESCAPE,
-                null,
-                highlightColor);
+        if (editor != null) {
+            HighlightManager.getInstance(editor.getProject()).addOccurrenceHighlight(
+                    editor,
+                    element.getTextRange().getStartOffset(),
+                    element.getTextRange().getEndOffset(),
+                    new TextAttributes(Color.WHITE, highlightColor, null, EffectType.BOXED, 0),
+                    HighlightManager.HIDE_BY_ESCAPE,
+                    null,
+                    highlightColor);
+        }
     }
 
     private void handleResponse(WideQueryResponse response) {
@@ -182,9 +228,9 @@ public class WideCompatibilityTraverser {
                 highlightElement(element, highlightColor);
 
                 if (registeredIssues.get(compatibility) == null) {
-                    registeredIssues.put(compatibility, new HashSet());
+                    registeredIssues.put(compatibility, new HashMap());
                 }
-                registeredIssues.get(compatibility).add(element);
+                registeredIssues.get(compatibility).putIfAbsent(key, registeredObjects.get(key)); //add(element);
             }
         }
     }

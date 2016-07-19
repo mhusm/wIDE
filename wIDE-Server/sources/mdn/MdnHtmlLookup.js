@@ -405,7 +405,7 @@ var mdnHtml = {
 
         // add other available attributes
         for (var attribute in tagAttributes) {
-            if (attributes[attribute] === undefined) {
+            if (attributes !== undefined && attributes[attribute] === undefined) {
 
                 // The attribute is not supported
                 nonPresentAttributes += attribute + ", ";

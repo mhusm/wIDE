@@ -64,7 +64,7 @@ public class WideHtmlHandler implements IWideLanguageHandler {
             if (startElement.getParent() instanceof XmlAttribute) {
                 LOGGER.info("HTML Attribute");
 
-                WideQueryRequest request = new WideHtmlParser().buildDocumentationQuery(editor, file, startElement.getParent().getParent(), startElement.getParent().getParent());
+                WideQueryRequest request = new WideHtmlParser().buildDocumentationQuery(file, startElement.getParent().getParent(), startElement.getParent().getParent());
                 response = WideHttpCommunicator.sendRequest(request);
 
                 // show correct information
@@ -80,7 +80,7 @@ public class WideHtmlHandler implements IWideLanguageHandler {
             } else if (startElement.getParent() instanceof XmlAttributeValue) {
                 LOGGER.info("HTML AttributeValue");
 
-                WideQueryRequest request = new WideHtmlParser().buildDocumentationQuery(editor, file, startElement.getParent().getParent(), startElement.getParent().getParent());
+                WideQueryRequest request = new WideHtmlParser().buildDocumentationQuery(file, startElement.getParent().getParent(), startElement.getParent().getParent());
                 response = WideHttpCommunicator.sendRequest(request);
 
                 // show correct information
@@ -96,7 +96,7 @@ public class WideHtmlHandler implements IWideLanguageHandler {
             } else if (startElement.getParent() instanceof HtmlTag) {
                 LOGGER.info("HTML Tag");
 
-                WideQueryRequest request = new WideHtmlParser().buildDocumentationQuery(editor, file, startElement.getParent(), startElement.getParent());
+                WideQueryRequest request = new WideHtmlParser().buildDocumentationQuery(file, startElement.getParent(), startElement.getParent());
                 response = WideHttpCommunicator.sendRequest(request);
 
                 getPopupHelper().showLookupResults(response, response, editor);
@@ -114,11 +114,10 @@ public class WideHtmlHandler implements IWideLanguageHandler {
 
 
     @Override
-    public void getSuggestionDocumentation(LookupElement lookupElement, Lookup lookup) {
-
-        if ((lookup.getPsiElement().getParent() instanceof HtmlTag
-                && lookup.getPsiElement().getPrevSibling() == null)
-                || lookup.getPsiElement().getText().equals("<")) {
+    public void getSuggestionDocumentation(LookupElement lookupElement, PsiElement psiElement, Lookup lookup) {
+        if ((psiElement.getParent() instanceof HtmlTag
+                && psiElement.getPrevSibling() == null)
+                || psiElement.getText().equals("<")) {
             // HTML Tag
             WideQueryRequest request = new WideQueryRequest();
             request.setLang(getLanguageAbbreviation());
@@ -144,7 +143,7 @@ public class WideHtmlHandler implements IWideLanguageHandler {
 
         } else if (lookup.getPsiElement().getParent() instanceof XmlAttributeValue) {
             // HTML attribute value
-            System.out.println("HTML Attribute Value");
+            //System.out.println("HTML Attribute Value");
             //NOOP
 
         }

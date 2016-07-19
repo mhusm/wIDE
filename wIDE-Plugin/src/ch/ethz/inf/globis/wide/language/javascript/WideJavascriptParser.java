@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class WideJavascriptParser implements IWideLanguageParser {
 
-    public WideQueryRequest buildDocumentationQuery(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
+    public WideQueryRequest buildDocumentationQuery(PsiFile file, PsiElement startElement, PsiElement endElement) {
         //TODO: distinguish file
 
         //TODO: multiple calls?
@@ -29,7 +29,7 @@ public class WideJavascriptParser implements IWideLanguageParser {
 
             //TODO: GET REFERENCED CALLEE, IF CALLEXPRESSION OR REFERENCEEXPRESSION
 
-            List<PsiElement> matchingCalls = function.getMatchingFunctions(editor);
+            List<PsiElement> matchingCalls = function.getMatchingFunctions(file.getProject());
 
             WideQueryRequest request = new WideQueryRequest();
             request.setLang("JS");
@@ -125,7 +125,17 @@ public class WideJavascriptParser implements IWideLanguageParser {
             currentCall = findLowestCallExpression(leftElement);
         }
 
-        return currentCall;
+        if (!(currentCall == null)
+                && !(currentCall.getMethodExpression().getFirstChild().equals(currentCall.getMethodExpression().getLastChild()))
+                && !currentCall.getMethodExpression().getLastChild().getText().contains("(")
+                && !currentCall.getMethodExpression().getLastChild().getText().contains(")")
+                && !currentCall.getMethodExpression().getLastChild().getText().contains(".")
+                && !currentCall.getMethodExpression().getLastChild().getText().contains("\"")
+                && !currentCall.getMethodExpression().getLastChild().getText().contains("\'")) {
+            return currentCall;
+        } else {
+            return null;
+        }
     }
 
     /*

@@ -13,6 +13,7 @@ import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -53,7 +54,7 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         JFXPanel panel = new JFXPanel();
-        panel.setMinimumSize(new Dimension(350, 250));
+        panel.setMinimumSize(new Dimension(650, 300));
 
         Platform.runLater(new Runnable() {
             @Override
@@ -125,12 +126,17 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
 
             Text browserTitle = new Text(browser.name());
 
-            // load values from preferences
+            // load min version value from response and update in preferences
             double min = 1.0 * response.getBrowsers().get(browser.name().toLowerCase()).getMinVersion(); //0; //(double) prefs.getData("min", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name());
             prefs.putData(min, "min", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
 
+            // load max version value from response and update in preferences
             double max = 1.0 * response.getBrowsers().get(browser.name().toLowerCase()).getMaxVersion(); //(double) prefs.getData("max", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name());
             prefs.putData(max, "max", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
+
+            // load current stable version value from response and update in preferences
+            double current = 1.0 * response.getBrowsers().get(browser.name().toLowerCase()).getCurrentVersion();
+            prefs.putData(current, "current", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
 
             // workaround: if start or end are integer, the conversion to double needs to be made exlicitely
             Object start = prefs.getData("start", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
@@ -141,8 +147,15 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
                 prefs.putData(start, "start", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
 
             }
+
             Number end = (Number) prefs.getData("end", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
-            if (end instanceof Integer) {
+            if ((boolean) prefs.getData("isPreviewIncluded", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase())) {
+                // developer is also interested in preview Versions
+                end = max;
+            } else if ((boolean) prefs.getData("isUntilLatest", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase())) {
+                // developer is interested until latest stable version
+                end = current;
+            } else if (end instanceof Integer) {
                 end = 1.0 * (Integer) end;
             } else if (end == null) {
                 end = max;
@@ -186,11 +199,46 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
                 }
             });
 
+            // include previews?
+            CheckBox untilLatest = new CheckBox("Previews");
+            untilLatest.setSelected((boolean) prefs.getData("isPreviewIncluded", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase()));
+            untilLatest.selectedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    if (newValue) {
+                        browserVersionSlider.highValueProperty().setValue(max);
+                    } else {
+                        browserVersionSlider.highValueProperty().setValue(response.getBrowsers().get(browser.name().toLowerCase()).getCurrentVersion());
+                    }
+
+                    // update preferences
+                    prefs.putData(newValue, "isPreviewIncluded", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
+                }
+            });
+
+            // include all until latest version?
+            CheckBox latestStable = new CheckBox("Latest (" + response.getBrowsers().get(browser.name().toLowerCase()).getCurrentVersion() + ")");
+            latestStable.setSelected((boolean) prefs.getData("isUntilLatest", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase()));
+            latestStable.selectedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    if (newValue) {
+                        browserVersionSlider.highValueProperty().setValue(response.getBrowsers().get(browser.name().toLowerCase()).getCurrentVersion());
+                    }
+
+                    // update preferences
+                    prefs.putData(newValue, "isUntilLatest", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
+                }
+            });
+
             // Add listeners to changing values -> and adjust preferences
             browserVersionSlider.highValueProperty().addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                     prefs.putData(versions.ceiling((Double) newValue), "end", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
+
+                    untilLatest.setSelected(newValue.equals(max));
+                    latestStable.setSelected(newValue.equals(current));
                 }
             });
             browserVersionSlider.lowValueProperty().addListener(new ChangeListener<Number>() {
@@ -200,7 +248,7 @@ public class WideCompatibilityPreferenceDialog extends DialogWrapper {
                 }
             });
 
-            browserVersionBox.getChildren().addAll(browserTitle, browserVersionSlider);
+            browserVersionBox.getChildren().addAll(browserTitle, untilLatest, latestStable, browserVersionSlider);
             box.getChildren().add(browserVersionBox);
         }
 

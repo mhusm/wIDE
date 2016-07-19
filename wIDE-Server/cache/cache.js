@@ -50,7 +50,11 @@ var cache = {
                     }
 
                     // still refresh cache
-                    queryHandler.handle(lang, type, key, value, children, cache.refreshDocumentationCache);
+                    //var yesterday = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
+                    //if (rows[0].timestamp < yesterday || Math.round(rows[0].timestamp).toString() === "NaN") {
+                        console.log("REFRESH CACHE ENTRY FOR [" + key + "].");
+                        queryHandler.handle(lang, type, key, value, children, cache.refreshDocumentationCache);
+                    //}
 
                     return result;
 
@@ -147,7 +151,8 @@ var cache = {
                 "       `type`, " +
                 "       `compatibility`, " +
                 "       `documentation`, " +
-                "       `parent` " +
+                "       `parent`," +
+                "       `timestamp` " +
                 "FROM   cache " +
                 "WHERE  `key` = :key " +
                 "       AND `lang` = :lang " +
@@ -167,7 +172,8 @@ var cache = {
                 "       `type`, " +
                 "       `compatibility`, " +
                 "       `documentation`, " +
-                "       `parent` " +
+                "       `parent`, " +
+                "       `timestamp` " +
                 "FROM   cache " +
                 "WHERE  `key` = :key " +
                 "       AND `lang` = :lang " +
@@ -321,7 +327,8 @@ var cache = {
                 "   `type` = type, " +
                     // "   `compatibility` = :compatibility, " +
                 "   `documentation` = :documentation, " +
-                "   `parent` = NULL " +
+                "   `parent` = NULL, " +
+                "   `timestamp` = NOW() " +
                 "WHERE  `key` = :key " +
                 "       AND `lang` = :lang " +
                 "       AND `type` = :type " +
@@ -345,7 +352,8 @@ var cache = {
                 "   `type` = type, " +
                     // "   `compatibility` = :compatibility, " +
                 "   `documentation` = :documentation, " +
-                "   `parent` = :parent " +
+                "   `parent` = :parent, " +
+                "   `timestamp` = NOW() " +
                 "WHERE  `key` = :key " +
                 "       AND `lang` = :lang " +
                 "       AND `type` = :type " +
@@ -398,14 +406,16 @@ var cache = {
                 "   `type`, " +
                     //"   `compatibility`, " +
                 "    `documentation`, " +
-                "    `parent`) " +
+                "    `parent`, " +
+                "    `timestamp` ) " +
                 "VALUES (" +
                 "   :key, " +
                 "   :lang, " +
                 "   :type, " +
                     //"   :compatibility, " +
                 "   :documentation, " +
-                "   NULL) ",
+                "   NULL, " +
+                "   NOW()) ",
                 flatEntry,
                 function (err, rows, fields) {
                     if (!err) {
@@ -426,14 +436,16 @@ var cache = {
                 "   `type`, " +
                     //"   `compatibility`, " +
                 "    `documentation`, " +
-                "    `parent`) " +
+                "    `parent`," +
+                "    `timestamp`) " +
                 "VALUES (" +
                 "   :key, " +
                 "   :lang, " +
                 "   :type, " +
                     //"   :compatibility, " +
                 "   :documentation, " +
-                "   :parent) ",
+                "   :parent, " +
+                "   NOW()) ",
                 flatEntry,
                 function (err, rows, fields) {
                     if (!err) {

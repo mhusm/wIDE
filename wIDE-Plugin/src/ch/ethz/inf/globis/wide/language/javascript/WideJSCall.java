@@ -6,6 +6,7 @@ import com.intellij.lang.javascript.psi.*;
 import com.intellij.lang.javascript.psi.resolve.JSResolveUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -30,10 +31,10 @@ public class WideJSCall {
         this.methodName = callExpression.getMethodExpression().getLastChild();
         this.methodReceiver = callExpression.getMethodExpression().getFirstChild();
 
-        System.out.println("Call:"); // + callExpression.getText());
-        System.out.println("      Method Expression: " + callExpression.getMethodExpression().getText());
-        System.out.println("      Method Name: " + this.methodName.getText() + " [" + this.methodName.getClass() + "]");
-        System.out.println("      Method Receiver: " + this.methodReceiver.getText() + " [" + this.methodReceiver.getClass() + "]");
+        //System.out.println("Call:"); // + callExpression.getText());
+        //.out.println("      Method Expression: " + callExpression.getMethodExpression().getText());
+        System.out.println("JS Call: Method Name: " + this.methodName.getText() + " [" + this.methodName.getClass() + "]");
+        //System.out.println("      Method Receiver: " + this.methodReceiver.getText() + " [" + this.methodReceiver.getClass() + "]");
     }
 
     public PsiElement getMethodName() {
@@ -57,10 +58,10 @@ public class WideJSCall {
     }
 
     /**
-     * @param editor The editor of the current project
+     * @param project The current project
      * @return A list of functions matching this call expression.
      */
-    public List<PsiElement> getMatchingFunctions(Editor editor) {
+    public List<PsiElement> getMatchingFunctions(Project project) {
         // SEARCH THROUGH PROJECT FILES
         // Load JavaScript Files of Project
         List<PsiFile> files = ((PsiManagerImpl) callExpression.getContainingFile().getManager()).getFileManager().getAllCachedFiles();
@@ -81,9 +82,10 @@ public class WideJSCall {
                 // SEARCH FOR HIDDEN FUNCTIONS
                 // DOM FUNCTIONS AND SIMILAR
                 // Load document of file and search for occurrence(s)
-                Document doc = PsiDocumentManager.getInstance(editor.getProject()).getDocument(file);
+                Document doc = PsiDocumentManager.getInstance(project).getDocument(file);
                 int occurrence = 0;
-                while (occurrence >= 0) {
+                boolean found = false;
+                while (occurrence >= 0 && !found) {
                     occurrence = doc.getText().indexOf(this.getMethodNameText(), occurrence + 4);
                     PsiElement el = file.findElementAt(occurrence);
 
@@ -96,6 +98,7 @@ public class WideJSCall {
                         if (el.getParent().getChildren()[0] instanceof JSFunctionExpression) {
                             System.out.println("Potential function found in file: " + el.getContainingFile().getName());
                             matchingCalls.add(el);
+                            found = true;
 
                         } else if (getMethodReceiver() instanceof JSReferenceExpression
                                 && el.getParent().getParent() instanceof JSDefinitionExpression) {
@@ -103,6 +106,7 @@ public class WideJSCall {
                             // Potentially a DOM Function
                             System.out.println("Potential definition found in file: " + el.getContainingFile().getName());
                             matchingCalls.add(el.getParent());
+                            found = true;
                         }
                     }
                 }

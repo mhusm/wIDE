@@ -9,8 +9,12 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.VisualPosition;
+import com.intellij.openapi.editor.actionSystem.EditorActionManager;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.AsynchronousExecution;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.PsiElement;
@@ -20,6 +24,7 @@ import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -38,10 +43,7 @@ import javafx.scene.web.WebView;
 
 import javax.swing.*;
 import java.awt.Dimension;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 
 /**
@@ -52,7 +54,7 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
     private JFXPanel myToolWindowContent;
 
     protected WideJFXPanel getJFXPanel(ToolWindow window) {
-        for (Content content :window.getContentManager().getContents()) {
+        for (Content content : window.getContentManager().getContents()) {
             if (content.getComponent() instanceof WideJFXPanel) {
                 return (WideJFXPanel) content.getComponent();
             }
@@ -98,7 +100,7 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
         toolWindow.getComponent().setMinimumSize(new Dimension(100, 0));
     }
 
-    public void showCompatibilityIssues(TreeMap<Double, Set> issues, ToolWindow toolWindow, Editor editor) {
+    public void showCompatibilityIssues(TreeMap<Double, Map> issues, ToolWindow toolWindow, Editor editor) {
         WideJFXPanel panel = getJFXPanel(toolWindow);
 
         // wait for JavaFX to be ready
@@ -110,7 +112,7 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
     }
 
     @AsynchronousExecution
-    private void createCompatibilityIssuesContentFx(TreeMap<Double, Set> issues, Pane pane, Editor editor) {
+    private void createCompatibilityIssuesContentFx(TreeMap<Double, Map> issues, Pane pane, Editor editor) {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
         VBox box = new VBox();
@@ -118,43 +120,79 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
         scrollPane.setContent(box);
 
         for (Double compatibility : issues.navigableKeySet()) {
-            Set<PsiElement> elements = issues.get(compatibility);
-            for (PsiElement element : elements) {
-
+            // ORDER BY COMPATIBILITY
+            Map<String, Set<PsiElement>> subIssues = issues.get(compatibility);
+            for (String key : subIssues.keySet()) {
+                // ORDER BY ISSUE
                 java.awt.Color highlightColor = WideCompatibilityTraverser.getHighlightColor(compatibility);
 
                 StackPane stackPane = new StackPane();
                 stackPane.setStyle("-fx-padding: 10px; " +
                         "-fx-background-color: white; " +
                         "-fx-border-color: #EEEEEE #EEEEEE #EEEEEE " + String.format("#%02X%02X%02X", highlightColor.getRed(), highlightColor.getGreen(), highlightColor.getBlue()) + "; " +
-                        "-fx-border-width: 1px 1px 1px 5px;");
-                Text text = new Text(element.getText());
+                        "-fx-border-width: 1px 1px 1px 5px; " +
+                        "-fx-start-margin: 10px;");
+                Text text = new Text(key);
                 stackPane.getChildren().add(text);
                 StackPane.setAlignment(text, Pos.CENTER_LEFT);
                 stackPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-                        if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
-                            if(mouseEvent.getClickCount() == 2){
+                        if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                            if (mouseEvent.getClickCount() == 2) {
                                 IdeEventQueue.getInstance().doWhenReady(new Runnable() {
                                     @Override
                                     public void run() {
-                                        editor.getSelectionModel().removeSelection();
-                                        editor.getSelectionModel().setSelection(element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset());
-                                        VisualPosition posStart = editor.getSelectionModel().getLeadSelectionPosition();
-                                        editor.getCaretModel().moveToVisualPosition(posStart);
-                                        editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE); //.scrollTo(element.getTextRange().);
-
+                                        //TODO: DO DOCUMENTATION LOOKUP.
                                     }
                                 });
                             }
                         }
                     }
                 });
-
                 box.getChildren().add(stackPane);
+
+                for (PsiElement element : ((WideCompatibilityTraverser.WidePsiElementRequestEntry) subIssues.get(key)).getElements()) {
+                    // ORDER BY OCCURRE
+
+                    java.awt.Color subHighlightColor = WideCompatibilityTraverser.getHighlightColor(compatibility);
+
+                    StackPane subStackPane = new StackPane();
+                    subStackPane.setStyle("-fx-padding: 3px 10px 3px 20px; " +
+                            "-fx-background-color: #f3f3f3; " +
+                            "-fx-border-color: #EEEEEE #EEEEEE #EEEEEE " + String.format("#%02X%02X%02X", subHighlightColor.getRed(), subHighlightColor.getGreen(), subHighlightColor.getBlue()) + "; " +
+                            "-fx-border-width: 1px 1px 1px 5px;");
+                    Text subText = new Text(element.getText() + " (" + element.getContainingFile().getName() + ")");
+                    subStackPane.getChildren().add(subText);
+                    subStackPane.setAlignment(subText, Pos.CENTER_LEFT);
+                    subStackPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                                if (mouseEvent.getClickCount() == 2) {
+                                    IdeEventQueue.getInstance().doWhenReady(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            FileEditorManager.getInstance(element.getProject()).openFile(element.getContainingFile().getVirtualFile(), true);
+                                            Editor ed = FileEditorManager.getInstance(element.getProject()).getSelectedTextEditor();
+                                            ed.getSelectionModel().removeSelection();
+                                            ed.getSelectionModel().setSelection(element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset());
+                                            VisualPosition posStart = ed.getSelectionModel().getLeadSelectionPosition();
+                                            ed.getCaretModel().moveToVisualPosition(posStart);
+                                            ed.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE); //.scrollTo(element.getTextRange().);
+
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
+
+                    box.getChildren().add(subStackPane);
+                }
             }
         }
+
 
         pane.getChildren().add(scrollPane);
     }
@@ -188,6 +226,7 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
     }
 
     public abstract void showLookupWindow(ToolWindow toolWindow, WideQueryResponse result);
+
     public abstract void showSuggestionWindow(WideQueryResponse suggestion, ToolWindow toolWindow, PsiElement element, Editor editor);
 
 }

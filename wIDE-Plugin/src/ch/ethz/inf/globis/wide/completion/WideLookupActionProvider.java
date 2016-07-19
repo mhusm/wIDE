@@ -14,6 +14,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.css.CssElement;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.Consumer;
@@ -26,29 +27,37 @@ public class WideLookupActionProvider implements LookupActionProvider {
 
     private final static WideLogger LOGGER = new WideLogger(WideLookupActionProvider.class.getName());
 
+    private static LookupElement lastLookupElement;
+
     @Override
     public void fillActions(LookupElement lookupElement, Lookup lookup, Consumer<LookupElementAction> consumer) {
-        // Show waiting window
-        Project project = lookup.getEditor().getProject();
-        ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
-        WideDefaultWindowFactory windowFactory = new WideDefaultWindowFactory();
-        windowFactory.showWaitingWindow(window);
+        if (lastLookupElement == null || !lookupElement.equals(lastLookupElement)) {
+            // Show waiting window
+            Project project = lookup.getEditor().getProject();
+            ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+            WideDefaultWindowFactory windowFactory = new WideDefaultWindowFactory();
+            windowFactory.showWaitingWindow(window);
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                IWideLanguageHandler languageHandler = WideLanguageRegistry.getInstance().getLanguageHandler(lookup.getPsiElement().getParent().getClass());
+            PsiElement element = lookup.getPsiElement();
+            lastLookupElement = lookupElement;
 
-                if (languageHandler != null) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
                     IdeEventQueue.getInstance().doWhenReady(new Runnable() {
                         @Override
                         public void run() {
-                            languageHandler.getSuggestionDocumentation(lookupElement, lookup);
+                            IWideLanguageHandler languageHandler = WideLanguageRegistry.getInstance().getLanguageHandler(element.getParent().getClass());
+
+                            if (languageHandler != null) {
+                                languageHandler.getSuggestionDocumentation(lookupElement, element, lookup);
+                            }
                         }
                     });
                 }
-            }
-        });
-        thread.start();
+            });
+
+            thread.start();
+        }
     }
 }

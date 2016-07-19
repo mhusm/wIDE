@@ -13,7 +13,7 @@ import com.intellij.psi.css.CssDeclaration;
  */
 public class WideCssParser implements IWideLanguageParser {
 
-    public WideQueryRequest buildDocumentationQuery(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
+    public WideQueryRequest buildDocumentationQuery(PsiFile file, PsiElement startElement, PsiElement endElement) {
         if (startElement.equals(endElement)
                 && startElement.getParent() instanceof CssDeclaration) {
                 // only one element.

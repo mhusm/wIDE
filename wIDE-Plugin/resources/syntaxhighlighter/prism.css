@@ -1,4 +1,4 @@
-/* http://prismjs.com/download.html?themes=prism-okaidia&languages=markup+css+clike+javascript&plugins=line-numbers */
+/* http://prismjs.com/download.html?themes=prism-okaidia&languages=markup+css+clike+javascript&plugins=line-numbers+show-language+normalize-whitespace */
 /**
  * okaidia theme for JavaScript, CSS and HTML
  * Loosely based on Monokai textmate theme by http://www.monokai.nl/
@@ -17,7 +17,6 @@ pre[class*="language-"] {
     word-break: normal;
     word-wrap: normal;
     line-height: 1.5;
-    font-size: 15px;
 
     -moz-tab-size: 4;
     -o-tab-size: 4;
@@ -31,8 +30,8 @@ pre[class*="language-"] {
 
 /* Code blocks */
 pre[class*="language-"] {
-    padding: 10px;
-    margin: 0px 0px 20px 0px;
+    padding: 1em;
+    margin: .5em 0;
     overflow: auto;
     border-radius: 0.3em;
 }
@@ -161,4 +160,30 @@ pre.line-numbers > code {
     display: block;
     padding-right: 0.8em;
     text-align: right;
+}
+div.prism-show-language {
+    position: relative;
+}
+
+div.prism-show-language > div.prism-show-language-label {
+    color: black;
+    display: inline-block;
+    position: absolute;
+    bottom: auto;
+    left: auto;
+    top: 0;
+    right: 0;
+    width: auto;
+    height: auto;
+    font-size: 0.9em;
+    border-radius: 0 0 0 5px;
+    padding: 0 0.5em;
+    text-shadow: none;
+    z-index: 1;
+    box-shadow: none;
+    -webkit-transform: none;
+    -moz-transform: none;
+    -ms-transform: none;
+    -o-transform: none;
+    transform: none;
 }

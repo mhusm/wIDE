@@ -33,8 +33,13 @@
       <keyboard-shortcut first-keystroke="alt F" keymap="$default"/>
     </action>
 
-    <action id="wIDE-compatibility" class="ch.ethz.inf.globis.wide.ui.action.WideCompatibilityAction" text="Check compatibilty of file...">
+    <action id="wIDE-compatibility" class="ch.ethz.inf.globis.wide.ui.action.WideCompatibilityAction" text="Scan for compatibilty issues...">
       <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+      <keyboard-shortcut first-keystroke="alt C" keymap="$default"/>
+    </action>
+
+    <action id="wIDE-compatibility-project" class="ch.ethz.inf.globis.wide.ui.action.WideProjectScanAction" text="Scan for compatibilty issues...">
+      <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
       <keyboard-shortcut first-keystroke="alt C" keymap="$default"/>
     </action>
   </actions>

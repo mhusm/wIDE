@@ -38,9 +38,11 @@ public class WideBrowserVersionResponse {
         private TreeMap<Double, Double> versions = new TreeMap();
         private String browserName;
         private double browserUsage;
+        private double currentVersion;
 
         public WideBrowser(JSONObject browser) throws JSONException {
             browserName = browser.getString("name");
+            currentVersion = Double.parseDouble(browser.getString("current"));
 
             double totalUsage = 0;
 
@@ -87,6 +89,14 @@ public class WideBrowserVersionResponse {
 
         public double getBrowserUsage() {
             return browserUsage;
+        }
+
+        public double getCurrentVersion() {
+            return currentVersion;
+        }
+
+        public void setCurrentVersion(double currentVersion) {
+            this.currentVersion = currentVersion;
         }
     }
 }

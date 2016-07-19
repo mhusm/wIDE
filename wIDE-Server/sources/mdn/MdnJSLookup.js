@@ -1,4 +1,4 @@
-var https = require('https');
+var https = require('follow-redirects').https;
 var htmlParser = require("htmlparser2");
 var queryHandler = require("../../handler/queryHandler");
 var caniuse = require("../caniuse/CanIUseLookup");
@@ -39,7 +39,7 @@ var mdnJS = {
 
         var page = "";
 
-        if (file === "DOMCore.js" || file === "DOMEvents.js" || file === "DHTML.js") {
+        if (file === "DOMCore.js" || file === "DOMEvents.js" || file === "DHTML.js" || file === "DOMTraversalAndRange.js") {
             // Default JS-DOM functionality
             mdnJS._loadDOMFunctionPage(results, result, func, receiver, page, candidates, next, callback);
         } else {

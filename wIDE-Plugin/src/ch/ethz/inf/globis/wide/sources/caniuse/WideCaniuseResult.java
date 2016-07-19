@@ -54,7 +54,11 @@ public class WideCaniuseResult extends AbstractWideSourceResult {
                         start = (Double) min;
                     }
                     Number end = (Number) prefs.getData("end", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());
-                    if (end instanceof Integer) {
+                    if ((boolean) prefs.getData("isPreviewIncluded", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase())) {
+                        end = (Double) max;
+                    } else if ((boolean) prefs.getData("isPreviewIncluded", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase())) {
+                        end = (Double) prefs.getData("current", WideCompatibilityPreferences.prefTypes.BROWSER_VERSION.name(), browser.name().toLowerCase());;
+                    } else if (end instanceof Integer) {
                         end = 1.0 * (Integer) end;
                     } else if (end == null) {
                         end = (Double) max;

@@ -48,7 +48,7 @@ public class WideCssHandler implements IWideLanguageHandler {
 
     @Override
     public WideQueryResponse lookupDocumentation(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
-        WideQueryRequest request = getLanguageParser().buildDocumentationQuery(editor, file, startElement, endElement);
+        WideQueryRequest request = getLanguageParser().buildDocumentationQuery(file, startElement, endElement);
         WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
 
 
@@ -65,10 +65,9 @@ public class WideCssHandler implements IWideLanguageHandler {
     }
 
     @Override
-    public void getSuggestionDocumentation(LookupElement lookupElement, Lookup lookup) {
-
-            if (lookup.getPsiElement().getPrevSibling() != null
-                    && lookup.getPsiElement().getPrevSibling() instanceof CssDeclaration) {
+    public void getSuggestionDocumentation(LookupElement lookupElement, PsiElement psiElement, Lookup lookup) {
+            if (psiElement.getPrevSibling() != null
+                    && psiElement.getPrevSibling() instanceof CssDeclaration) {
                 // attribute value
 
             } else if (lookupElement instanceof PrioritizedLookupElement){

@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 
 /**
@@ -22,13 +23,14 @@ public class WideHttpCommunicator {
 
     private static final WideLogger LOGGER = new WideLogger(WideHttpCommunicator.class.getName());
 
+    private static HttpURLConnection connection = null;
+
     private static final String SERVER_HOST = "localhost";
     private static final String SERVER_PORT = "3000";
     private static final String SERVER_PROTOCOL = "http://";
 
     public static WideQueryResponse sendRequest(WideQueryRequest request) {
         if (request != null) {
-            synchronized (LOGGER) {
                 try {
                     URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/query");
                     LOGGER.info("SEND REQUEST: " + request);
@@ -38,14 +40,12 @@ public class WideHttpCommunicator {
                     e.printStackTrace();
                     return null;
                 }
-            }
         }
 
         return null;
     }
 
     public static WideQueryResponse sendCompatibilityRequest(WideQueryRequest request) {
-        synchronized (LOGGER) {
             try {
                 URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/compatibility/support");
                 LOGGER.info("SEND REQUEST: " + request);
@@ -55,11 +55,9 @@ public class WideHttpCommunicator {
                 e.printStackTrace();
                 return null;
             }
-        }
     }
 
     public static WideBrowserVersionResponse sendBrowserVersionRequest() {
-        synchronized (LOGGER) {
             try {
                 URL url = new URL(SERVER_PROTOCOL + SERVER_HOST + ":" + SERVER_PORT + "/compatibility/browser_versions");
                 LOGGER.info("SEND REQUEST: Get Compatibility Browser Versions.");
@@ -69,12 +67,17 @@ public class WideHttpCommunicator {
                 e.printStackTrace();
                 return null;
             }
-        }
     }
 
     @Nullable
     private static String sendQuery(URL url, String parameters) {
-        HttpURLConnection connection = null;
+        if (connection != null) {
+            connection.setReadTimeout(0);
+            while (connection != null) {
+                System.out.println("wait");
+            }
+        }
+
         try {
             //Create connection
             connection = (HttpURLConnection) url.openConnection();
@@ -108,13 +111,17 @@ public class WideHttpCommunicator {
 
             LOGGER.info("RESPONSE RECEIVED: " + response.toString());
             return response.toString();
+        } catch (SocketTimeoutException e) {
+            LOGGER.info("RESPONSE HAS BEEN DISCARDED.");
+            return null;
         } catch (Exception e) {
             LOGGER.severe("Error while receiving data.");
-            e.printStackTrace();
+            //e.printStackTrace();
             return null;
         } finally {
             if (connection != null) {
                 connection.disconnect();
+                connection = null;
             }
         }
     }
