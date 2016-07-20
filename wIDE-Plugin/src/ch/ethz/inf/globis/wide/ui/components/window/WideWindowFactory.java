@@ -5,29 +5,22 @@ import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import ch.ethz.inf.globis.wide.ui.components.WideContentBuilder;
 import ch.ethz.inf.globis.wide.ui.components.panel.WideJFXPanel;
 import com.intellij.ide.IdeEventQueue;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.VisualPosition;
-import com.intellij.openapi.editor.actionSystem.EditorActionManager;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.AsynchronousExecution;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -39,9 +32,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.scene.web.WebView;
 
-import javax.swing.*;
 import java.awt.Dimension;
 import java.util.*;
 
@@ -61,7 +52,7 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
         }
 
         window.getContentManager().removeAllContents(true);
-        return addNewJFXPanleToWindow("wIDE", window);
+        return addNewJFXPanelToWindow("wIDE", window);
     }
 
     public void showErrorWindow(String error, ToolWindow toolWindow) {

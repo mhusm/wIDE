@@ -42,7 +42,12 @@ public class WideBrowserVersionResponse {
 
         public WideBrowser(JSONObject browser) throws JSONException {
             browserName = browser.getString("name");
-            currentVersion = Double.parseDouble(browser.getString("current"));
+
+            try {
+                currentVersion = Double.parseDouble(browser.getString("current"));
+            } catch(NumberFormatException e) {
+                currentVersion = 0;
+            }
 
             double totalUsage = 0;
 

@@ -17,7 +17,7 @@ import java.awt.*;
  */
 public class WideContentBuilder {
 
-    protected WideJFXPanel addNewJFXPanleToWindow(String title, ToolWindow toolWindow) {
+    protected WideJFXPanel addNewJFXPanelToWindow(String title, ToolWindow toolWindow) {
         WideJFXPanel panel = new WideJFXPanel();
 
         // set panel to toolWindow

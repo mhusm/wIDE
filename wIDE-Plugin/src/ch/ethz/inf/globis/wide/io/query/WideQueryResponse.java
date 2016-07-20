@@ -2,7 +2,17 @@ package ch.ethz.inf.globis.wide.io.query;
 
 import ch.ethz.inf.globis.wide.registry.WideSourceRegistry;
 import ch.ethz.inf.globis.wide.ui.components.panel.WideResizablePaneBox;
+import ch.ethz.inf.globis.wide.ui.components.window.WideDefaultWindowFactory;
+import com.intellij.openapi.progress.AsynchronousExecution;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.control.TabPane;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -70,15 +80,6 @@ public class WideQueryResponse {
                 setDocumentation(source, sourceRegistry.instantiateResult(source, sourceContent));
             }
         }
-        // create mdn result
-//        if (documentation.optString("mdn") != null && documentation.optString("mdn").length() > 2) {
-//
-//            setMdn(new WideMDNResult(new JSONObject(documentation.optString("mdn"))));
-//        }
-//
-//        if (documentation.optJSONObject("caniuse") != null) {
-//            setCaniuse(new WideCaniuseResult(documentation.optJSONObject("caniuse")));
-//        }
     }
 
     public void showDocumentation(WideResizablePaneBox paneBox) {

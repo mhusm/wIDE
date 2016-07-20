@@ -33,4 +33,8 @@ public class WideResizablePaneBox extends ScrollPane {
         box.getChildren().add(pane);
     }
 
+    public int getContentCount() {
+        return super.getChildren().size();
+    }
+
 }

@@ -108,6 +108,7 @@ public class WideHttpCommunicator {
                 response.append('\r');
             }
             rd.close();
+            is.close();
 
             LOGGER.info("RESPONSE RECEIVED: " + response.toString());
             return response.toString();

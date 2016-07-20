@@ -45,7 +45,6 @@ public class WideCssWindowFactory extends WideWindowFactory {
         StackPane.setMargin(paneBox, new javafx.geometry.Insets(40, 0, 0, 0));
         resp.showDocumentation(paneBox);
 
-
         // title
         Text title = new Text(resp.getKey() + ":");
         title.setStyle("-fx-font-size: 20px; -fx-fill: #333333");
@@ -53,7 +52,10 @@ public class WideCssWindowFactory extends WideWindowFactory {
         StackPane.setMargin(title, new javafx.geometry.Insets(10, 0, 0, 10));
 
         StackPane.setMargin(paneBox, new javafx.geometry.Insets(40, 0, 0, 0));
-        panel.getEmptyContentPane().getChildren().addAll(paneBox, title);
+
+        synchronized (panel) {
+            panel.getEmptyContentPane().getChildren().addAll(paneBox, title);
+        }
     }
 
     public void showSuggestionWindow(WideQueryResponse suggestion, ToolWindow toolWindow, PsiElement element, Editor editor) {

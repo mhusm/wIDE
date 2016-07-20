@@ -113,15 +113,13 @@ var cache = {
                 } else {
                     // Fault
                     console.error("cache: Multiple entries for same key.");
-                    queryHandler.handle(response.lang, response.type, response.key, response.value, response.children);
 
                 }
             } else {
                 // Error while querying cache -> show error & wait for lookup
                 console.error('cache: Error while performing Query.');
                 console.error(err);
-                queryHandler.handle(response.lang, response.type, response.key, response.value, response.children);
-            }
+                }
         });
     },
 

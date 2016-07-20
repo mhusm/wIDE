@@ -4,19 +4,35 @@ var queryHandler = require("../../handler/queryHandler");
 var caniuse = require("../caniuse/CanIUseLookup");
 
 var mdnJS = {
-    resolveFullJSQuery: function(result, func, candidates, callback) {
-        if (candidates !== undefined && candidates.length > 0) {
-            var cand = JSON.parse(candidates.shift());
-            if (cand !== null) {
-                mdnJS.query(result, cand.key, JSON.parse(cand.value).receiver, JSON.parse(cand.value).file, candidates, mdnJS.resolveFullJSQuery, callback);
+    resolveFullJSQuery: function (result, func, candidates, callback) {
 
+        if (result.type === "call") {
+            // Query a function call -> Potentially multiple candidates
+
+            if (candidates !== undefined && candidates.length > 0) {
+
+                // traverse list of candidates -> send response after the last one
+                var cand = JSON.parse(candidates.shift());
+                if (cand !== null) {
+                    mdnJS.query(result,
+                        cand.key,
+                        JSON.parse(cand.value).receiver,
+                        JSON.parse(cand.value).file,
+                        candidates,
+                        mdnJS.resolveFullJSQuery,
+                        callback);
+
+                } else if (callback !== undefined) {
+                    // no valid candidate
+                    callback(result);
+                }
             } else if (callback !== undefined) {
-                // no valid candidate
+                // no more candidates
                 callback(result);
             }
-        } else if (callback !== undefined) {
-            // no more candidates
-            callback(result);
+        } else if (result.type === "reference") {
+            // Query a reference
+            mdnJS.queryReference(result, callback);
         }
     },
 
@@ -50,6 +66,48 @@ var mdnJS = {
         //    next(results, func, candidates, callback);
         //}
         //mdnHtml._loadFunctionsPage(result, func, callee, callback);
+    },
+
+    queryReference: function(result, callback) {
+        console.log("mdnJS: request [reference] " + result.key);
+        var page = "";
+        result.documentation.mdn = {};
+        mdnJS._loadGlobalObjectPage(result, page, callback);
+    },
+
+    _loadGlobalObjectPage: function (result, page, callback) {
+        console.log("mdnJS: load  object page " + result.key);
+        var options = {
+            host: 'developer.mozilla.org',
+            path: '/en-US/docs/Web/JavaScript/Reference/Global_Objects/' + result.key + "/",
+            method: 'GET',
+            headers: {
+                'Content-Length': 0
+            }
+        };
+
+        console.log(options.host + options.path);
+        var httpreq = https.request(options, function (response) {
+            response.setEncoding('utf8');
+
+            // ERROR HANDLING
+            response.on('error', function (error) {
+                console.log('mdnJS: Error while receiving MDN response.');
+                console.log(error);
+            });
+
+            // DATA RECEIVING
+            response.on('data', function (chunk) {
+                page += chunk;
+            });
+
+            // FULL DATA RECEIVED: DO SEARCH.
+            response.on('end', function () {
+                mdnJS._parseObjectPage(result, page, callback);
+            });
+        });
+
+        httpreq.end();
     },
 
     _loadDOMFunctionPage: function (results, result, func, receiver, page, candidates, next, callback) {
@@ -120,7 +178,7 @@ var mdnJS = {
         httpreq.end();
     },
 
-    _parseFunctionPage: function(results, result, func, receiver, page, candidates, next, callback) {
+    _parseFunctionPage: function (results, result, func, receiver, page, candidates, next, callback) {
         console.log("mdnJS: Parse function page");
         var mdn = {};
 
@@ -146,21 +204,7 @@ var mdnJS = {
                 if (name === "h2") {
                     var prevCategoryName = currentCategory.toString();
                     if (prevCategoryName !== "") {
-                        // Write content of category to result
-                        //if (prevCategoryName === "examples") {
-                        //    if (currentExampleTitle != ""
-                        //        || currentExampleCode != ""
-                        //        ||currentExampleText != "") {
-                        //        examples.push({
-                        //            "title": currentExampleTitle,
-                        //            "code": currentExampleCode,
-                        //            "text": currentExampleText});
-                        //    }
-                        //    mdn[prevCategoryName] = examples;
-                        //
-                        //} else {
-                            mdn[prevCategoryName] = currentCategoryContent;
-                        //}
+                        mdn[prevCategoryName] = currentCategoryContent;
                     }
 
                     switch (attribs.id) {
@@ -189,52 +233,6 @@ var mdnJS = {
 
                 }
 
-                //if (currentCategory === "examples") {
-                //
-                //    if ((name === "h3" || name === "h2")
-                //        && (currentExampleTitle != "" || currentExampleCode != "" || currentExampleText != "")) {
-                //        examples.push({
-                //            "title": currentExampleTitle,
-                //            "code": currentExampleCode,
-                //            "text": currentExampleText});
-                //
-                //        currentExampleTitle = "";
-                //        currentExampleCode = "";
-                //        currentExampleText = "";
-                //    }
-                //
-                //    // add content to part of example
-                //    if (inExampleTitle) {
-                //        currentExampleTitle += " <" + name;
-                //        for (attr in attribs) {
-                //            currentExampleTitle += ' ' + attr + '="' + attribs[attr] + '"';
-                //        }
-                //        currentExampleTitle += ">";
-                //
-                //    } else if (inExampleCode) {
-                //        currentExampleCode += " <" + name;
-                //        for (attr in attribs) {
-                //            currentExampleCode += ' ' + attr + '="' + attribs[attr] + '"';
-                //        }
-                //        currentExampleCode += ">";
-                //
-                //    } else {
-                //        currentExampleText += " <" + name;
-                //        for (attr in attribs) {
-                //            currentExampleText += ' ' + attr + '="' + attribs[attr] + '"';
-                //        }
-                //
-                //        currentExampleText += ">";
-                //    }
-                //
-                //    // store examples one-by-one
-                //    if (name === "h3") {
-                //        inExampleTitle = true;
-                //    } else if (name === "pre") {
-                //        inExampleCode = true;
-                //    }
-                //}
-
                 if (currentCategory !== "") {
                     if (name === "pre") {
                         if (!inCode) {
@@ -256,12 +254,6 @@ var mdnJS = {
                     currentCategoryContent += text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;").replace("\n", "<br />")
                 }
 
-                // text for examples
-                //if (inExampleTitle) {
-                //    currentExampleTitle += text;
-                //} else if (inExampleCode) {
-                //    currentExampleCode += text;
-                //}
             },
             onclosetag: function (tagname) {
                 if (currentCategory !== "") {
@@ -275,14 +267,6 @@ var mdnJS = {
                         currentCategoryContent += "</" + tagname + ">";
                     }
                 }
-
-                //if (currentCategory === "examples") {
-                //    if (tagname === "h3") {
-                //        inExampleTitle = false;
-                //    } else if (tagname === "pre") {
-                //        inExampleCode = false;
-                //    }
-                //}
             }
         }, {decodeEntities: true});
         parser.write(page);
@@ -303,6 +287,102 @@ var mdnJS = {
         objectResult.type = "reference";
         objectResult.key = result.key;
         cache.refreshDocumentationCache(objectResult);
+    },
+
+    _parseObjectPage: function (result, page, callback) {
+        console.log("mdnJS: Parse object page");
+        var mdn = {};
+
+        var currentCategory = "";
+        var currentCategoryContent = "";
+        var inCode = false;
+
+        // for example snippets
+        var examples = [];
+
+        // PARSE MDN RESPONSE.
+        var parser = new htmlParser.Parser({
+
+            // PARSE ATTRIBUTES AND EXPLANATIONS.
+            onopentag: function (name, attribs) {
+
+                // parse categories (Summary, Attributes, Examples, Compatibility, Notes, See also)
+                if (name === "h2") {
+                    var prevCategoryName = currentCategory.toString();
+                    if (prevCategoryName !== "") {
+                        mdn[prevCategoryName] = currentCategoryContent;
+                    }
+
+                    switch (attribs.id) {
+                        case "Summary":
+                            currentCategory = "summary";
+                            break;
+                        case "Syntax":
+                            currentCategory = "syntax";
+                            break;
+                        case "Examples":
+                        case "Example":
+                            currentCategory = "examples";
+                            break;
+                        case "Browser_compatibility":
+                            currentCategory = "compatibility";
+                            break;
+                        default:
+                            // reset category & content
+                            currentCategory = attribs.id;
+                    }
+
+                    // reset category & content
+                    currentCategoryContent = "";
+
+                }
+
+                if (currentCategory !== "") {
+                    if (name === "pre") {
+                        if (!inCode) {
+                            inCode = true;
+                            currentCategoryContent += '<pre><code class="language-javascript line-numbers">';
+                        }
+                    } else {
+                        currentCategoryContent += " <" + name;
+                        for (attr in attribs) {
+                            currentCategoryContent += ' ' + attr + '="' + attribs[attr] + '"';
+                        }
+
+                        currentCategoryContent += ">";
+                    }
+                }
+            },
+            ontext: function (text) {
+                if (currentCategory !== "") {
+                    currentCategoryContent += text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;").replace("\n", "<br />")
+                }
+            },
+            onclosetag: function (tagname) {
+                if (currentCategory !== "") {
+                    if (tagname === "pre") {
+                        if (inCode) {
+                            currentCategoryContent += "</code></pre>";
+                            inCode = false;
+                        }
+                        currentCategoryContent += "</code>";
+                    } else {
+                        currentCategoryContent += "</" + tagname + ">";
+                    }
+                }
+            }
+        }, {decodeEntities: true});
+        parser.write(page);
+        parser.end();
+
+        result.documentation.mdn = mdn;
+
+        if (callback !== undefined) {
+            callback(result);
+        }
+
+        var cache = require("../../cache/cache");
+        cache.refreshDocumentationCache(result);
     }
 }
 

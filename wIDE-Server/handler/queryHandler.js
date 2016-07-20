@@ -12,7 +12,7 @@ var queryHandler = {
         result.key = key;
         result.value = value;
         result.children = [];
-        result.documentation = {}
+        result.documentation = {};
         result.documentation.caniuse = caniuse.query(result, lang, type, key);
 
         if (lang === "HTML") {

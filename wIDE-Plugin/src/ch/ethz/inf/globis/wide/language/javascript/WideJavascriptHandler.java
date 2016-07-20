@@ -5,8 +5,10 @@ import ch.ethz.inf.globis.wide.language.IWideLanguageHandler;
 import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
 import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import ch.ethz.inf.globis.wide.ui.components.window.WideWindowFactory;
+import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.Lookup;
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.lookup.LookupItem;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.lang.javascript.psi.*;
@@ -68,54 +70,70 @@ public class WideJavascriptHandler implements IWideLanguageHandler {
 
     @Override
     public void getSuggestionDocumentation(LookupElement lookupElement, PsiElement psiElement, Lookup lookup) {
-            WideQueryRequest request = new WideQueryRequest();
-            request.setLang(getLanguageAbbreviation());
-            request.setType("call");
+        WideQueryRequest request = new WideQueryRequest();
+        request.setLang(getLanguageAbbreviation());
+        request.setType("call");
+
+        if (lookupElement instanceof PrioritizedLookupElement) {
+            request.setKey(((PrioritizedLookupElement) lookupElement).getLookupString());
+        } else if (lookupElement instanceof LookupElement) {
             request.setKey(((LookupItem) lookupElement).getPresentableText());
+        } else if (lookupElement instanceof LookupElementBuilder) {
+            request.setKey(((LookupElementBuilder) lookupElement).getLookupString());
+        }
 
-            if (psiElement.getParent() instanceof JSReferenceExpression) {
-                WideQueryRequest subRequest = new WideQueryRequest();
-                subRequest.setType("callCandidate");
+        if (psiElement.getParent() instanceof JSReferenceExpression) {
+            WideQueryRequest subRequest = new WideQueryRequest();
+            subRequest.setType("callCandidate");
 
-                subRequest.setKey(lookupElement.getPsiElement().getLastChild().getLastChild().getText());
-                subRequest.setValue("{" +
-                        "     \"receiver\": \"" + lookup.getPsiElement().getParent().getFirstChild().getText() + "\", " +
-                        "     \"file\": \"" + psiElement.getContainingFile().getName() + "\"}");
-                request.addChild(subRequest);
+            subRequest.setKey(lookupElement.getPsiElement().getLastChild().getLastChild().getText());
+            subRequest.setValue("{" +
+                    "     \"receiver\": \"" + lookupElement.getPsiElement().getFirstChild().getFirstChild().getFirstChild().getText() + "\", " +
+                    "     \"file\": \"" + lookupElement.getPsiElement().getContainingFile().getName() + "\"}");
+            request.addChild(subRequest);
 
-            } else if (psiElement.getParent().getLastChild() instanceof JSFunctionExpression) {
-                request.setKey(psiElement.getText());
+        } else if (psiElement.getParent().getLastChild() instanceof JSFunctionExpression) {
+            request.setKey(psiElement.getText());
 
-                WideQueryRequest subRequest = new WideQueryRequest();
-                subRequest.setType("callCandidate");
+            WideQueryRequest subRequest = new WideQueryRequest();
+            subRequest.setType("callCandidate");
 
-                subRequest.setKey(psiElement.getText());
-                subRequest.setValue("{" +
-                        "     \"receiver\": \"" + psiElement.getLastChild().getLastChild().getText() + "\", " +
-                        "     \"file\": \"" + psiElement.getContainingFile().getName() + "\"}");
-                request.addChild(subRequest);
+            subRequest.setKey(psiElement.getText());
+            subRequest.setValue("{" +
+                    "     \"receiver\": \"" + lookupElement.getPsiElement().getFirstChild().getFirstChild().getFirstChild().getText() + "\", " +
+                    "     \"file\": \"" + lookupElement.getPsiElement().getContainingFile().getName() + "\"}");
+            request.addChild(subRequest);
 
-            } else if (psiElement.getParent().getLastChild() instanceof JSReferenceExpression) {
-                // TODO: allow reference infos as well?
-            }
+        } else if (psiElement.getParent().getLastChild() instanceof JSReferenceExpression) {
+            // TODO: allow reference infos as well?
+            // reference
+            request.setKey(lookupElement.getLookupString());
+            request.setLang(getLanguageAbbreviation());
+            request.setType("reference");
+
+        } else if (lookupElement.getPsiElement() instanceof JSFunction) {
+            // reference
+            request.setKey(lookupElement.getLookupString());
+            request.setLang(getLanguageAbbreviation());
+            request.setType("reference");
+        }
 
 
-            WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
+        WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
 
-            Project project = lookup.getEditor().getProject();
-            ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+        Project project = lookup.getEditor().getProject();
+        ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
 
-            IdeEventQueue.getInstance().doWhenReady(new Runnable() {
-                @Override
-                public void run() {
-
-                    if (response.getSubResults().size() > 0) {
-                        getWindowFactory().showLookupWindow(window, response);
-                    } else {
-                        getWindowFactory().showErrorWindow("No documentation found.", window);
-                    }
+        IdeEventQueue.getInstance().doWhenReady(new Runnable() {
+            @Override
+            public void run() {
+                if (response != null) {
+                    getWindowFactory().showLookupWindow(window, response);
+                } else {
+                    getWindowFactory().showErrorWindow("No documentation found.", window);
                 }
-            });
+            }
+        });
 
     }
 }

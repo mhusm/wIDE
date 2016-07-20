@@ -79,9 +79,13 @@ public class WideJSWindowFactory extends WideWindowFactory {
         // layout for choicebox
         StackPane.setAlignment(cb, Pos.TOP_RIGHT);
         StackPane.setMargin(cb, new Insets(5, 10, 5, 0));
-
+        Text title = new Text();
         // title
-        Text title = new Text("." + functionName + "()");
+        if (resp.getType() == "reference") {
+            title.setText(functionName);
+        } else {
+            title.setText("." + functionName + "()");
+        }
         title.setStyle("-fx-font-size: 20px; -fx-fill: #333333");
         StackPane.setAlignment(title, Pos.TOP_LEFT);
         StackPane.setMargin(title, new Insets(10, 0, 0, 10));
