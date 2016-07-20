@@ -85,7 +85,7 @@ var cache = {
 
                 } else {
                     // Multiple rows found -> show error & wait for lookup
-                    console.error("cache: Multiple entries for same key.");
+                    console.error("cache: Multiple entries for key [" + key + "].");
                     return queryHandler.handle(lang, type, key, value, children, callback);
 
                 }
@@ -112,7 +112,7 @@ var cache = {
 
                 } else {
                     // Fault
-                    console.error("cache: Multiple entries for same key.");
+                    console.error("cache: Multiple entries for key [" + response.key + "].");
 
                 }
             } else {
@@ -324,7 +324,7 @@ var cache = {
                 "   `lang`= :lang, " +
                 "   `type` = type, " +
                     // "   `compatibility` = :compatibility, " +
-                "   `documentation` = :documentation, " +
+                "   `documentation` = CONVERT(:documentation USING utf8), " +
                 "   `parent` = NULL, " +
                 "   `timestamp` = NOW() " +
                 "WHERE  `key` = :key " +
@@ -349,7 +349,7 @@ var cache = {
                 "   `lang`= :lang, " +
                 "   `type` = type, " +
                     // "   `compatibility` = :compatibility, " +
-                "   `documentation` = :documentation, " +
+                "   `documentation` = CONVERT(:documentation USING utf8), " +
                 "   `parent` = :parent, " +
                 "   `timestamp` = NOW() " +
                 "WHERE  `key` = :key " +
@@ -411,7 +411,7 @@ var cache = {
                 "   :lang, " +
                 "   :type, " +
                     //"   :compatibility, " +
-                "   :documentation, " +
+                "   CONVERT(:documentation USING utf8), " +
                 "   NULL, " +
                 "   NOW()) ",
                 flatEntry,
@@ -441,7 +441,7 @@ var cache = {
                 "   :lang, " +
                 "   :type, " +
                     //"   :compatibility, " +
-                "   :documentation, " +
+                "   CONVERT(:documentation USING utf8), " +
                 "   :parent, " +
                 "   NOW()) ",
                 flatEntry,

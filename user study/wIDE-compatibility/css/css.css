@@ -26,9 +26,9 @@ form {
 }
 
 .school {
-    border-left: sol:::::::id 4px
+    border-left: solid 4px darkblue;
 }
 
 .family {
-
+    border-left: solid 4px darkorange;
 }

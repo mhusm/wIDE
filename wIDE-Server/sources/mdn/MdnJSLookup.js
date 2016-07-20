@@ -76,7 +76,7 @@ var mdnJS = {
     },
 
     _loadGlobalObjectPage: function (result, page, callback) {
-        console.log("mdnJS: load  object page " + result.key);
+        console.log("mdnJS: load object page " + result.key);
         var options = {
             host: 'developer.mozilla.org',
             path: '/en-US/docs/Web/JavaScript/Reference/Global_Objects/' + result.key + "/",
@@ -375,7 +375,7 @@ var mdnJS = {
         parser.write(page);
         parser.end();
 
-        result.documentation.mdn = mdn;
+        result.documentation.mdn = JSON.stringify(mdn); //mdn;
 
         if (callback !== undefined) {
             callback(result);

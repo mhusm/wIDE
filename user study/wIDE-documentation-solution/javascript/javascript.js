@@ -5,46 +5,33 @@ function register() {
 }
 
 function validate() {
-    return validateName() && validateMail();
-}
+    var mail = document.getElementById("mail").value;
+    //         [>0 chars] @ [>0 two chars] . [>0 chars]
+    //         RegExp: "^[^@]+@[^@\.,;]+\.[^@\.,;]+$"
+    var success;
 
-function validateName() {
-    var name = document.getElementById("name").value;
-    // TODO 1: validate name (at least two chars, only letters)
-    //         HINT: RegExp for only letters ^[a-zA-Z]*$"
-    var success = true;
-
-    if (name.length < 2) {
-        success = false;
-
-    } else {
-
+    // remove error message (if there)
+    var error = document.getElementById("error");
+    if (error !== null) {
+        document.getElementById("maildiv").removeChild(error);
     }
 
-    if(name.match("^[a-zA-Z]*$") === null) {
-        success = false;
-    } else {
+    // TODO 4: validate mail
+    success = (mail.match("^[^@]+@[^@\.,;]+\.[^@\.,;]+$") !== null);
 
+
+    // TODO 5: if name is invalid -> create a div-node with:
+    //        class="error"
+    //        id="error"
+    //        and append it to the node with id "maildiv".
+    //        Hint: It works similar to the remove approach.
+    if (!success) {
+        var node = document.createElement("div");
+        node.setAttribute("id", "error");
+        node.setAttribute("class", "error");
+        node.innerHTML = "Please provide a valid emailaddress!";
+        document.getElementById("maildiv").appendChild(node);
     }
 
     return success;
-
-    // TODO 2: if name is invalid -> create a div-node of class "error"
-    //         and append it to the node with id "namediv".
-
-    // TODO 3: if name is valid -> remove the above node again (if present)
-
-}
-
-function validateMail() {
-    var mailNode = document.getElementById("mail");
-    // TODO 4: validate mail
-    // [>0 chars] @ [>0 two chars] . [>0 chars]
-
-    // TODO 5: if name is invalid -> create a div-node of class "error"
-    //         and append it to the node with id "maildiv".
-
-    // TODO 6: if name is valid -> remove the above node again (if present)
-
-
 }

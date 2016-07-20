@@ -31,9 +31,8 @@ function remove() {
 }
 
 function check() {
-    var id = this.getAttribute('id');
-    var todos = get_todos();
-
+    var entry = document.getElementById("list_" + this.getAttribute('id'));
+    entry.className = "todo_done";
 }
 
 function show() {
@@ -41,12 +40,16 @@ function show() {
 
     var html = '<ul>';
     for(var i=0; i<todos.length; i++) {
-        html += '<li>' + todos[i] + '<button class="check" id="' + i  + '">&#10004;</button></li>';
-        html += '<li>' + todos[i] + '<button class="remove" id="' + i  + '">x</button></li>';
+        html += '<li id="list_' + i +'">' + todos[i] + '<button class="check" id="' + i  + '">&#10004;</button><button class="remove" id="' + i  + '">x</button></li>';
     };
     html += '</ul>';
 
     document.getElementById('todos').innerHTML = html;
+
+    var checkButtons = document.getElementsByClassName('check');
+    for (var i=0; i < checkButtons.length; i++) {
+        checkButtons[i].addEventListener('click', check);
+    };
 
     var buttons = document.getElementsByClassName('remove');
     for (var i=0; i < buttons.length; i++) {
@@ -54,5 +57,6 @@ function show() {
     };
 }
 
-document.getElementById('add').addEventListener('click', add);
+var addButton = document.getElementById('add');
+addButton.addEventListener('click', add);
 show();

@@ -4,6 +4,7 @@ import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
 import ch.ethz.inf.globis.wide.language.IWideLanguageParser;
 import com.intellij.lang.javascript.psi.JSCallExpression;
 import com.intellij.lang.javascript.psi.JSDefinitionExpression;
+import com.intellij.lang.javascript.psi.JSNewExpression;
 import com.intellij.lang.javascript.psi.JSReferenceExpression;
 import com.intellij.lang.javascript.psi.impl.JSCallExpressionImpl;
 import com.intellij.openapi.editor.Editor;
@@ -22,6 +23,16 @@ public class WideJavascriptParser implements IWideLanguageParser {
 
         //TODO: multiple calls?
 
+        if (startElement.getParent().getParent() instanceof JSNewExpression) {
+            // Global Object Reference
+            WideQueryRequest request = new WideQueryRequest();
+            request.setLang("JS");
+            request.setType("reference");
+            request.setKey(startElement.getText());
+            return request;
+        }
+
+        // Call Reference?
         JSCallExpression currentCall = findLowestCommonCallExpression(startElement, endElement);
 
         if (currentCall != null) {
