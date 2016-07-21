@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wIDE: User Study - Warm Up!</title>
+    <!--
+    Welcome to the wIDE User Study! Thank you for your participation!
+    In this step of the study, we will make you familiar with the tool.
+
+    To open up the plugin's window, please click on wIDE on the right side ---------------->
+
+    <script>
+        // One of the features of wIDE is "documentation lookup"
+        // TODO 1: Select "getElementsByName" and hit Alt + F (or right-click + Query documentation)
+        var nodes[] = document.getElementsByName("name");
+        // The tool shows you now the relevant documentation bits.
+        // You can click on the "show more" button in order to extend a category
+
+        // TODO 2: Please do the same with the below function
+        var nodes[] = document.getElementsByClassName("class");
+        // Now, you also get information about the compatibiity of the function.
+        // You see, there is an issue with IE Versions 7.0 to 9.0
+
+        // TODO 3: Please extend the Compatibility pane now.
+        // You see now the amount of users struggeling with this issue (~ 2.16%)
+
+        // The grey parts of this scale indicate browser versions, we are not interested in.
+        // You can adjust this versions through the button "Compatibility Preferences" in the to right corner
+        // TODO 4: Please click on the "Compatibility Preferences" button
+        // Here you could adjust the relevant browser versions. Currently, we are not interested in
+        // very old versions and preview Versions (e.g. Chrome 51 - 54).
+        // TODO 5: Please click on cancel.
+
+    </script>
+
+    <style>
+        div {
+            float: right;
+            text-decoration: none;
+
+            /* The wIDE plugin also supports suggestions. In the suggestion popup, select an
+               entry (with the mouse, or with up/down arrows), to get documentation information
+               in the plugin window. You can eveninteract with the plugin, while keeping the
+               suggestions in place.
+               TODO 6: Please start typing below. We want every div to have a 1px black dashed border on the right side.
+            */
+
+        }
+    </style>
+</head>
+<body>
+<div>
+    <form>
+        Name: <input type="text" placeholder="Name" id="name" name="name" />
+    </form>
+</div>
+
+<!-- The documentation lookup works for:
+            -> global JavaScript objects,
+            -> JavaScript functions,
+            -> css attributes (border, float),
+            -> HTML Tags
+
+     TODO 7: Try it out now, by selecting an HTML Tag (e.g. form).
+ -->
+
+
+<!-- But the wIDE plugin also offers a totally different feature: The compatibility scan!
+     TODO 8: Invoke it on this file with: Alt + C (or Right-Click and "Compatibility Scan").
+     
+     You see, the relevant elements (JS-Functions, HTML Tags, CSS Attributes) have been marked with colors.
+     Green means: All the browsers (-versions), you are interested in, support the feature
+     Yellow means: Some of the browsers do not support the feature.
+     Red means: Many browsers do not support the feature.
+
+     TODO 9: Double-Click on one of the occurrences in the result list.
+     The element will immediately be selected, and you can start a documentation loookup,
+     in order to fix the issue.
+ -->
+
+<!-- This scan can not only be done on one file, but rather on the full project.
+     TODO 10: Right click on the projects root ("wIDE-warmup") in the top left corner and select "Scan for compatibility issues".
+ -->
+
+</body>
+</html>
