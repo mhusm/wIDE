@@ -6,15 +6,23 @@ form {
     border-radius: 10px;
 }
 
+ul {
+    list-style-type: none;
+}
+
 .todo {
     padding: 10px;
     border: solid 1px #EEEEEE;
     border-radius: 3px;
 }
 
-.todo_done {
+.done {
     text-decoration: line-through;
-    color: darkred;
+    color: lightgray;
+}
+
+.todo button {
+    float: right;
 }
 
 .work {
