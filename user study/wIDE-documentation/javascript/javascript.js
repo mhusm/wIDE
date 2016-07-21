@@ -5,38 +5,21 @@ function register() {
 }
 
 function validate() {
-    return validateName() && validateMail();
-}
+    var success;
+    var mail = document.getElementById("mail").value;
+    // TODO 1: validate email address
+    //         -> [>0 chars] @ [>0 two chars] . [>0 chars]
+    //         -> Hint: RegExp: "^[^@]+@[^@\.,;]+\.[^@\.,;]+$"
 
-function validateName() {
-    var nameNode = document.getElementById("name");
-    // TODO 1: validate name (at least two chars, only letters)
-    //         RegExp: "^[a-zA-Z]+$"
+    // TODO 2: show an error message if not valid
+    //         -> create a node of class "error" with id "error"
+    //            and append it to the div with class "maildiv"
+    //         -> Hint 1: the document object helps you a lot!
+    //         -> Hint 2: don't append, if already present!
 
-    // TODO 2: if name is invalid -> create a div-node of class "error"
-    //         and append it to the node with id "namediv".
+    // TODO 3: hide error message if valid
+    //         -> get node with id "error"
+    //            and remove it from parent node with id "maildiv"
 
-    // TODO 3: if name is valid -> remove the above node again (if present) false;
-
-    return false;
-
-}
-
-function validateMail() {
-    var mailNode = document.getElementById("mail");
-    // TODO 4: validate mail
-    //         [>0 chars] @ [>0 two chars] . [>0 chars]
-    //         RegExp: "^[^@]+@[^@\.,;]+\.[^@\.,;]+"
-
-    alert("hi");
-    //alert(mailNode.value.match("^[^@]+@[^@\.,;]+\.[^@\.,;]+"));
-
-    return false;
-
-    // TODO 5: if name is invalid -> create a div-node of class "error"
-    //         and append it to the node with id "maildiv".
-
-    // TODO 6: if name is valid -> remove the above node again (if present)
-
-
+    return success;
 }

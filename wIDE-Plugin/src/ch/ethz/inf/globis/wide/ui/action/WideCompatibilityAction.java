@@ -51,6 +51,7 @@ public class WideCompatibilityAction extends EditorAction {
     public static class WideCompatibilityHandler extends EditorActionHandler {
         @Override
         public void doExecute(final Editor editor, final Caret caret, final DataContext dataContext) {
+            LOGGER.config("COMPATIBILITY SCAN INVOKED.");
             ApplicationManager.getApplication().runWriteAction(new Runnable() {
                 @Override
                 public void run() {

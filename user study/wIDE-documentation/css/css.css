@@ -18,7 +18,6 @@ form {
     border: solid 1px #000000;
     border-radius: 10px;
     text-align: center;
-    text-decoration: none;
 }
 
 input {
@@ -53,5 +52,5 @@ button {
 }
 
 .error {
-
+    color: red;
 }

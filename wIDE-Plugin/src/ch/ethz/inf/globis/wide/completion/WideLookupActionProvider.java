@@ -50,6 +50,7 @@ public class WideLookupActionProvider implements LookupActionProvider {
                             IWideLanguageHandler languageHandler = WideLanguageRegistry.getInstance().getLanguageHandler(element.getParent().getClass());
 
                             if (languageHandler != null) {
+                                LOGGER.config("SUGGESTION DOCUMENTATION LOOKUP INVOKED.");
                                 languageHandler.getSuggestionDocumentation(lookupElement, element, lookup);
                             }
                         }

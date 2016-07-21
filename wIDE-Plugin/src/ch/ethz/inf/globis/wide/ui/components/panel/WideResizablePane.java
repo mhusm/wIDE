@@ -1,5 +1,6 @@
 package ch.ethz.inf.globis.wide.ui.components.panel;
 
+import ch.ethz.inf.globis.wide.logging.WideLogger;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -27,6 +28,9 @@ import java.util.Set;
  * Created by fabian on 02.06.16.
  */
 public class WideResizablePane extends VBox {
+
+    private final static WideLogger LOGGER = new WideLogger(WideResizablePane.class.getName());
+
 
     private Rectangle clipRect;
     private WebView child;
@@ -141,6 +145,8 @@ public class WideResizablePane extends VBox {
 
         if (clipRect.heightProperty().get() > DEFAULT_HEIGHT) {
 
+            LOGGER.config("RESIZABLE PANE CLOSED.");
+
             // Animation for scroll up.
             Timeline timelineUp = new Timeline();
 
@@ -161,6 +167,8 @@ public class WideResizablePane extends VBox {
             return false;
 
         } else {
+
+            LOGGER.config("RESIZABLE PANE EXTENDED.");
 
             // Animation for scroll down.
             Timeline timelineDown = new Timeline();

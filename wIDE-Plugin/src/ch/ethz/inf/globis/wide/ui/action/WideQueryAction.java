@@ -53,6 +53,8 @@ public class WideQueryAction extends EditorAction {
         @Override
         public void doExecute(final Editor editor, final Caret caret, final DataContext dataContext) {
 
+            LOGGER.config("DOCUMENTATION LOOKUP INVOKED.");
+
             // Show waiting window
             Project project = editor.getProject();
             ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");

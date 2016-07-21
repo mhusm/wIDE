@@ -105,8 +105,6 @@ public class WideJavascriptParser implements IWideLanguageParser {
                 JSCallExpression expr = (JSCallExpressionImpl) leftParent;
                 //System.out.println("Call: [expression] " + expr.getMethodExpression().getText() + " [argumentList] " + expr.getArgumentList().getText());
                 currentCall = expr;
-            } else if (leftParent instanceof JSReferenceExpression) {
-                System.out.println("REFERENCE EXPRESSION");
             }
 
 
