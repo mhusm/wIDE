@@ -9,7 +9,8 @@ function validate() {
     var mail = document.getElementById("mail").value;
     // TODO 1: validate email address
     //         -> [>0 chars] @ [>0 two chars] . [>0 chars]
-    //         -> Hint: RegExp: "^[^@]+@[^@\.,;]+\.[^@\.,;]+$"
+    //         -> Hint 1: Regular Expression: "^[^@]+@[^@\.,;]+\.[^@\.,;]+$"
+    //         -> Hint 2: the RegExp object helps you a lot!
 
     // TODO 2: show an error message if not valid
     //         -> create a node of class "error" with id "error"
