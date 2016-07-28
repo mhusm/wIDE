@@ -145,7 +145,7 @@ public class WideResizablePane extends VBox {
 
         if (clipRect.heightProperty().get() > DEFAULT_HEIGHT) {
 
-            LOGGER.config("RESIZABLE PANE CLOSED.");
+            LOGGER.info("RESIZABLE PANE CLOSED.");
 
             // Animation for scroll up.
             Timeline timelineUp = new Timeline();
@@ -168,7 +168,7 @@ public class WideResizablePane extends VBox {
 
         } else {
 
-            LOGGER.config("RESIZABLE PANE EXTENDED.");
+            LOGGER.info("RESIZABLE PANE EXTENDED.");
 
             // Animation for scroll down.
             Timeline timelineDown = new Timeline();

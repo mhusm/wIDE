@@ -1,6 +1,7 @@
 package ch.ethz.inf.globis.wide.ui.action;
 
 import ch.ethz.inf.globis.wide.language.IWideLanguageHandler;
+import ch.ethz.inf.globis.wide.language.WideLookupHandler;
 import ch.ethz.inf.globis.wide.logging.WideLogger;
 import ch.ethz.inf.globis.wide.registry.WideLanguageRegistry;
 import ch.ethz.inf.globis.wide.ui.components.window.WideDefaultWindowFactory;
@@ -53,7 +54,7 @@ public class WideQueryAction extends EditorAction {
         @Override
         public void doExecute(final Editor editor, final Caret caret, final DataContext dataContext) {
 
-            LOGGER.config("DOCUMENTATION LOOKUP INVOKED.");
+            LOGGER.info("DOCUMENTATION LOOKUP INVOKED.");
 
             // Show waiting window
             Project project = editor.getProject();
@@ -87,7 +88,8 @@ public class WideQueryAction extends EditorAction {
                                 handleError(editor, "This language is not supported.");
                             } else {
                                 // language is supported -> do lookup
-                                languageHandler.lookupDocumentation(editor, psiFile, startElement, endElement);
+                                WideLookupHandler.getInstance().doDocumentationLookupInBackground(languageHandler, editor, psiFile, startElement, endElement);
+                                //languageHandler.lookupDocumentation(editor, psiFile, startElement, endElement);
                             }
 
                         } else {

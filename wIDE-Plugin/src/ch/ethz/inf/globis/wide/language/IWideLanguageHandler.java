@@ -1,11 +1,13 @@
 package ch.ethz.inf.globis.wide.language;
 
+import ch.ethz.inf.globis.wide.io.query.WideQueryRequest;
 import ch.ethz.inf.globis.wide.io.query.WideQueryResponse;
 import ch.ethz.inf.globis.wide.ui.components.popup.WidePopupFactory;
 import ch.ethz.inf.globis.wide.ui.components.window.WideWindowFactory;
 import com.intellij.codeInsight.lookup.Lookup;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
@@ -16,9 +18,11 @@ public interface IWideLanguageHandler {
     WidePopupFactory getPopupHelper();
     WideWindowFactory getWindowFactory();
     IWideLanguageParser getLanguageParser();
-
-    WideQueryResponse lookupDocumentation(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement);
-    void getSuggestionDocumentation(LookupElement lookupElement, PsiElement psiElement, Lookup lookup);
-    boolean isRelevantForCompatibilityQuery(PsiElement element);
     String getLanguageAbbreviation();
+
+    WideQueryRequest getDocumentationRequest(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement);
+    WideQueryRequest getSuggestionRequest(LookupElement element, PsiElement psiElement, Lookup lookup);
+
+    void showDocumentationResults(WideQueryResponse response, PsiElement selectedElement, Editor editor, ToolWindow window);
+    void showSuggestionResults(WideQueryResponse response, Editor editor, ToolWindow toolWindow);
 }

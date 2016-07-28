@@ -52,7 +52,7 @@ public class WideProjectScanAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
-        LOGGER.config("PROJECT SCAN INVOKED.");
+        LOGGER.info("PROJECT SCAN INVOKED.");
         Project project = anActionEvent.getProject();
 
         PsiDirectory directory = (PsiDirectory) anActionEvent.getData(CommonDataKeys.NAVIGATABLE);

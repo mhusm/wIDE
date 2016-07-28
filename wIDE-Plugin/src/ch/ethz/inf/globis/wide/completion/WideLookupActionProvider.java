@@ -1,6 +1,7 @@
 package ch.ethz.inf.globis.wide.completion;
 
 import ch.ethz.inf.globis.wide.language.IWideLanguageHandler;
+import ch.ethz.inf.globis.wide.language.WideLookupHandler;
 import ch.ethz.inf.globis.wide.logging.WideLogger;
 import ch.ethz.inf.globis.wide.registry.WideLanguageRegistry;
 import ch.ethz.inf.globis.wide.ui.components.window.WideDefaultWindowFactory;
@@ -29,6 +30,8 @@ public class WideLookupActionProvider implements LookupActionProvider {
 
     private static LookupElement lastLookupElement;
 
+    private static Thread currentThread;
+
     @Override
     public void fillActions(LookupElement lookupElement, Lookup lookup, Consumer<LookupElementAction> consumer) {
         if (lastLookupElement == null || !lookupElement.equals(lastLookupElement)) {
@@ -41,24 +44,34 @@ public class WideLookupActionProvider implements LookupActionProvider {
             PsiElement element = lookup.getPsiElement();
             lastLookupElement = lookupElement;
 
-            Thread thread = new Thread(new Runnable() {
+
+            IdeEventQueue.getInstance().doWhenReady(new Runnable() {
                 @Override
                 public void run() {
-                    IdeEventQueue.getInstance().doWhenReady(new Runnable() {
-                        @Override
-                        public void run() {
-                            IWideLanguageHandler languageHandler = WideLanguageRegistry.getInstance().getLanguageHandler(element.getParent().getClass());
-
-                            if (languageHandler != null) {
-                                LOGGER.config("SUGGESTION DOCUMENTATION LOOKUP INVOKED.");
-                                languageHandler.getSuggestionDocumentation(lookupElement, element, lookup);
-                            }
-                        }
-                    });
+                    IWideLanguageHandler languageHandler = WideLanguageRegistry.getInstance().getLanguageHandler(element.getParent().getClass());
+                    WideLookupHandler.getInstance().doSuggestionLookupInBackground(languageHandler, lookupElement, element, lookup);
                 }
             });
 
-            thread.start();
+//
+//            Thread thread = new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    IdeEventQueue.getInstance().doWhenReady(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            IWideLanguageHandler languageHandler = WideLanguageRegistry.getInstance().getLanguageHandler(element.getParent().getClass());
+//
+//                            if (languageHandler != null) {
+//                                LOGGER.info("SUGGESTION DOCUMENTATION LOOKUP INVOKED.");
+//                                languageHandler.getSuggestionDocumentation(lookupElement, element, lookup);
+//                            }
+//                        }
+//                    });
+//                }
+//            });
+//
+//            thread.start();
         }
     }
 }

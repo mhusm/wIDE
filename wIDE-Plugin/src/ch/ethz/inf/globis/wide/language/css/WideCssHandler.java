@@ -37,16 +37,46 @@ public class WideCssHandler implements IWideLanguageHandler {
     }
 
     @Override
-    public boolean isRelevantForCompatibilityQuery(PsiElement element) {
-        return (element instanceof CssElement && !(element instanceof CssDeclaration));
-    }
-
-    @Override
     public String getLanguageAbbreviation() {
         return "CSS";
     }
 
     @Override
+    public WideQueryRequest getDocumentationRequest(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
+        return getLanguageParser().buildDocumentationQuery(file, startElement, endElement);
+    }
+
+    @Override
+    public WideQueryRequest getSuggestionRequest(LookupElement lookupElement, PsiElement psiElement, Lookup lookup) {
+        if (psiElement.getPrevSibling() != null
+                && psiElement.getPrevSibling() instanceof CssDeclaration) {
+            // attribute value
+
+        } else if (lookupElement instanceof PrioritizedLookupElement){
+            // attribute
+
+            WideQueryRequest request = new WideQueryRequest();
+            request.setLang(getLanguageAbbreviation());
+            request.setType("attribute");
+            request.setKey(lookupElement.getLookupString());
+
+            return request;
+
+        }
+
+        return null;
+    }
+
+    @Override
+    public void showDocumentationResults(WideQueryResponse response, PsiElement selectedElement, Editor editor, ToolWindow window) {
+        getWindowFactory().showLookupWindow(window, response);
+    }
+
+    @Override
+    public void showSuggestionResults(WideQueryResponse response, Editor editor, ToolWindow toolWindow) {
+        getWindowFactory().showLookupWindow(toolWindow, response);
+    }
+
     public WideQueryResponse lookupDocumentation(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
         WideQueryRequest request = getLanguageParser().buildDocumentationQuery(file, startElement, endElement);
         WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
@@ -64,7 +94,6 @@ public class WideCssHandler implements IWideLanguageHandler {
         return response;
     }
 
-    @Override
     public void getSuggestionDocumentation(LookupElement lookupElement, PsiElement psiElement, Lookup lookup) {
             if (psiElement.getPrevSibling() != null
                     && psiElement.getPrevSibling() instanceof CssDeclaration) {

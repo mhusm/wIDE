@@ -23,8 +23,6 @@ public class WideHttpCommunicator {
 
     private static final WideLogger LOGGER = new WideLogger(WideHttpCommunicator.class.getName());
 
-    private static HttpURLConnection connection = null;
-
     private static final String SERVER_HOST = "localhost";
     private static final String SERVER_PORT = "3000";
     private static final String SERVER_PROTOCOL = "http://";
@@ -71,12 +69,7 @@ public class WideHttpCommunicator {
 
     @Nullable
     private static String sendQuery(URL url, String parameters) {
-        if (connection != null) {
-            connection.setReadTimeout(0);
-            while (connection != null) {
-                System.out.println("wait");
-            }
-        }
+        HttpURLConnection connection;
 
         try {
             //Create connection
@@ -119,11 +112,6 @@ public class WideHttpCommunicator {
             LOGGER.severe("Error while receiving data.");
             //e.printStackTrace();
             return null;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-                connection = null;
-            }
         }
     }
 }

@@ -39,16 +39,78 @@ public class WideJavascriptHandler implements IWideLanguageHandler {
     }
 
     @Override
-    public boolean isRelevantForCompatibilityQuery(PsiElement element) {
-        return element instanceof JSCallExpression;
-    }
-
-    @Override
     public String getLanguageAbbreviation() {
         return "JS";
     }
 
     @Override
+    public WideQueryRequest getDocumentationRequest(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
+        return getLanguageParser().buildDocumentationQuery(file, startElement, endElement);
+    }
+
+    @Override
+    public WideQueryRequest getSuggestionRequest(LookupElement lookupElement, PsiElement psiElement, Lookup lookup) {
+        WideQueryRequest request = new WideQueryRequest();
+        request.setLang(getLanguageAbbreviation());
+        request.setType("call");
+
+        if (lookupElement instanceof PrioritizedLookupElement) {
+            request.setKey(((PrioritizedLookupElement) lookupElement).getLookupString());
+        } else if (lookupElement instanceof LookupElement) {
+            request.setKey(((LookupItem) lookupElement).getPresentableText());
+        } else if (lookupElement instanceof LookupElementBuilder) {
+            request.setKey(((LookupElementBuilder) lookupElement).getLookupString());
+        }
+
+        if (psiElement.getParent() instanceof JSReferenceExpression) {
+            WideQueryRequest subRequest = new WideQueryRequest();
+            subRequest.setType("callCandidate");
+            subRequest.setKey(lookupElement.getLookupString());
+            subRequest.setValue("{" +
+                    "     \"receiver\": \"" + lookupElement.getPsiElement().getFirstChild().getFirstChild().getFirstChild().getText() + "\", " +
+                    "     \"file\": \"" + lookupElement.getPsiElement().getContainingFile().getName() + "\"}");
+            request.addChild(subRequest);
+
+        } else if (psiElement.getParent().getLastChild() instanceof JSFunctionExpression) {
+            request.setKey(psiElement.getText());
+
+            WideQueryRequest subRequest = new WideQueryRequest();
+            subRequest.setType("callCandidate");
+
+            subRequest.setKey(psiElement.getText());
+            subRequest.setValue("{" +
+                    "     \"receiver\": \"" + lookupElement.getPsiElement().getFirstChild().getFirstChild().getFirstChild().getText() + "\", " +
+                    "     \"file\": \"" + lookupElement.getPsiElement().getContainingFile().getName() + "\"}");
+            request.addChild(subRequest);
+
+        } else if (psiElement.getParent().getLastChild() instanceof JSReferenceExpression) {
+            // TODO: allow reference infos as well?
+            // reference
+            request.setKey(lookupElement.getLookupString());
+            request.setLang(getLanguageAbbreviation());
+            request.setType("reference");
+
+        } else if (lookupElement.getPsiElement() instanceof JSFunction) {
+            // reference
+            request.setKey(lookupElement.getLookupString());
+            request.setLang(getLanguageAbbreviation());
+            request.setType("reference");
+        }
+
+        return request;
+    }
+
+    @Override
+    public void showDocumentationResults(WideQueryResponse response, PsiElement selectedElement, Editor editor, ToolWindow window) {
+        getWindowFactory().showLookupWindow(window, response);
+    }
+
+    @Override
+    public void showSuggestionResults(WideQueryResponse response, Editor editor, ToolWindow toolWindow) {
+        getWindowFactory().showLookupWindow(toolWindow, response);
+    }
+
+
     public WideQueryResponse lookupDocumentation(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
         WideQueryResponse response = null;
 
@@ -68,7 +130,7 @@ public class WideJavascriptHandler implements IWideLanguageHandler {
         return response;
     }
 
-    @Override
+
     public void getSuggestionDocumentation(LookupElement lookupElement, PsiElement psiElement, Lookup lookup) {
         WideQueryRequest request = new WideQueryRequest();
         request.setLang(getLanguageAbbreviation());
@@ -85,8 +147,7 @@ public class WideJavascriptHandler implements IWideLanguageHandler {
         if (psiElement.getParent() instanceof JSReferenceExpression) {
             WideQueryRequest subRequest = new WideQueryRequest();
             subRequest.setType("callCandidate");
-
-            subRequest.setKey(lookupElement.getPsiElement().getLastChild().getLastChild().getText());
+            subRequest.setKey(lookupElement.getLookupString());
             subRequest.setValue("{" +
                     "     \"receiver\": \"" + lookupElement.getPsiElement().getFirstChild().getFirstChild().getFirstChild().getText() + "\", " +
                     "     \"file\": \"" + lookupElement.getPsiElement().getContainingFile().getName() + "\"}");

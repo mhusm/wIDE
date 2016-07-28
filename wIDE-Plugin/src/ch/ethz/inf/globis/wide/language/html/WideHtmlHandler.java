@@ -44,16 +44,97 @@ public class WideHtmlHandler implements IWideLanguageHandler {
     }
 
     @Override
-    public boolean isRelevantForCompatibilityQuery(PsiElement element) {
-        return (element instanceof HtmlTag || element instanceof XmlAttribute);
-    }
-
-    @Override
     public String getLanguageAbbreviation() {
         return "HTML";
     }
 
     @Override
+    public WideQueryRequest getDocumentationRequest(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
+        if (startElement.equals(endElement)) {
+            // only one element.
+
+            // ATTRIBUTE SELECTED
+            if (startElement.getParent() instanceof XmlAttribute) {
+                LOGGER.info("HTML Attribute");
+                return new WideHtmlParser().buildDocumentationQuery(file, startElement.getParent().getParent(), startElement.getParent().getParent());
+
+                // ATTRIBUTE VALUE SELECTED
+            } else if (startElement.getParent() instanceof XmlAttributeValue) {
+                LOGGER.info("HTML AttributeValue");
+                return new WideHtmlParser().buildDocumentationQuery(file, startElement.getParent().getParent(), startElement.getParent().getParent());
+
+                // TAG SELECTED
+            } else if (startElement.getParent() instanceof HtmlTag) {
+                LOGGER.info("HTML Tag");
+                return new WideHtmlParser().buildDocumentationQuery(file, startElement.getParent(), startElement.getParent());
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public WideQueryRequest getSuggestionRequest(LookupElement lookupElement, PsiElement psiElement, Lookup lookup) {
+        if ((psiElement.getParent() instanceof HtmlTag
+                && psiElement.getPrevSibling() == null)
+                || psiElement.getText().equals("<")) {
+            // HTML Tag
+            WideQueryRequest request = new WideQueryRequest();
+            request.setLang(getLanguageAbbreviation());
+            request.setType("tag");
+            request.setKey(lookupElement.getLookupString());
+
+            return request;
+
+        } else if (lookup.getPsiElement().getParent() instanceof HtmlTag) {
+            // HTML attribute
+            // NOOP
+
+        } else if (lookup.getPsiElement().getParent() instanceof XmlAttributeValue) {
+            // HTML attribute value
+            //System.out.println("HTML Attribute Value");
+            //NOOP
+
+        }
+
+        return null;
+    }
+
+    @Override
+    public void showDocumentationResults(WideQueryResponse response, PsiElement selectedElement, Editor editor, ToolWindow window) {
+        // Show Popup
+        // ATTRIBUTE SELECTED
+        if (selectedElement.getParent() instanceof XmlAttribute) {
+            // show correct information
+            for (WideQueryResponse attribute : response.getSubResults()) {
+                if (attribute.getKey().equals(selectedElement.getText())) {
+                    getPopupHelper().showLookupResults(response, attribute, editor);
+                }
+            }
+
+            // ATTRIBUTE VALUE SELECTED
+        } else if (selectedElement.getParent() instanceof XmlAttributeValue) {
+            // show correct information
+            for (WideQueryResponse attribute : response.getSubResults()) {
+                if (attribute.getKey().equals(selectedElement.getParent().getFirstChild().getText())) {
+                    getPopupHelper().showLookupResults(response, attribute, editor);
+                }
+            }
+
+            // TAG SELECTED
+        } else if (selectedElement.getParent() instanceof HtmlTag) {
+            getPopupHelper().showLookupResults(response, response, editor);
+        }
+
+        // Show window
+        getWindowFactory().showLookupWindow(window, response);
+    }
+
+    @Override
+    public void showSuggestionResults(WideQueryResponse response, Editor editor, ToolWindow toolWindow) {
+        getWindowFactory().showLookupWindow(toolWindow, response);
+    }
+
     public WideQueryResponse lookupDocumentation(Editor editor, PsiFile file, PsiElement startElement, PsiElement endElement) {
 
         WideQueryResponse response = null;
@@ -113,7 +194,6 @@ public class WideHtmlHandler implements IWideLanguageHandler {
 
 
 
-    @Override
     public void getSuggestionDocumentation(LookupElement lookupElement, PsiElement psiElement, Lookup lookup) {
         if ((psiElement.getParent() instanceof HtmlTag
                 && psiElement.getPrevSibling() == null)
