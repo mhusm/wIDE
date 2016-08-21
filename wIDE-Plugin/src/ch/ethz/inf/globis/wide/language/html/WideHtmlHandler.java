@@ -193,7 +193,6 @@ public class WideHtmlHandler implements IWideLanguageHandler {
     }
 
 
-
     public void getSuggestionDocumentation(LookupElement lookupElement, PsiElement psiElement, Lookup lookup) {
         if ((psiElement.getParent() instanceof HtmlTag
                 && psiElement.getPrevSibling() == null)
@@ -204,17 +203,17 @@ public class WideHtmlHandler implements IWideLanguageHandler {
             request.setType("tag");
             request.setKey(lookupElement.getLookupString());
 
-                    WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
+            WideQueryResponse response = WideHttpCommunicator.sendRequest(request);
 
-                    Project project = lookup.getEditor().getProject();
-                    ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
+            Project project = lookup.getEditor().getProject();
+            ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow("wIDE");
 
-                    IdeEventQueue.getInstance().doWhenReady(new Runnable() {
-                        @Override
-                        public void run() {
-                            getWindowFactory().showLookupWindow(window, response);
-                        }
-                    });
+            IdeEventQueue.getInstance().doWhenReady(new Runnable() {
+                @Override
+                public void run() {
+                    getWindowFactory().showLookupWindow(window, response);
+                }
+            });
 
 
         } else if (lookup.getPsiElement().getParent() instanceof HtmlTag) {

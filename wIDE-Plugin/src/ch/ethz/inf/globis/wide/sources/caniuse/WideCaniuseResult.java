@@ -113,12 +113,12 @@ public class WideCaniuseResult extends AbstractWideSourceResult {
 
         if (not_supported > 0) {
             // some browsers do not support it
-            // max 0.25
+            // max 0.45
             return 0.45 * ((supported + partially_supported + prefixed) / total);
 
         } else if (partially_supported > 0 || prefixed > 0) {
             // some browsers do only partially support it
-            // max 0.75
+            // max 0.95
             return 0.5 + 0.45 * (supported / total);
 
         } else {
