@@ -24,7 +24,7 @@ import com.intellij.psi.PsiFile;
  */
 public class WideJavascriptHandler implements IWideLanguageHandler {
     @Override
-    public WideJSPopupFactory getPopupHelper() {
+    public WideJSPopupFactory getPopupFactory() {
         return WideJSPopupFactory.getInstance();
     }
 

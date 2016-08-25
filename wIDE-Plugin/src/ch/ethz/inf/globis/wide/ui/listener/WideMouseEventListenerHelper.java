@@ -89,14 +89,14 @@ public class WideMouseEventListenerHelper {
                         if (parentResult.getKey().equals(selectedAttribute)) {
                             // tag selected -> show tag information
                             if (!parentResult.equals(currentResult)) {
-                                handler.getPopupHelper().showLookupResults(parentResult, parentResult, editor);
+                                handler.getPopupFactory().showLookupResults(parentResult, parentResult, editor);
                             }
                         } else {
                             // attribute selected -> show attribute information
                             for (WideQueryResponse result : parentResult.getSubResults()) {
                                 if (result.getKey().equals(selectedAttribute) || result.getValue().equals(selectedAttribute)) {
                                     if (!result.equals(currentResult)) {
-                                        handler.getPopupHelper().showLookupResults(parentResult, result, editor);
+                                        handler.getPopupFactory().showLookupResults(parentResult, result, editor);
                                     }
                                 }
                             }

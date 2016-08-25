@@ -143,22 +143,6 @@ public class WideQueryResponse {
         sources.put(source, sourceContent);
     }
 
-//    public WideCaniuseResult getCaniuse() {
-//        return caniuse;
-//    }
-//
-//    public void setCaniuse(WideCaniuseResult caniuse) {
-//        this.caniuse = caniuse;
-//    }
-//
-//    public WideMDNResult getMdn() {
-//        return mdn;
-//    }
-//
-//    public void setMdn(WideMDNResult mdn) {
-//        this.mdn = mdn;
-//    }
-
     public List<WideQueryResponse> getSubResults() {
         return subResults;
     }
@@ -168,37 +152,11 @@ public class WideQueryResponse {
         subResults.add(result);
     }
 
-    public void addAllSubResults(List<WideQueryResponse> results) {
-        for (WideQueryResponse res : results) {
-            addSubResult(res);
-        }
-    }
-
     public String getValue() {
         return value;
     }
 
     public void setValue(String value) {
         this.value = value;
-    }
-
-    public Object[] getTableRow() {
-        Object[] result = new Object[3];
-
-        if ("JS".equals(getLang())) {
-            if ("call".equals(getType())) {
-                result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getKey();
-            } else if ("callCandidate".equals(getType())) {
-                result[0] = StringUtils.repeat("    ", this.getLevel()) + "@ " + this.getValue();
-            }
-        }
-        else if (getValue() != null && getValue() != "") {
-            result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getKey() + " [= " + this.getValue() + "]";
-        } else {
-            result[0] = StringUtils.repeat("    ", this.getLevel()) + this.getKey();
-        }
-        result[1] = StringUtils.repeat("    ", this.getLevel()) + this.getLang() + "-" + this.getType();
-        result[2] = StringUtils.repeat("    ", this.getLevel());
-        return result;
     }
 }

@@ -22,7 +22,7 @@ import com.intellij.psi.css.CssElement;
  */
 public class WideCssHandler implements IWideLanguageHandler {
     @Override
-    public WideCssPopupFactory getPopupHelper() {
+    public WideCssPopupFactory getPopupFactory() {
         return WideCssPopupFactory.getInstance();
     }
 

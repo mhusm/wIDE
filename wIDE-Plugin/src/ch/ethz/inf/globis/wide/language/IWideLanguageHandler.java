@@ -15,7 +15,7 @@ import com.intellij.psi.PsiFile;
  * Created by fabian on 12.05.16.
  */
 public interface IWideLanguageHandler {
-    WidePopupFactory getPopupHelper();
+    WidePopupFactory getPopupFactory();
     WideWindowFactory getWindowFactory();
     IWideLanguageParser getLanguageParser();
     String getLanguageAbbreviation();

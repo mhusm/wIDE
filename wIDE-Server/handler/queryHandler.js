@@ -1,7 +1,5 @@
 var caniuse = require("../sources/caniuse/CanIUseLookup");
-var mdnHtml = require("../sources/mdn/MdnHtmlLookup");
-var mdnJS = require("../sources/mdn/MdnJSLookup");
-var mdnCSS = require("../sources/mdn/MdnCssLookup");
+var mdn = require("../sources/mdn/MdnLookup");
 
 var queryHandler = {
     handle: function (lang, type, key, value, children, callback) {
@@ -15,23 +13,7 @@ var queryHandler = {
         result.documentation = {};
         result.documentation.caniuse = caniuse.query(result, lang, type, key);
 
-        if (lang === "HTML") {
-            mdnHtml.query(result, key, children, callback);
-
-        } else if (lang === "JS") {
-            mdnJS.resolveFullJSQuery(result, key, children, callback);
-
-        } else if (lang === "CSS") {
-            mdnCSS.query(result, key, children, callback);
-
-        } else {
-            console.log("Unknown language discovered: " + lang);
-            if (callback !== undefined) {
-                callback('{"type": "error", "message": "Unknown language: ' + lang + '"}');
-            }
-
-            return '{"type": "error", "message": "Unknown language: ' + lang + '"}'
-        }
+        mdn.query(result, lang, type, key, value, children, callback);
 
         return result;
     }

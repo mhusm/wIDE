@@ -188,11 +188,6 @@ var mdnJS = {
 
         // for example snippets
         var examples = [];
-        var currentExampleTitle = "";
-        var inExampleTitle = false;
-        var currentExampleCode = "";
-        var inExampleCode = false;
-        var currentExampleText = "";
 
         // PARSE MDN RESPONSE.
         var parser = new htmlParser.Parser({

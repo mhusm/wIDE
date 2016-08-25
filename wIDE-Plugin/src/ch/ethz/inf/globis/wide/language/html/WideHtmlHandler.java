@@ -14,12 +14,9 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.css.CssDeclaration;
 import com.intellij.psi.html.HtmlTag;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
-import com.intellij.psi.xml.XmlToken;
 
 /**
  * Created by fabian on 12.05.16.
@@ -29,7 +26,7 @@ public class WideHtmlHandler implements IWideLanguageHandler {
     private static final WideLogger LOGGER = new WideLogger(WideHtmlHandler.class.getName());
 
     @Override
-    public WideHtmlPopupFactory getPopupHelper() {
+    public WideHtmlPopupFactory getPopupFactory() {
         return WideHtmlPopupFactory.getInstance();
     }
 
@@ -108,7 +105,7 @@ public class WideHtmlHandler implements IWideLanguageHandler {
             // show correct information
             for (WideQueryResponse attribute : response.getSubResults()) {
                 if (attribute.getKey().equals(selectedElement.getText())) {
-                    getPopupHelper().showLookupResults(response, attribute, editor);
+                    getPopupFactory().showLookupResults(response, attribute, editor);
                 }
             }
 
@@ -117,13 +114,13 @@ public class WideHtmlHandler implements IWideLanguageHandler {
             // show correct information
             for (WideQueryResponse attribute : response.getSubResults()) {
                 if (attribute.getKey().equals(selectedElement.getParent().getFirstChild().getText())) {
-                    getPopupHelper().showLookupResults(response, attribute, editor);
+                    getPopupFactory().showLookupResults(response, attribute, editor);
                 }
             }
 
             // TAG SELECTED
         } else if (selectedElement.getParent() instanceof HtmlTag) {
-            getPopupHelper().showLookupResults(response, response, editor);
+            getPopupFactory().showLookupResults(response, response, editor);
         }
 
         // Show window
@@ -151,7 +148,7 @@ public class WideHtmlHandler implements IWideLanguageHandler {
                 // show correct information
                 for (WideQueryResponse attribute : response.getSubResults()) {
                     if (attribute.getKey().equals(startElement.getText())) {
-                        getPopupHelper().showLookupResults(response, attribute, editor);
+                        getPopupFactory().showLookupResults(response, attribute, editor);
                     }
                 }
 
@@ -167,7 +164,7 @@ public class WideHtmlHandler implements IWideLanguageHandler {
                 // show correct information
                 for (WideQueryResponse attribute : response.getSubResults()) {
                     if (attribute.getKey().equals(startElement.getParent().getFirstChild().getText())) {
-                        getPopupHelper().showLookupResults(response, attribute, editor);
+                        getPopupFactory().showLookupResults(response, attribute, editor);
                     }
                 }
 
@@ -180,7 +177,7 @@ public class WideHtmlHandler implements IWideLanguageHandler {
                 WideQueryRequest request = new WideHtmlParser().buildDocumentationQuery(file, startElement.getParent(), startElement.getParent());
                 response = WideHttpCommunicator.sendRequest(request);
 
-                getPopupHelper().showLookupResults(response, response, editor);
+                getPopupFactory().showLookupResults(response, response, editor);
             }
 
             Project project = editor.getProject();
