@@ -1,5 +1,4 @@
-var caniuse = require("../sources/caniuse/CanIUseLookup");
-var mdn = require("../sources/mdn/MdnLookup");
+var handlerRegistry = require("./handlerRegistry");
 
 var queryHandler = {
     handle: function (lang, type, key, value, children, callback) {
@@ -11,9 +10,16 @@ var queryHandler = {
         result.value = value;
         result.children = [];
         result.documentation = {};
-        result.documentation.caniuse = caniuse.query(result, lang, type, key);
 
-        mdn.query(result, lang, type, key, value, children, callback);
+        // api handlers
+        for (registryEntry in handlerRegistry.apiHandlers) {
+            result.documentation[registryEntry] = handlerRegistry.apiHandlers[registryEntry].query(result, lang, type, key);
+        }
+
+        // parse handlers
+        for (registryEntry in handlerRegistry.parseHandlers) {
+            handlerRegistry.parseHandlers[registryEntry].query(result, lang, type, key, value, children, callback);
+         }
 
         return result;
     }

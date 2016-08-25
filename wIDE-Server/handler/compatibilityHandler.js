@@ -1,4 +1,4 @@
-var caniuse = require("../sources/caniuse/CanIUseLookup");
+var handlerRegistry = require("./handlerRegistry");
 var https = require('https');
 var http = require('http');
 var htmlParser = require("htmlparser2");
@@ -29,7 +29,11 @@ var compatibilityHandler = {
         childResult.type = child.type;
         childResult.children = [];
         childResult.documentation = {};
-        childResult.documentation.caniuse = caniuse.query(childResult, child.lang, child.type, child.key);
+
+        // load all compatibility data
+        for (registryEntry in handlerRegistry.compatibilityHandlers) {
+            childResult.documentation[registryEntry] = handlerRegistry.compatibilityHandlers[registryEntry].query(childResult, child.lang, child.type, child.key);
+        }
 
         result.children.push(childResult)
     },
