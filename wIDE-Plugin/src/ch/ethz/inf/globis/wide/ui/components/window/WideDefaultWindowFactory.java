@@ -26,9 +26,4 @@ public class WideDefaultWindowFactory extends WideWindowFactory {
     public void showLookupWindow(ToolWindow toolWindow, WideQueryResponse result) {
         // noop
     }
-
-    @Override
-    public void showSuggestionWindow(WideQueryResponse suggestion, ToolWindow toolWindow, PsiElement element, Editor editor) {
-        // noop
-    }
 }

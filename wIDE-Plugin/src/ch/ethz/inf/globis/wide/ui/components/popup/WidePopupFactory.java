@@ -53,5 +53,4 @@ public abstract class WidePopupFactory extends WideContentBuilder {
     }
 
     public abstract void showLookupResults(WideQueryResponse parentResult, WideQueryResponse subResult, Editor editor);
-    //public abstract void showSuggestions(java.util.List<WideQueryResponse> suggestions, ToolWindow toolWindow, PsiElement element, Editor editor);
 }

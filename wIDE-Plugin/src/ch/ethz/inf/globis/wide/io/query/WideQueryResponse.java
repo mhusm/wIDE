@@ -39,11 +39,6 @@ public class WideQueryResponse {
     public WideQueryResponse(String response) {
         this(response, 0);
     }
-
-    public void setSubResults(List<WideQueryResponse> subResults) {
-        this.subResults = subResults;
-    }
-
     public WideQueryResponse(String response, int level) {
         try {
             JSONObject res = new JSONObject(response);

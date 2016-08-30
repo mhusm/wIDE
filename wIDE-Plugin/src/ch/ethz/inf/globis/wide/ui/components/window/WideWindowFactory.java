@@ -126,21 +126,6 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
                 Text text = new Text(key);
                 stackPane.getChildren().add(text);
                 StackPane.setAlignment(text, Pos.CENTER_LEFT);
-                stackPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent mouseEvent) {
-                        if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                            if (mouseEvent.getClickCount() == 2) {
-                                IdeEventQueue.getInstance().doWhenReady(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //TODO: DO DOCUMENTATION LOOKUP.
-                                    }
-                                });
-                            }
-                        }
-                    }
-                });
                 box.getChildren().add(stackPane);
 
                 for (PsiElement element : ((WideCompatibilityTraverser.WidePsiElementRequestEntry) subIssues.get(key)).getElements()) {

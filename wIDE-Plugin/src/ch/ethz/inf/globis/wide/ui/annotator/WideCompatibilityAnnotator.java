@@ -14,14 +14,6 @@ import org.jetbrains.annotations.NotNull;
 public class WideCompatibilityAnnotator implements Annotator {
     @Override
     public void annotate(@NotNull final PsiElement element, @NotNull AnnotationHolder holder) {
-//        if (element.getParent() instanceof XmlElement) {
-//            annotateHtml(element, holder);
-//        } else if (element instanceof JSCallExpression) {
-//            annotateJS(((JSCallExpression) element).getMethodExpression().getLastChild(), holder);
-//        } else if (element instanceof CssElement) {
-//            annotateCss(element, holder);
-//        }
-
 
     }
 
@@ -30,10 +22,8 @@ public class WideCompatibilityAnnotator implements Annotator {
     }
 
     private void annotateJS(@NotNull final PsiElement element, @NotNull AnnotationHolder holder) {
-//        TextRange range = new TextRange(element.getTextRange().getStartOffset(),
-//                element.getTextRange().getEndOffset());
-//        Annotation annotation = holder.createErrorAnnotation(((JSCallExpression) element).getMethodExpression().getLastChild(), "blibla");
-    }
+
+  }
 
     private void annotateCss(@NotNull final PsiElement element, @NotNull AnnotationHolder holder) {
 

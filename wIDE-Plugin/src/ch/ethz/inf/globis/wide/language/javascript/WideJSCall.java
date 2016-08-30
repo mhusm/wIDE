@@ -30,12 +30,8 @@ public class WideJSCall {
         this.callExpression = callExpression;
         this.methodName = callExpression.getMethodExpression().getLastChild();
         this.methodReceiver = callExpression.getMethodExpression().getFirstChild();
-
-        //System.out.println("Call:"); // + callExpression.getText());
-        //.out.println("      Method Expression: " + callExpression.getMethodExpression().getText());
         System.out.println("JS Call: Method Name: " + this.methodName.getText() + " [" + this.methodName.getClass() + "]");
-        //System.out.println("      Method Receiver: " + this.methodReceiver.getText() + " [" + this.methodReceiver.getClass() + "]");
-    }
+ }
 
     public PsiElement getMethodName() {
         return methodName;

@@ -225,7 +225,6 @@ public class WideCompatibilityTraverser {
 
             for (PsiElement element : registeredObjects.get(key).getElements()) {
 
-                // TODO: first remove all other highlights
                 highlightElement(element, highlightColor);
 
                 if (registeredIssues.get(compatibility) == null) {
@@ -269,14 +268,6 @@ public class WideCompatibilityTraverser {
 
         public void addElement(PsiElement element) {
             this.elements.add(element);
-        }
-
-        public WideQueryRequest getRequest() {
-            return request;
-        }
-
-        public void setRequest(WideQueryRequest request) {
-            this.request = request;
         }
     }
 }

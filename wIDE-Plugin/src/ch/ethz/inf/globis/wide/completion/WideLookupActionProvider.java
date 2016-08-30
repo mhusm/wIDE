@@ -30,8 +30,6 @@ public class WideLookupActionProvider implements LookupActionProvider {
 
     private static LookupElement lastLookupElement;
 
-    private static Thread currentThread;
-
     @Override
     public void fillActions(LookupElement lookupElement, Lookup lookup, Consumer<LookupElementAction> consumer) {
         if (lastLookupElement == null || !lookupElement.equals(lastLookupElement)) {
@@ -53,26 +51,6 @@ public class WideLookupActionProvider implements LookupActionProvider {
                     WideLookupHandler.getInstance().doSuggestionLookupInBackground(languageHandler, lookupElement, element, lookup);
                 }
             });
-
-//
-//            Thread thread = new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    IdeEventQueue.getInstance().doWhenReady(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            IWideLanguageHandler languageHandler = WideLanguageRegistry.getInstance().getLanguageHandler(element.getParent().getClass());
-//
-//                            if (languageHandler != null) {
-//                                LOGGER.info("SUGGESTION DOCUMENTATION LOOKUP INVOKED.");
-//                                languageHandler.getSuggestionDocumentation(lookupElement, element, lookup);
-//                            }
-//                        }
-//                    });
-//                }
-//            });
-//
-//            thread.start();
         }
     }
 }

@@ -92,16 +92,9 @@ public class WideBrowserVersionResponse {
             return versions.get(version);
         }
 
-        public double getBrowserUsage() {
-            return browserUsage;
-        }
-
         public double getCurrentVersion() {
             return currentVersion;
         }
 
-        public void setCurrentVersion(double currentVersion) {
-            this.currentVersion = currentVersion;
-        }
-    }
+  }
 }

@@ -84,7 +84,6 @@ public class WideJavascriptHandler implements IWideLanguageHandler {
             request.addChild(subRequest);
 
         } else if (psiElement.getParent().getLastChild() instanceof JSReferenceExpression) {
-            // TODO: allow reference infos as well?
             // reference
             request.setKey(lookupElement.getLookupString());
             request.setLang(getLanguageAbbreviation());
@@ -166,7 +165,6 @@ public class WideJavascriptHandler implements IWideLanguageHandler {
             request.addChild(subRequest);
 
         } else if (psiElement.getParent().getLastChild() instanceof JSReferenceExpression) {
-            // TODO: allow reference infos as well?
             // reference
             request.setKey(lookupElement.getLookupString());
             request.setLang(getLanguageAbbreviation());

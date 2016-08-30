@@ -117,11 +117,6 @@ public class WideCssHandler implements IWideLanguageHandler {
                             getWindowFactory().showErrorWindow("No documentation found.", window);
                         }
 
-            } else {
-                //TODO: empty window
             }
-
-        //TODO: pseudo-selectors
-        //TODO: selectors
     }
 }

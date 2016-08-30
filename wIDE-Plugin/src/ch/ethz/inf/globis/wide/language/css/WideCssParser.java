@@ -17,17 +17,6 @@ public class WideCssParser implements IWideLanguageParser {
         if (startElement.equals(endElement)
                 && startElement.getParent() instanceof CssDeclaration) {
                 // only one element.
-                //TODO: class - unused?
-
-                //TODO: id - unused?
-
-                //TODO: simple-selector - unused?
-
-                //TODO: attribute
-
-                //TODO: attribute-right-side
-
-                //TODO: pseudo-element
 
                 WideQueryRequest request = new WideQueryRequest();
                 request.setLang("CSS");
@@ -37,20 +26,6 @@ public class WideCssParser implements IWideLanguageParser {
 
                 return request;
         } else {
-//
-//            PsiElement parent = startElement;
-//            while (!(parent instanceof CssDeclaration)) {
-//                if (parent == null) {
-//                    return null;
-//                }
-//                parent = parent.getParent();
-//            }
-//            WideQueryRequest request = new WideQueryRequest();
-//            request.setLang("CSS");
-//            request.setType("CSS");
-//            request.setKey(parent.getFirstChild().getText());
-//            request.setValue(parent.getLastChild().getText());
-
             return null;
         }
     }

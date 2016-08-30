@@ -89,8 +89,7 @@ public class WideQueryAction extends EditorAction {
                             } else {
                                 // language is supported -> do lookup
                                 WideLookupHandler.getInstance().doDocumentationLookupInBackground(languageHandler, editor, psiFile, startElement, endElement);
-                                //languageHandler.lookupDocumentation(editor, psiFile, startElement, endElement);
-                            }
+                             }
 
                         } else {
                             // Mix of various Languages: Show message.

@@ -19,9 +19,6 @@ import java.util.List;
 public class WideJavascriptParser implements IWideLanguageParser {
 
     public WideQueryRequest buildDocumentationQuery(PsiFile file, PsiElement startElement, PsiElement endElement) {
-        //TODO: distinguish file
-
-        //TODO: multiple calls?
 
         if (startElement.getParent().getParent() instanceof JSNewExpression) {
             // Global Object Reference
@@ -38,8 +35,6 @@ public class WideJavascriptParser implements IWideLanguageParser {
         if (currentCall != null) {
 
             WideJSCall function = new WideJSCall(currentCall);
-
-            //TODO: GET REFERENCED CALLEE, IF CALLEXPRESSION OR REFERENCEEXPRESSION
 
             List<PsiElement> matchingCalls = function.getMatchingFunctions(file.getProject());
 
