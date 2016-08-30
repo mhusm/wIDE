@@ -217,7 +217,4 @@ public abstract class WideWindowFactory extends WideContentBuilder implements To
     }
 
     public abstract void showLookupWindow(ToolWindow toolWindow, WideQueryResponse result);
-
-    public abstract void showSuggestionWindow(WideQueryResponse suggestion, ToolWindow toolWindow, PsiElement element, Editor editor);
-
 }

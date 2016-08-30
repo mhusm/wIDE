@@ -161,6 +161,7 @@ public class WideCompatibilityTraverser {
             WideQueryRequest compatibilityQuery = buildRequest();
             keysToBeHandled = new HashMap();
 
+            LOGGER.info("COMPATIBILITY REQUEST WILL BE SENT.");
             WideQueryResponse response = WideHttpCommunicator.sendCompatibilityRequest(compatibilityQuery);
             updateKeyToCompatibilityMap(response);
 

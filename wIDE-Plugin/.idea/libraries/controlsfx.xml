@@ -1,12 +1,13 @@
 <component name="libraryTable">
   <library name="controlsfx">
-    <CLASSES />
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/resources/controlsfx" />
+    </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="file://$PROJECT_DIR$/../../../../../git/controlsfx/controlsfx-samples/src/main/java" />
-      <root url="file://$PROJECT_DIR$/../../../../../git/controlsfx/controlsfx/src/main/java" />
-      <root url="file://$PROJECT_DIR$/../../../../../git/controlsfx/controlsfx/src/test/java" />
-      <root url="file://$PROJECT_DIR$/../../../../../git/controlsfx/fxsampler/src/main/java" />
+      <root url="file://$PROJECT_DIR$/resources/controlsfx" />
     </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/resources/controlsfx" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/resources/controlsfx" recursive="false" type="SOURCES" />
   </library>
 </component>

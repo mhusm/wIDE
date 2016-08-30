@@ -55,8 +55,4 @@ public class WideHtmlWindowFactory extends WideWindowFactory {
         StackPane.setMargin(paneBox, new javafx.geometry.Insets(40, 0, 0, 0));
         panel.getEmptyContentPane().getChildren().addAll(paneBox, title);
     }
-
-    public void showSuggestionWindow(WideQueryResponse suggestion, ToolWindow toolWindow, PsiElement element, Editor editor) {
-        //TODO
-    }
 }

@@ -94,8 +94,4 @@ public class WideJSWindowFactory extends WideWindowFactory {
         panel.getEmptyContentPane().getChildren().addAll(paneBox, cb, title);
     }
 
-    public void showSuggestionWindow(WideQueryResponse suggestion, ToolWindow toolWindow, PsiElement element, Editor editor) {
-        //TODO
-    }
-
 }

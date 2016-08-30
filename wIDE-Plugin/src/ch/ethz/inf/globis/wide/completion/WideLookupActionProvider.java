@@ -48,6 +48,7 @@ public class WideLookupActionProvider implements LookupActionProvider {
             IdeEventQueue.getInstance().doWhenReady(new Runnable() {
                 @Override
                 public void run() {
+                    LOGGER.info("SUGGESTION DOCUMENTATION LOOKUP INVOKED.");
                     IWideLanguageHandler languageHandler = WideLanguageRegistry.getInstance().getLanguageHandler(element.getParent().getClass());
                     WideLookupHandler.getInstance().doSuggestionLookupInBackground(languageHandler, lookupElement, element, lookup);
                 }
