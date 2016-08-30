@@ -1,7 +1,7 @@
 # wIDE: A smart IDE for the web - Readme
 
 ## About this project
-wIDE has been developed by Fabian Stutz as his Master Thesis at the [Globis Group at ETH Zürich](https://globis.ethz.ch). The project has been supervised by [Maria Husmann](https://globis.ethz.ch/#!/person/maria-husmann/).
+wIDE has been developed by Fabian Stutz as his Master Thesis at the [Globis Group at ETH Zürich](https://globis.ethz.ch). The project has been supervised by [Maria Husmann](https://globis.ethz.ch/#!/person/maria-husmann/) and [Alfonso Murolo](https://globis.ethz.ch/#!/person/alfonso-murolo/).
 
 ## Setup the project
 
