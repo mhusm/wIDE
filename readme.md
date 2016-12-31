@@ -40,3 +40,9 @@ This step-by-step guide shows how to set-up the server project on your machine.
 6. Start the MySQL server.
 7. Connect to the MySQL with a MySQL client and the appropriate credentials. After you have connected to the server, run the SQL script of the `db\_setup.sql`-file inside the `wIDE-Server`-project. The script sets up the database for the cache. It also creates a user, which has access to the database.
 8. Start the wIDE-Server by clicking `Run` > `Debug bin/www` in the IntelliJ IDEA.
+
+
+## Credits
+Many thanks to authors & developers of the following libraries, which are gladly used by wIDE:
+- [ControlsFX](https://bitbucket.org/controlsfx/controlsfx/overview)
+- [PrismJS](http://prismjs.com/download.html)
