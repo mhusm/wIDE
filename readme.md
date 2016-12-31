@@ -43,6 +43,6 @@ This step-by-step guide shows how to set-up the server project on your machine.
 
 
 ## Credits
-Many thanks to authors & developers of the following libraries, which are gladly used by wIDE:
+wIDE also uses some third-party libraries. Many thanks to the authors & develpers!
 - [ControlsFX](https://bitbucket.org/controlsfx/controlsfx/overview)
 - [PrismJS](http://prismjs.com/download.html)
